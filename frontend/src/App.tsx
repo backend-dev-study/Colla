@@ -1,9 +1,9 @@
 import React from 'react';
 
-const App = () => {
-    return (
-        <div></div>
-    );
-};
+const temp = {};
+function t() {
+    return console.log('dd');
+}
+const App = () => <div></div>;
 
 export default App;
