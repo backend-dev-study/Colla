@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "jsx": "preserve",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+  },
+  "exclude": ["node_modules"],
+  "include": ["src"]
+}
