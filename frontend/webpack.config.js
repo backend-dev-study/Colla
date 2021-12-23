@@ -1,11 +1,12 @@
 const path = require('path');
+const EslintWebpackPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: path.join(__dirname, './src/index.tsx'),
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: "bundle.js",
+        filename: 'bundle.js',
     },
     devServer: {
         host: 'localhost',
@@ -25,13 +26,16 @@ module.exports = {
             },
             {
                 test: /\.(png|jpe?g|gif|svg)$/,
-                type: "asset/resource"
+                type: 'asset/resource',
             },
         ],
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: './public/index.html',
+        }),
+        new EslintWebpackPlugin({
+            extensions: ['js', 'jsx', 'ts', 'tsx'],
         }),
     ],
 };

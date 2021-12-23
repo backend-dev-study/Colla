@@ -7,7 +7,6 @@
   "parser": "@typescript-eslint/parser",
   "extends": [
     "airbnb-base",
-    "airbnb-typescript/base",
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
@@ -16,12 +15,7 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".ts",
-          ".tsx"
-        ]
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
     },
     "react": {
@@ -29,7 +23,6 @@
     }
   },
   "parserOptions": {
-    "project": "./tsconfig.json",
     "ecmaFeatures": {
       "jsx": true
     },
@@ -49,6 +42,7 @@
       }
     ],
     "no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": ["error"],
     "react/exhaustive-deps": "off",
     "import/order": [
       "error",
