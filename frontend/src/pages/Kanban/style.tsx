@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import plusIcon from '../../assets/plus-circle.svg';
 
 export const Wrapper = styled.div`
     display: flex;
@@ -8,11 +9,22 @@ export const Wrapper = styled.div`
     padding-bottom: 10px;
 `;
 
-export const KanbanAddButton = styled.div`
+export const KanbanAdditional = styled.div`
     width: 300px;
     height: 630px;
     border-radius: 10px;
-    background-color: #eeeeee;
+    background: rgba(196, 196, 196, 0.2);
     margin-left: 10px;
     margin-right: 10px;
+    &:hover {
+        background: rgba(196, 196, 196, 0.35);
+    }
+`;
+
+export const KanbanAddButton = styled.button`
+    width: 300px;
+    height: 630px;
+    border-radius: 10px;
+    background: no-repeat center url(${plusIcon});
+    cursor: pointer;
 `;

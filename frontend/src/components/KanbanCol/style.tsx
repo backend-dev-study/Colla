@@ -8,7 +8,6 @@ const flexStyle = css`
 
 export const Wrapper = styled.div`
     flex-direction: column;
-    width: 300px;
     margin-left: 10px;
     margin-right: 10px;
 
@@ -17,10 +16,10 @@ export const Wrapper = styled.div`
 
 export const KanbanStatus = styled.div`
     align-items: center;
+    width: 300px;
     height: 50px;
     border-radius: 10px;
-    background-color: #eeeeee;
-
+    background: rgba(196, 196, 196, 0.2);
     margin-bottom: 30px;
     font-size: 24px;
     text-align: center;
@@ -29,9 +28,10 @@ export const KanbanStatus = styled.div`
 `;
 
 export const KanbanIssue = styled.div`
+    width: 300px;
     height: 550px;
     border-radius: 10px;
-    background-color: #eeeeee;
+    background: rgba(196, 196, 196, 0.2);
 
     ${flexStyle}
 `;
