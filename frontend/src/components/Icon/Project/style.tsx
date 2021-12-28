@@ -1,14 +1,8 @@
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-
+import { Center } from '../../../styles/common';
 interface Props {
     image: string;
 }
-
-const flexStyle = css`
-    display: flex;
-    justify-content: center;
-`;
 
 export const Container = styled.div`
     width: 100px;
@@ -16,9 +10,11 @@ export const Container = styled.div`
     font-size: 60px;
     border-radius: 20px;
     border: 1px solid;
-    align-items: center;
-    background: whitesmoke;
-    ${flexStyle}
+    background: rgba(196, 196, 196);
+    ${Center}
+    :hover {
+        opacity: 50%;
+    }
 `;
 
 export const ImageContainer = styled(Container)<Props>`
