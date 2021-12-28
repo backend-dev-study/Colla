@@ -41,7 +41,9 @@
         "tsx": "never"
       }
     ],
+    "consistent-return": "off",
     "no-unused-vars": "error",
+    "no-unused-expressions": "off",
     "no-use-before-define": ["error", { "variables": false }],
     "import/prefer-default-export": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
