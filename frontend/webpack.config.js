@@ -1,6 +1,7 @@
 const path = require('path');
 const EslintWebpackPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     entry: path.join(__dirname, './src/index.tsx'),
@@ -28,6 +29,10 @@ module.exports = {
                 test: /\.(png|jpe?g|gif|svg)$/,
                 type: 'asset/resource',
             },
+            {
+                test: /\.(sa|sc|c)ss$/,
+                use: [MiniCssExtractPlugin.loader, 'css-loader'],
+            },
         ],
     },
     plugins: [
@@ -36,6 +41,9 @@ module.exports = {
         }),
         new EslintWebpackPlugin({
             extensions: ['js', 'jsx', 'ts', 'tsx'],
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'main.css',
         }),
     ],
 };
