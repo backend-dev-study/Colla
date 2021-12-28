@@ -25,7 +25,7 @@ const LoginProcessing = ({ history, location }: RouteComponentProps) => {
     return (
         <Container>
             <Notice>Loading...</Notice>
-            <ClipLoader size="100" color="#fff"></ClipLoader>
+            <ClipLoader size="100" color="#000"></ClipLoader>
         </Container>
     );
 };
