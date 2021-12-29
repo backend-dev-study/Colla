@@ -6,9 +6,9 @@ interface Props {
 }
 
 export const Container = styled.div`
-    width: 100px;
-    height: 100px;
-    font-size: 60px;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
     border-radius: 100px;
     border: 1px solid;
     background: rgba(196, 196, 196);
