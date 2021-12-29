@@ -7,10 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class GithubLoginResponse {
 
-    private String name;
-
-    private String avatar;
-
     private String accessToken;
 
 }
