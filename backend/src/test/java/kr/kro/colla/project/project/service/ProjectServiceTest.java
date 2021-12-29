@@ -12,24 +12,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
     ProjectRepository projectRepository = mock(ProjectRepository.class);
     ProjectService projectService = new ProjectService(projectRepository);
 
-    private Long managerId = 1L;
+    private Long id = 1L, managerId = 1L;
     private String name = "생성할 프로젝트 이름", desc = "생성할 프로젝트 설명";
 
     @Test
     void 프로젝트_생성_성공(){
         // given
-        doAnswer(invocation -> {
-            Project sample = Project.builder().managerId(managerId).name(name).description(desc).build();
-            ReflectionTestUtils.setField(sample, "id", 1L);
-            return sample;
-        }).when(projectRepository).save(any(Project.class));
+        Project sample = Project.builder().managerId(managerId).name(name).description(desc).build();
+        ReflectionTestUtils.setField(sample, "id", id);
+
+        when(projectRepository.save(any(Project.class))).thenReturn(sample);
 
         // when
         Project project = projectService.createProject(managerId, new CreateRequest(name, desc));
@@ -40,6 +38,7 @@ class ProjectServiceTest {
         assertThat(project.getName()).isEqualTo(name);
         assertThat(project.getDescription()).isEqualTo(desc);
     }
+
     @Test
     void 프로젝트_생성_실패(){
     }
