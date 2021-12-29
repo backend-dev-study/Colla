@@ -5,15 +5,16 @@ import { Container, Wrapper, DisplayName, GithubId, LogOutButton, Edit } from '.
 interface PropType {
     userName: string;
     id: string;
+    onClick: () => void;
 }
 
-const UserModal: FC<PropType> = ({ userName, id }) => (
+const UserModal: FC<PropType> = ({ userName, id, onClick }) => (
     <Container>
         {id ? (
             <>
                 <Wrapper>
                     <DisplayName>display name : {userName}</DisplayName>
-                    <Edit src={edit} />
+                    <Edit src={edit} onClick={onClick} />
                 </Wrapper>
                 <GithubId>github id : {id}</GithubId>
                 <LogOutButton>로그아웃</LogOutButton>

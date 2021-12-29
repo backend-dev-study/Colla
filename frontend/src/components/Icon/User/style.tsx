@@ -3,11 +3,12 @@ import { Center } from '../../../styles/common';
 
 interface Props {
     image: string;
+    size: 'big' | 'small';
 }
 
-export const Container = styled.div`
-    width: 50px;
-    height: 50px;
+export const Container = styled.div<Props>`
+    width: ${({ size }) => (size === 'big' ? '160px' : '50px')};
+    height: ${({ size }) => (size === 'big' ? '160px' : '50px')};
     font-size: 30px;
     border-radius: 100px;
     border: 1px solid;

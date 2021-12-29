@@ -5,12 +5,15 @@ import { Container, ImageContainer } from './style';
 interface PropType {
     userName: string;
     image: string;
-    onClick: () => void;
+    size: 'big' | 'small';
 }
 
-const UserIcon: FC<PropType> = ({ userName, image, onClick }) => (
-    <div onClick={onClick}>
-        {image === '' ? <Container>{userName[0].toUpperCase()}</Container> : <ImageContainer image={image} />}
-    </div>
-);
+const UserIcon: FC<PropType> = ({ userName, image, size }) =>
+    image === '' ? (
+        <Container size={size} image={''}>
+            {userName[0].toUpperCase()}
+        </Container>
+    ) : (
+        <ImageContainer image={image} size={size} />
+    );
 export default UserIcon;
