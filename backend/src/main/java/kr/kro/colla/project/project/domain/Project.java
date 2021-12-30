@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +22,11 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column
     private Long managerId;
 
+    @NotNull
     @Column
     private String name;
 
@@ -51,7 +54,7 @@ public class Project {
     private List<Story> stories = new ArrayList<>();
 
     @Builder
-    public Project(@NonNull Long managerId, @NonNull String name, String description){
+    public Project(Long managerId, String name, String description){
         this.managerId = managerId;
         this.name = name;
         this.description = description;
