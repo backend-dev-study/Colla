@@ -1,8 +1,7 @@
-package kr.kro.colla.auth.service.dto;
+package kr.kro.colla.auth.infrastructure.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.ToString;
 
 @Getter
 public class GithubAccessTokenResponse {

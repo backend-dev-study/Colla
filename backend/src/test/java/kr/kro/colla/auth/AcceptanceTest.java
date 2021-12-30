@@ -2,7 +2,7 @@ package kr.kro.colla.auth;
 
 import io.restassured.RestAssured;
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
-import kr.kro.colla.auth.service.dto.GithubUserProfileResponse;
+import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

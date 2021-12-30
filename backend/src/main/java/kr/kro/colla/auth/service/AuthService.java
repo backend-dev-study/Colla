@@ -1,7 +1,7 @@
 package kr.kro.colla.auth.service;
 
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
-import kr.kro.colla.auth.service.dto.GithubUserProfileResponse;
+import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
