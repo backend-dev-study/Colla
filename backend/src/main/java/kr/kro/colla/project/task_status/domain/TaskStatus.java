@@ -1,11 +1,14 @@
 package kr.kro.colla.project.task_status.domain;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class TaskStatus {
 
     @Id
@@ -15,4 +18,8 @@ public class TaskStatus {
     @Column
     private String name;
 
+    @Builder
+    public TaskStatus(String name){
+        this.name = name;
+    }
 }

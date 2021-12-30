@@ -1,4 +1,4 @@
-package kr.kro.colla.notice.domain;
+package kr.kro.colla.user.notice.domain;
 
 import kr.kro.colla.meeting_place.meeting_place.domain.converter.BooleanToIntegerConverter;
 import lombok.Getter;
