@@ -1,6 +1,6 @@
 package kr.kro.colla.user.domain;
 
-import kr.kro.colla.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user_project.domain.UserProject;
 import lombok.Builder;
 import lombok.Getter;

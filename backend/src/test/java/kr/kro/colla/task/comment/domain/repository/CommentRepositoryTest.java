@@ -1,5 +1,6 @@
 package kr.kro.colla.task.comment.domain.repository;
 
+import kr.kro.colla.comment.repository.CommentRepository;
 import kr.kro.colla.task.comment.domain.Comment;
 import kr.kro.colla.user.domain.User;
 import org.junit.jupiter.api.Test;

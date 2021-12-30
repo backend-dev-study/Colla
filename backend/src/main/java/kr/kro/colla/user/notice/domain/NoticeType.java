@@ -1,4 +1,4 @@
-package kr.kro.colla.notice.domain;
+package kr.kro.colla.user.notice.domain;
 
 public enum NoticeType {
 
