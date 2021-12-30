@@ -2,7 +2,7 @@ package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.repository.ProjectRepository;
-import kr.kro.colla.project.project.service.dto.CreateRequest;
+import kr.kro.colla.project.project.service.dto.CreateProjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project createProject(Long managerId, CreateRequest createRequest) {
+    public Project createProject(Long managerId, String name, String desc) {
         Project project = Project.builder()
                 .managerId(managerId)
-                .name(createRequest.getName())
-                .description(createRequest.getDescription()).build();
+                .name(name)
+                .description(desc).build();
 
         return projectRepository.save(project);
     }
