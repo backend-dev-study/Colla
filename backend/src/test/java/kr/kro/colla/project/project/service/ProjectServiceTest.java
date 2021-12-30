@@ -1,17 +1,13 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.repository.ProjectRepository;
+import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.service.dto.CreateRequest;
 import org.junit.jupiter.api.Test;
-import org.mockito.AdditionalAnswers;
-import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {

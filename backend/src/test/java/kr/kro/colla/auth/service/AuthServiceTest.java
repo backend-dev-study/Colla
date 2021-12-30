@@ -24,7 +24,7 @@ class AuthServiceTest {
     private AuthService authService;
 
     @Test
-    void 로그인_요청_시_OAuth토큰을_반환한다() {
+    void 로그인_성공_시_Jwt토큰을_반환한다() {
         // given
         String oauthCode = "oauth-code";
         String oAuthAccessToken = "oauth-access-token";
