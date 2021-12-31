@@ -1,16 +1,16 @@
 package kr.kro.colla.project.project;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import kr.kro.colla.user.user.controller.dto.CreateProjectRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,25 +32,22 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_생성_후_반환() throws Exception {
         // given
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .name(name)
-                .description(desc)
-                .build();
-        String content = new ObjectMapper().writeValueAsString(createProjectRequest);
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("name", name);
+        requestBody.put("description",desc);
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .param("name", name)
-                .param("description",desc)
-
+                .body(requestBody)
         // when
-                .when()
-                .post("/api/users/"+managerId+"/projects")
-                .then()
+        .when()
+                .post("/api/users/{userId}/projects",managerId)
+        // then
+        .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("managerId", equalTo(managerId))
+                .body("managerId", equalTo(managerId.intValue()))
                 .body("name", equalTo(name))
                 .body("description", equalTo(desc));
     }
