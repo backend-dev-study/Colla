@@ -1,4 +1,4 @@
-package kr.kro.colla.user.user.controller.dto;
+package kr.kro.colla.user.user.presentation.dto;
 
 import kr.kro.colla.project.project.domain.Project;
 import lombok.Getter;

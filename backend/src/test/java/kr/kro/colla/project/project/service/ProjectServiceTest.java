@@ -1,7 +1,7 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.repository.ProjectRepository;
+import kr.kro.colla.project.project.domain.ProjectRepository;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

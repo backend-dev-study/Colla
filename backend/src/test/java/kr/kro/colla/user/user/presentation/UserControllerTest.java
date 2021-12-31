@@ -1,10 +1,10 @@
-package kr.kro.colla.user.user.controller;
+package kr.kro.colla.user.user.presentation;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
-import kr.kro.colla.user.user.controller.dto.CreateProjectRequest;
+import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
