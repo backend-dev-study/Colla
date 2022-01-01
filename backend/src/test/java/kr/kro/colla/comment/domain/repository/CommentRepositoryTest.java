@@ -1,16 +1,18 @@
-package kr.kro.colla.task.comment.domain.repository;
+package kr.kro.colla.comment.domain.repository;
 
-import kr.kro.colla.comment.repository.CommentRepository;
-import kr.kro.colla.task.comment.domain.Comment;
-import kr.kro.colla.user.domain.User;
+import kr.kro.colla.comment.domain.Comment;
+import kr.kro.colla.config.JpaAuditingConfig;
+import kr.kro.colla.user.user.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Import(JpaAuditingConfig.class)
 @ActiveProfiles("test")
 @DataJpaTest
 class CommentRepositoryTest {

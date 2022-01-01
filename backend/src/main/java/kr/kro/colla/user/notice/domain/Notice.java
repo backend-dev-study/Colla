@@ -1,6 +1,6 @@
 package kr.kro.colla.user.notice.domain;
 
-import kr.kro.colla.meeting_place.meeting_place.domain.converter.BooleanToIntegerConverter;
+import kr.kro.colla.user.notice.domain.converter.BooleanToIntegerConverter;
 import lombok.Getter;
 
 import javax.persistence.*;

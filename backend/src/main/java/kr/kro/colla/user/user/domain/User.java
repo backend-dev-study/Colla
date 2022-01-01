@@ -1,4 +1,4 @@
-package kr.kro.colla.user.domain;
+package kr.kro.colla.user.user.domain;
 
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user_project.domain.UserProject;
