@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 public class ProjectService {
     private final ProjectRepository projectRepository;
 
-    public Project createProject(Long managerId, CreateRequest createRequest) {
+    public Project createProject(Long managerId, String name, String desc) {
         Project project = Project.builder()
                 .managerId(managerId)
-                .name(createRequest.getName())
-                .description(createRequest.getDescription()).build();
+                .name(name)
+                .description(desc).build();
 
         return projectRepository.save(project);
     }
