@@ -37,4 +37,20 @@ class AuthControllerTest {
                 .andExpect(jsonPath("accessToken").value(jwtAccessToken));
     }
 
+    @Test
+    void 올바르지_않은_OAuth코드가_올_경우_로그인에_실패한다() throws Exception {
+        // given
+        String unauthorizedCode = "unauthorized-code";
+        String message = "permission denied";
+        given(authService.githubLogin(unauthorizedCode)).willReturn(null);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/auth/login?code=" + unauthorizedCode));
+
+        // then
+        perform.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("accessToken").doesNotExist())
+                .andExpect(jsonPath("message").value(message));
+    }
+
 }

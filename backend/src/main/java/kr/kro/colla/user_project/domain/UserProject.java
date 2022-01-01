@@ -1,7 +1,7 @@
 package kr.kro.colla.user_project.domain;
 
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.user.domain.User;
+import kr.kro.colla.user.user.domain.User;
 import lombok.Getter;
 
 import javax.persistence.*;
