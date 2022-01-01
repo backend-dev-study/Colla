@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.validation.ConstraintViolationException;
+
 import static org.assertj.core.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -19,7 +21,7 @@ class ProjectRepositoryTest {
     private String name = "생성된 프로젝트", desc = "설명";
 
     @Test
-    void 프로젝트_생성_성공(){
+    void 프로젝트_생성을_성공한다() {
         // given
         Project project = Project.builder()
                 .managerId(managerId)
@@ -36,24 +38,14 @@ class ProjectRepositoryTest {
 
     }
 
-    @Test()
-    void 프로젝트_생성_실패(){
-        // when, then
-        assertThatNullPointerException().isThrownBy(() ->
-                Project.builder().build()
-        );
+    @Test
+    void 프로젝트_생성을_실패한다() {
+        // given
+        Project project = Project.builder()
+                .build();
 
-        assertThatNullPointerException().isThrownBy(() ->
-                Project.builder()
-                        .managerId(managerId)
-                        .build()
-        );
-
-        assertThatNoException().isThrownBy(() ->
-                Project.builder()
-                        .managerId(managerId)
-                        .name(name)
-                        .build()
-        );
+        // when
+        assertThatThrownBy(()-> projectRepository.save(project))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 }

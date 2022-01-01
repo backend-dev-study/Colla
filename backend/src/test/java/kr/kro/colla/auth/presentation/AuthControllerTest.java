@@ -49,8 +49,8 @@ class AuthControllerTest {
 
         // then
         perform.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("accessToken").doesNotExist())
-                .andExpect(jsonPath("message").value(message));
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.message").value(message));
     }
 
 }

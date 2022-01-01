@@ -30,7 +30,7 @@ public class AcceptanceTest {
     private String name = "프로젝트 이름", desc = "프로젝트 설명";
 
     @Test
-    void 사용자_프로젝트_생성_후_반환() throws Exception {
+    void 사용자_프로젝트_생성_후_반환한다() {
         // given
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", name);
