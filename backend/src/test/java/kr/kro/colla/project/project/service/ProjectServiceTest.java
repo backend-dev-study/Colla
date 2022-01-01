@@ -8,11 +8,15 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
-    ProjectRepository projectRepository = mock(ProjectRepository.class);
-    ProjectService projectService = new ProjectService(projectRepository);
+    @Mock
+    ProjectRepository projectRepository;
+
+    @InjectMocks
+    ProjectService projectService;
 
     private Long id = 1L, managerId = 1L;
     private String name = "생성할 프로젝트 이름", desc = "생성할 프로젝트 설명";
@@ -23,10 +27,10 @@ class ProjectServiceTest {
         Project sample = Project.builder().managerId(managerId).name(name).description(desc).build();
         ReflectionTestUtils.setField(sample, "id", id);
 
-        when(projectRepository.save(any(Project.class))).thenReturn(sample);
+        given(projectRepository.save(any(Project.class))).willReturn(sample);
 
         // when
-        Project project = projectService.createProject(managerId, new CreateRequest(name, desc));
+        Project project = projectService.createProject(managerId, name, desc);
 
         // then
         assertThat(project.getId()).isNotNull();
@@ -35,7 +39,4 @@ class ProjectServiceTest {
         assertThat(project.getDescription()).isEqualTo(desc);
     }
 
-    @Test
-    void 프로젝트_생성_실패(){
-    }
 }
