@@ -1,6 +1,5 @@
 package kr.kro.colla.user.user.presentation;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -13,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -31,19 +32,19 @@ class UserControllerTest {
     private String name = "프로젝트 이름", desc = "프로젝트 설명";
 
     @Test
-    void 사용자_프로젝트_생성_후_반환() throws Exception {
+    void 사용자_프로젝트_생성_후_반환한다() throws Exception {
         // given
+        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
+                .name(name)
+                .description(desc)
+                .build();
         Project project = Project.builder()
                 .managerId(managerId)
                 .name(name)
                 .description(desc)
                 .build();
-        given(projectService.createProject(managerId, name, desc)).willReturn(project);
+        given(projectService.createProject(eq(managerId), any(CreateProjectRequest.class))).willReturn(project);
 
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .name(name)
-                .description(desc)
-                .build();
         String content = new ObjectMapper().writeValueAsString(createProjectRequest);
 
         // when
