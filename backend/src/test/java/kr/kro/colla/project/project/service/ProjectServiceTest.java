@@ -2,8 +2,12 @@ package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.project.project.service.dto.CreateRequest;
+import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,15 +26,23 @@ class ProjectServiceTest {
     private String name = "생성할 프로젝트 이름", desc = "생성할 프로젝트 설명";
 
     @Test
-    void 프로젝트_생성_성공(){
+    void 프로젝트_생성을_성공한다() {
         // given
-        Project sample = Project.builder().managerId(managerId).name(name).description(desc).build();
+        CreateProjectRequest request = CreateProjectRequest.builder()
+                .name(name)
+                .description(desc)
+                .build();
+        Project sample = Project.builder()
+                .managerId(managerId)
+                .name(name)
+                .description(desc)
+                .build();
         ReflectionTestUtils.setField(sample, "id", id);
 
         given(projectRepository.save(any(Project.class))).willReturn(sample);
 
         // when
-        Project project = projectService.createProject(managerId, name, desc);
+        Project project = projectService.createProject(managerId, request);
 
         // then
         assertThat(project.getId()).isNotNull();

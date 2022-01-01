@@ -21,7 +21,7 @@ class CommentRepositoryTest {
     private CommentRepository commentRepository;
 
     @Test
-    void 댓글_등록_성공() {
+    void 댓글_등록에_성공한다() {
         // given
         User user = User.builder()
                 .githubId("id")
