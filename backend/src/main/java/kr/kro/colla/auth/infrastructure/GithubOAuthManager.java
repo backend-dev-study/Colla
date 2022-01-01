@@ -1,8 +1,8 @@
 package kr.kro.colla.auth.infrastructure;
 
-import kr.kro.colla.auth.service.dto.GithubAccessTokenRequest;
-import kr.kro.colla.auth.service.dto.GithubAccessTokenResponse;
-import kr.kro.colla.auth.service.dto.GithubUserProfileResponse;
+import kr.kro.colla.auth.infrastructure.dto.GithubAccessTokenRequest;
+import kr.kro.colla.auth.infrastructure.dto.GithubAccessTokenResponse;
+import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

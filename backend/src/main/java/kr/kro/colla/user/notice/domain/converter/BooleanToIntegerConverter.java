@@ -1,4 +1,4 @@
-package kr.kro.colla.meeting_place.meeting_place.domain.converter;
+package kr.kro.colla.user.notice.domain.converter;
 
 import javax.persistence.AttributeConverter;
 

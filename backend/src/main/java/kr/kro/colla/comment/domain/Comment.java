@@ -1,6 +1,6 @@
-package kr.kro.colla.task.comment.domain;
+package kr.kro.colla.comment.domain;
 
-import kr.kro.colla.user.domain.User;
+import kr.kro.colla.user.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
