@@ -67,5 +67,5 @@ export const InputBar = styled.input`
     border-radius: 10px;
     font-size: 20px;
     padding-left: 10px;
-    margin: -4px 0 0 10px;
+    margin-top: -4px;
 `;

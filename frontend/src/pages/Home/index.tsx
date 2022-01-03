@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import HomeImageSrc from '../../../public/assets/images/home-image.png';
 import UserIcon from '../../components/Icon/User';
 import UserModal from '../../components/Modal/User';
-import { Container, HomeImage, Wrapper } from './style';
+import { Container, HomeImage, ProjectNotice, Wrapper } from './style';
 
 const Home = () => {
-    const [modalOnOff, setModalOnOff] = useState(true);
+    const [modalOnOff, setModalOnOff] = useState(false);
 
     const handleModal = () => {
         modalOnOff ? setModalOnOff(false) : setModalOnOff(true);
@@ -20,6 +20,7 @@ const Home = () => {
             </Wrapper>
             <Container>
                 <HomeImage src={HomeImageSrc} />
+                <ProjectNotice>프로젝트를 추가해보세요!</ProjectNotice>
             </Container>
         </>
     );
