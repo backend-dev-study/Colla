@@ -15,6 +15,10 @@ const GlobalStyle = () => (
                 font-weight: 400;
                 font-display: swap;
             }
+
+            * {
+                font-family: 'Euljiro';
+            }
         `}
     />
 );
