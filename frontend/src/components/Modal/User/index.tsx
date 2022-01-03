@@ -1,7 +1,18 @@
-import React, { FC, useState } from 'react';
+import React, { ChangeEvent, FC, useState } from 'react';
 
 import edit from '../../../../public/assets/images/edit.svg';
-import { Container, Wrapper, DisplayName, GithubId, LogoutButton, Edit, InputBar, UserName } from './style';
+import {
+    Container,
+    Wrapper,
+    DisplayName,
+    GithubId,
+    LogoutButton,
+    Edit,
+    InputBar,
+    UserName,
+    Complete,
+    Cancel,
+} from './style';
 
 interface PropType {
     userName: string;
@@ -9,10 +20,22 @@ interface PropType {
 }
 
 const UserModal: FC<PropType> = ({ userName, id }) => {
+    const [displayName, setDisplayName] = useState(userName);
+    const [modifyingName, setModifyingName] = useState(userName);
     const [showInputBar, setShowInputBar] = useState(false);
 
-    const handleModifyName = () => {
+    const handleEditIcon = () => {
         showInputBar ? setShowInputBar(false) : setShowInputBar(true);
+        setModifyingName(displayName);
+    };
+
+    const handleModifyingName = (event: ChangeEvent) => {
+        setModifyingName((event.target as HTMLInputElement).value);
+    };
+
+    const handleCompleteButton = () => {
+        setDisplayName(modifyingName);
+        setShowInputBar(false);
     };
 
     return (
@@ -21,8 +44,19 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
                 <>
                     <Wrapper>
                         <DisplayName>display name : </DisplayName>
-                        {showInputBar ? <InputBar value={userName} /> : <UserName>{userName}</UserName>}
-                        <Edit src={edit} onClick={handleModifyName} />
+                        {showInputBar ? (
+                            <InputBar value={modifyingName} onChange={handleModifyingName} />
+                        ) : (
+                            <UserName>{displayName}</UserName>
+                        )}
+                        {showInputBar ? (
+                            <>
+                                <Complete onClick={handleCompleteButton}>완료</Complete>
+                                <Cancel onClick={handleEditIcon}>취소</Cancel>
+                            </>
+                        ) : (
+                            <Edit src={edit} onClick={handleEditIcon} />
+                        )}
                     </Wrapper>
                     <GithubId>github id : {id}</GithubId>
                     <LogoutButton>로그아웃</LogoutButton>
