@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Center } from '../../../styles/common';
+import { Center, WidthCenter } from '../../../styles/common';
 
 interface Props {
     image?: string;
@@ -11,7 +11,6 @@ export const Container = styled.div<Props>`
     height: ${({ size }) => (size === 'big' ? '160px' : '50px')};
     font-size: 30px;
     border-radius: 100px;
-    border: 1px solid;
     background: rgba(196, 196, 196);
     ${Center}
     :hover {
@@ -21,4 +20,14 @@ export const Container = styled.div<Props>`
 
 export const ImageContainer = styled(Container)<Props>`
     background: url(${({ image }) => image});
+`;
+
+export const Modal = styled.div`
+    position: absolute;
+    top: 100px;
+`;
+
+export const Icon = styled.div`
+    position: relative;
+    ${WidthCenter}
 `;
