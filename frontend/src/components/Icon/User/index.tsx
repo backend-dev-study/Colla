@@ -4,15 +4,13 @@ import { Container, ImageContainer } from './style';
 
 interface PropType {
     userName: string;
-    image: string;
     size: 'big' | 'small';
+    image?: string;
 }
 
 const UserIcon: FC<PropType> = ({ userName, image, size }) =>
-    image === '' ? (
-        <Container size={size} image={''}>
-            {userName[0].toUpperCase()}
-        </Container>
+    image === undefined ? (
+        <Container size={size}>{userName[0].toUpperCase()}</Container>
     ) : (
         <ImageContainer image={image} size={size} />
     );

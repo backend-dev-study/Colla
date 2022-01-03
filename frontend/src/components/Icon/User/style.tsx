@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { Center } from '../../../styles/common';
 
 interface Props {
-    image: string;
+    image?: string;
     size: 'big' | 'small';
 }
 

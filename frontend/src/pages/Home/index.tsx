@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 // import MainImageSrc from '../../../public/assets/images/main-image.jpg';
 // import ProjectIcon from '../../components/ProjectIcon';
+import Header from '../../components/Header';
 import UserIcon from '../../components/Icon/User';
 import DetailUserModal from '../../components/Modal/DetailUser';
 import UserModal from '../../components/Modal/User';
@@ -14,6 +15,7 @@ const Home = () => {
     const handleDetailModal = () => (detailModalOnOff ? setDetailModalOnOff(false) : setDetailModalOnOff(true));
     return (
         <>
+            <Header />
             <Container>
                 <Wrapper>
                     <div onClick={handleModal}>
