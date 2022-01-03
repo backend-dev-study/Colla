@@ -1,17 +1,12 @@
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-
-const flexStyle = css`
-    display: flex;
-    justify-content: center;
-`;
+import { WidthCenter } from '../../styles/common';
 
 export const Wrapper = styled.div`
     flex-direction: column;
     margin-left: 10px;
     margin-right: 10px;
 
-    ${flexStyle}
+    ${WidthCenter}
 `;
 
 export const KanbanStatus = styled.div`
@@ -24,7 +19,7 @@ export const KanbanStatus = styled.div`
     font-size: 24px;
     text-align: center;
 
-    ${flexStyle}
+    ${WidthCenter}
 `;
 
 export const KanbanIssue = styled.div`
@@ -33,5 +28,5 @@ export const KanbanIssue = styled.div`
     border-radius: 10px;
     background: rgba(196, 196, 196, 0.2);
 
-    ${flexStyle}
+    ${WidthCenter}
 `;
