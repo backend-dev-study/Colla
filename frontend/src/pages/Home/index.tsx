@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
 
-// import MainImageSrc from '../../../public/assets/images/main-image.jpg';
-// import ProjectIcon from '../../components/ProjectIcon';
+import HomeImageSrc from '../../../public/assets/images/home-image.png';
 import UserIcon from '../../components/Icon/User';
-import DetailUserModal from '../../components/Modal/DetailUser';
 import UserModal from '../../components/Modal/User';
-import { Container, Wrapper } from './style';
+import { Container, HomeImage, ProjectNotice, Wrapper } from './style';
 
 const Home = () => {
     const [modalOnOff, setModalOnOff] = useState(false);
-    const [detailModalOnOff, setDetailModalOnOff] = useState(false);
-    const handleModal = () => (modalOnOff ? setModalOnOff(false) : setModalOnOff(true));
-    const handleDetailModal = () => (detailModalOnOff ? setDetailModalOnOff(false) : setDetailModalOnOff(true));
+
+    const handleModal = () => {
+        modalOnOff ? setModalOnOff(false) : setModalOnOff(true);
+    };
+
     return (
         <>
+            <Wrapper>
+                <UserIcon userName={'Maxcha'} image={''} size={'small'} handleModal={handleModal} />
+                {modalOnOff && <UserModal userName={'Maxcha'} id={'123'} />}
+            </Wrapper>
             <Container>
-                <Wrapper>
-                    <div onClick={handleModal}>
-                        <UserIcon userName={'Maxcha'} image={''} size={'small'} />
-                    </div>
-                    {modalOnOff && <UserModal userName={'Maxcha'} id={'123'} onClick={handleDetailModal} />}
-                </Wrapper>
+                <HomeImage src={HomeImageSrc} />
+                <ProjectNotice>프로젝트를 추가해보세요!</ProjectNotice>
             </Container>
-            {detailModalOnOff && <DetailUserModal userName={'max'} image={''} />}
         </>
     );
 };

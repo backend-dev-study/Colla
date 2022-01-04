@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import plusIcon from '../../assets/plus-circle.svg';
+import plusIcon from '../../../public/assets/images/plus-circle.svg';
 
 export const Wrapper = styled.div`
     display: flex;
