@@ -15,10 +15,13 @@ export const Container = styled.div`
     justify-content: space-around;
     padding: 40px 20px;
 `;
+
 export const DisplayName = styled.input`
     font-size: 30px;
 `;
+
 export const Description = styled(DisplayName)``;
+
 export const LogOutButton = styled.div`
     padding: 10px 30px;
     border-radius: 20px;

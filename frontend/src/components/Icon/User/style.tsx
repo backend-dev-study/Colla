@@ -7,15 +7,18 @@ interface Props {
 }
 
 export const Container = styled.div<Props>`
-    width: ${({ size }) => (size === 'big' ? '160px' : '50px')};
-    height: ${({ size }) => (size === 'big' ? '160px' : '50px')};
-    font-size: 30px;
-    border-radius: 100px;
-    background: rgba(196, 196, 196);
     ${Center}
+    width: ${({ size }) => (size === 'big' ? '160px' : '70px')};
+    height: ${({ size }) => (size === 'big' ? '160px' : '70px')};
+    font-size: 20px;
+    border-radius: 100px;
+    border: none;
+    background: rgba(196, 196, 196);
     :hover {
         opacity: 50%;
+        cursor: pointer;
     }
+    margin: 50px 50px 0 auto;
 `;
 
 export const ImageContainer = styled(Container)<Props>`
