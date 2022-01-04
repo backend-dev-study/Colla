@@ -2,6 +2,7 @@ package kr.kro.colla.auth.service;
 
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
+import kr.kro.colla.auth.service.dto.CreateTokenResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -38,14 +39,17 @@ class AuthServiceTest {
         String oauthCode = "oauth-code";
         String oAuthAccessToken = "oauth-access-token";
         String jwtAccessToken = "jwt-access-token";
+        String jwtRefreshToken = "jwt-refresh-token";
+
         GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "github-id", "avatar");
+        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
 
         given(githubOAuthManager.getOAuthAccessToken(oauthCode))
                 .willReturn(oAuthAccessToken);
         given(githubOAuthManager.getUserProfile(oAuthAccessToken))
                 .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createToken(githubUserProfileResponse.getGithubId()))
-                .willReturn(jwtAccessToken);
+        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
+                .willReturn(createTokenResponse);
 
         // when
         String accessToken = authService.githubLogin(oauthCode);
@@ -72,14 +76,17 @@ class AuthServiceTest {
         String oauthCode = "oauth-code";
         String oAuthAccessToken = "oauth-access-token";
         String jwtAccessToken = "jwt-access-token";
+        String jwtRefreshToken = "jwt-refresh-token";
+
         GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "kykapple", "avatar");
+        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
 
         given(githubOAuthManager.getOAuthAccessToken(oauthCode))
                 .willReturn(oAuthAccessToken);
         given(githubOAuthManager.getUserProfile(oAuthAccessToken))
                 .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createToken(githubUserProfileResponse.getGithubId()))
-                .willReturn(jwtAccessToken);
+        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
+                .willReturn(createTokenResponse);
         given(userRepository.findByGithubId(githubUserProfileResponse.getGithubId()))
                 .willReturn(Optional.empty());
 
@@ -98,15 +105,18 @@ class AuthServiceTest {
         String oauthCode = "oauth-code";
         String oAuthAccessToken = "oauth-access-token";
         String jwtAccessToken = "jwt-access-token";
+        String jwtRefreshToken = "jwt-refresh-token";
+
         GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "kykapple", "avatar");
         User user = new User("user", "kykapple", "avatar");
+        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
 
         given(githubOAuthManager.getOAuthAccessToken(oauthCode))
                 .willReturn(oAuthAccessToken);
         given(githubOAuthManager.getUserProfile(oAuthAccessToken))
                 .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createToken(githubUserProfileResponse.getGithubId()))
-                .willReturn(jwtAccessToken);
+        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
+                .willReturn(createTokenResponse);
         given(userRepository.findByGithubId(githubUserProfileResponse.getGithubId()))
                 .willReturn(Optional.of(user));
 
