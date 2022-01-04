@@ -2,8 +2,6 @@ import styled from '@emotion/styled';
 
 export const Container = styled.div`
     position: absolute;
-    margin-top: calc(50vh - 250px);
-    margin-left: calc(50vw - 300px);
     align-items: center;
     width: 600px;
     height: 400px;
@@ -16,22 +14,15 @@ export const Container = styled.div`
     padding: 40px 20px;
 `;
 
-export const DisplayName = styled.input`
+export const ProjectNameInput = styled.input`
     font-size: 30px;
 `;
 
-export const Description = styled(DisplayName)``;
+export const ProjectDescInput = styled(ProjectNameInput)``;
 
-export const LogOutButton = styled.div`
+export const SubmitButton = styled.div`
     padding: 10px 30px;
     border-radius: 20px;
     text-align: center;
-    background: rgba(196, 196, 196);
-`;
-
-export const ProjectIcon = styled.div`
-    width: 200px;
-    height: 200px;
-    border-radius: 100%;
     background: rgba(196, 196, 196);
 `;

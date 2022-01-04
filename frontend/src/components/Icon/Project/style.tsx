@@ -10,12 +10,12 @@ export const Container = styled.div`
     height: 50px;
     font-size: 30px;
     border-radius: 20px;
-    border: 1px solid;
     background: rgba(196, 196, 196);
-    ${Center}
     :hover {
         opacity: 50%;
     }
+
+    ${Center}
 `;
 
 export const ImageContainer = styled(Container)<Props>`

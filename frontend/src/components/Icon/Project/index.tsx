@@ -5,12 +5,16 @@ import { Container, ImageContainer } from './style';
 interface PropType {
     projectName: string;
     image?: string;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 const ProjectIcon: FC<PropType> = ({ projectName, image, onClick }) => (
     <div onClick={onClick}>
-        {image ? <ImageContainer image={image} /> : <Container>{projectName[0].toUpperCase()}</Container>}
+        {image ? (
+            <ImageContainer image={image} />
+        ) : (
+            <Container>{projectName ? projectName[0].toUpperCase() : ''}</Container>
+        )}
     </div>
 );
 
