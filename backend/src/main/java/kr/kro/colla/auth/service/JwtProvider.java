@@ -1,6 +1,7 @@
 package kr.kro.colla.auth.service;
 
 import io.jsonwebtoken.*;
+import kr.kro.colla.auth.service.dto.CreateTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,22 @@ public class JwtProvider {
     @Value("${jwt.access_token_expiration_time}")
     private long accessTokenExpirationTime;
 
-    public String createToken(String userId) {
-        Date now = new Date();
+    @Value("${jwt.refresh_token_expiration_time}")
+    private long refreshTokenExpirationTime;
 
+    public CreateTokenResponse createTokens(String userId) {
+        Date now = new Date();
+        String accessToken = createToken(userId, now, accessTokenExpirationTime);
+        String refreshToken = createToken(userId, now, refreshTokenExpirationTime);
+
+        return new CreateTokenResponse(accessToken, refreshToken);
+    }
+
+    public String createToken(String value, Date now, long expirationTime) {
         return Jwts.builder()
-                .claim("userId", userId)
+                .claim("userId", value)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
+                .setExpiration(new Date(now.getTime() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
