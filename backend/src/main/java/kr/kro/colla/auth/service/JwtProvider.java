@@ -1,7 +1,6 @@
 package kr.kro.colla.auth.service;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +24,20 @@ public class JwtProvider {
                 .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token);
+
+            return claimsJws.getBody()
+                    .getExpiration()
+                    .before(new Date());
+        } catch(Exception e) {
+            return false;
+        }
     }
 
 }
