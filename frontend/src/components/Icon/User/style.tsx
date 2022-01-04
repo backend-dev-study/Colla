@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
-import { Center } from '../../../styles/common';
+import { Center, WidthCenter } from '../../../styles/common';
 
 interface Props {
-    image: string;
+    image?: string;
     size: 'big' | 'small';
 }
 
@@ -23,4 +23,14 @@ export const Container = styled.div<Props>`
 
 export const ImageContainer = styled(Container)<Props>`
     background: url(${({ image }) => image});
+`;
+
+export const Modal = styled.div`
+    position: absolute;
+    top: 100px;
+`;
+
+export const Icon = styled.div`
+    position: relative;
+    ${WidthCenter}
 `;

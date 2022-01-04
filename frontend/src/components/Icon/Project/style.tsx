@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { Center } from '../../../styles/common';
+
 interface Props {
     image: string;
 }
