@@ -24,6 +24,8 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
     const [modifyingName, setModifyingName] = useState(userName);
     const [showInputBar, setShowInputBar] = useState(false);
 
+    const preventClose = (event: any) => event.stopPropagation();
+
     const handleEditIcon = () => {
         showInputBar ? setShowInputBar(false) : setShowInputBar(true);
         setModifyingName(displayName);
@@ -39,7 +41,7 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
     };
 
     return (
-        <Container>
+        <Container onClick={preventClose}>
             {id ? (
                 <>
                     <Wrapper>
