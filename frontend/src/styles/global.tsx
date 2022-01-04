@@ -8,6 +8,10 @@ const GlobalStyle = () => (
                 border: none;
             }
 
+            input {
+                border: none;
+            }
+
             @font-face {
                 font-family: 'Euljiro';
                 src: url('/assets/fonts/Euljiro.ttf');
