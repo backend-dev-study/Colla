@@ -1,4 +1,4 @@
-package kr.kro.colla.exception.user;
+package kr.kro.colla.error.exception.user;
 
 public class UserNotFoundException extends RuntimeException {
 
