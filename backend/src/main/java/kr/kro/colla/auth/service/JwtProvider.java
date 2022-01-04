@@ -40,4 +40,17 @@ public class JwtProvider {
         }
     }
 
+    public String parseToken(String token) {
+        try {
+            Jws<Claims> claimsJws = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token);
+
+            return (String) claimsJws.getBody()
+                    .get("userId");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }
