@@ -15,5 +15,7 @@ spring:
     open-in-view: false
 
 server:
+  error:
+    include-message: always
   servlet:
     context-path: /api
