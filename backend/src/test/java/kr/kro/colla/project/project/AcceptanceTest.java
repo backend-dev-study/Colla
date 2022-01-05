@@ -2,8 +2,11 @@ package kr.kro.colla.project.project;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import kr.kro.colla.auth.service.JwtProvider;
+import kr.kro.colla.common.fixture.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -18,20 +21,27 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
+
     @LocalServerPort
     int port;
+
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
+        user = new User(jwtProvider);
     }
 
     private Long managerId = 3L;
     private String name = "프로젝트 이름", desc = "프로젝트 설명";
+    private User user;
 
     @Test
     void 사용자_프로젝트_생성_후_반환한다() {
         // given
+        String accessToken = user.로그인(managerId);
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", name);
         requestBody.put("description",desc);
@@ -39,10 +49,11 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
                 .body(requestBody)
         // when
         .when()
-                .post("/api/users/{userId}/projects",managerId)
+                .post("/api/users/{userId}/projects", managerId)
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
@@ -55,13 +66,14 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
         // given
+        String accessToken = user.로그인(managerId);
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("description",desc);
-
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
                 .body(requestBody)
         // when
         .when()
