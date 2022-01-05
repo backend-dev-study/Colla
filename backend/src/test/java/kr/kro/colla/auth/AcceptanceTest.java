@@ -50,7 +50,7 @@ public class AcceptanceTest {
         .then().log().all()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body("accessToken", notNullValue());
+                .cookie("accessToken", notNullValue());
     }
 
     @Test
@@ -70,9 +70,7 @@ public class AcceptanceTest {
         // then
         .then()
                 .assertThat()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("accessToken", nullValue())
-                .body("message", equalTo(message));
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
 }
