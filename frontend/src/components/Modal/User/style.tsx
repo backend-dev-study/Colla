@@ -5,10 +5,10 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: space-around;
     position: absolute;
-    width: 400px;
+    top: 80px;
+    right: 0px;
+    width: 300px;
     height: 250px;
-    margin-top: 130px;
-    right: 50px;
     font-size: 20px;
     border-radius: 20px;
     background: rgba(206, 232, 207);
