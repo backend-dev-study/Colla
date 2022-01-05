@@ -6,9 +6,11 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
+@NoArgsConstructor
 @Getter
 @Builder
 public class CreateProjectRequest {
+
     @NotNull
     private String name;
 
