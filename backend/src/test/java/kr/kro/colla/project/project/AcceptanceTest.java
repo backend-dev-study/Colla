@@ -51,4 +51,26 @@ public class AcceptanceTest {
                 .body("name", equalTo(name))
                 .body("description", equalTo(desc));
     }
+
+    @Test
+    void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
+        // given
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("description",desc);
+
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .body(requestBody)
+        // when
+        .when()
+                .post("/api/users/{userId}/projects",managerId)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(400))
+                .body("message", equalTo("name : 널이어서는 안됩니다"));
+    }
 }

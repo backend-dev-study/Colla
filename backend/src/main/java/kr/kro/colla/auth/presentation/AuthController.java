@@ -4,7 +4,6 @@ import kr.kro.colla.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +24,6 @@ public class AuthController {
     @GetMapping("/login")
     public ResponseEntity githubLogin(@RequestParam String code) {
         String accessToken = this.authService.githubLogin(code);
-
-        if(accessToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .build();
-        }
-
         ResponseCookie cookie = createCookie(accessToken);
 
         return ResponseEntity.ok()

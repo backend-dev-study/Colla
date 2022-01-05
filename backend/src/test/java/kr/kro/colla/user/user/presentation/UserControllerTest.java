@@ -59,4 +59,24 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.description").value(desc));
     }
+
+    @Test
+    void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
+        // given
+        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
+                .description(desc)
+                .build();
+        String content = new ObjectMapper().writeValueAsString(createProjectRequest);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/users/"+managerId+"/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("name : must not be null"));
+    }
 }
