@@ -2,14 +2,12 @@ package kr.kro.colla.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Component
 public class CookieManager {
 
     @Value("${cookie.domain}")

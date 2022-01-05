@@ -60,7 +60,7 @@ public class JwtProvider {
         }
     }
 
-    public Long parseToken(String token) {
+    public Long findIdFromToken(String token) {
         try {
             Jws<Claims> claimsJws = Jwts.parser()
                     .setSigningKey(secretKey)
