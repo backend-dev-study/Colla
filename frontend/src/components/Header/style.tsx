@@ -4,7 +4,7 @@ import { Center } from '../../styles/common';
 export const Container = styled.div`
     display: flex;
     width: 85vw;
-    height: 200px;
+    height: 100px;
 `;
 
 export const LeftNav = styled.div`

@@ -11,11 +11,13 @@ interface PropType {
 }
 
 const UserIcon: FC<PropType> = ({ userName, githubId, image, size }) => {
-    const [modal, SetModal] = useState(false);
+    const [modal, setModal] = useState(false);
+
+    const handleModal = () => setModal(!modal);
 
     return (
         <>
-            <Icon onClick={() => SetModal(!modal)}>
+            <Icon onClick={handleModal}>
                 {image ? (
                     <ImageContainer image={image} size={size} />
                 ) : (
