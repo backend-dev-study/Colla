@@ -1,6 +1,6 @@
 package kr.kro.colla.user.user.domain.repository;
 
-import kr.kro.colla.exception.user.UserNotFoundException;
+import kr.kro.colla.error.exception.user.UserNotFoundException;
 import kr.kro.colla.user.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
