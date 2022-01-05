@@ -18,6 +18,10 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (request.getMethod().equals("OPTIONS")){
+            return true;
+        }
+
         Cookie[] cookies = request.getCookies();
         Cookie accessToken = parseCookies(cookies, "accessToken");
 
