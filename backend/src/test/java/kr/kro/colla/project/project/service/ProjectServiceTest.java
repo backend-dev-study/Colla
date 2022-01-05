@@ -2,6 +2,7 @@ package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +10,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +43,7 @@ class ProjectServiceTest {
                 .description(desc)
                 .build();
         ReflectionTestUtils.setField(sample, "id", id);
+        ReflectionTestUtils.setField(sample, "taskStatuses", new ArrayList<>(Arrays.asList("To do", "In progress", "Done")));
 
         given(projectRepository.save(any(Project.class))).willReturn(sample);
 
@@ -49,6 +55,8 @@ class ProjectServiceTest {
         assertThat(project.getManagerId()).isEqualTo(managerId);
         assertThat(project.getName()).isEqualTo(name);
         assertThat(project.getDescription()).isEqualTo(desc);
+        assertThat(project.getTaskStatuses().size()).isEqualTo(3);
+
     }
 
 }

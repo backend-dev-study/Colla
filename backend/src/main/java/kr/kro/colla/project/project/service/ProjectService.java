@@ -19,10 +19,6 @@ public class ProjectService {
                 .description(createProjectRequest.getDescription())
                 .build();
 
-        project.addStatus(TaskStatus.builder().name("To do").build());
-        project.addStatus(TaskStatus.builder().name("In progress").build());
-        project.addStatus(TaskStatus.builder().name("Done").build());
-
         return projectRepository.save(project);
     }
 }
