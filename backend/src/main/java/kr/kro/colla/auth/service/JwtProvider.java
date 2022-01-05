@@ -2,6 +2,7 @@ package kr.kro.colla.auth.service;
 
 import io.jsonwebtoken.*;
 import kr.kro.colla.auth.service.dto.CreateTokenResponse;
+import kr.kro.colla.exception.exception.auth.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -76,6 +77,8 @@ public class JwtProvider {
                             .get("id")
                             .toString()
             );
+        } catch(Exception e) {
+            throw new InvalidTokenException();
         }
     }
 

@@ -3,6 +3,8 @@ package kr.kro.colla.auth.presentation.interceptor;
 import kr.kro.colla.auth.infrastructure.RedisManager;
 import kr.kro.colla.auth.presentation.CookieManager;
 import kr.kro.colla.auth.service.JwtProvider;
+import kr.kro.colla.exception.exception.auth.InvalidTokenException;
+import kr.kro.colla.exception.exception.auth.TokenNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -27,7 +29,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         Cookie accessToken = this.cookieManager.parseCookies(cookies, "accessToken");
 
         if(accessToken == null) {
-            return false;
+            throw new TokenNotFoundException();
         }
 
         boolean isValid = this.jwtProvider.validateToken(accessToken.getValue());
@@ -50,8 +52,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         boolean isValid = this.jwtProvider.validateToken(refreshToken);
 
         if(!isValid) {
-            // TODO : refreshToken도 유효하지 않기 때문에 권한이 없다는 예외를 던져야 한다.
-            return null;
+            throw new InvalidTokenException();
         }
 
         return this.jwtProvider.createAccessToken(id);
