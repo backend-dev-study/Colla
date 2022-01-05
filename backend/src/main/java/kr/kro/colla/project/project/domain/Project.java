@@ -59,4 +59,8 @@ public class Project {
         this.name = name;
         this.description = description;
     }
+
+    public void addStatus(TaskStatus taskStatus){
+        this.taskStatuses.add(taskStatus);
+    }
 }
