@@ -20,14 +20,23 @@ public class JwtProvider {
     private long refreshTokenExpirationTime;
 
     public CreateTokenResponse createTokens(Long id) {
-        Date now = new Date();
-        String accessToken = createToken(id, now, accessTokenExpirationTime);
-        String refreshToken = createToken(id, now, refreshTokenExpirationTime);
+        String accessToken = createAccessToken(id);
+        String refreshToken = createRefreshToken(id);
 
         return new CreateTokenResponse(accessToken, refreshToken);
     }
 
-    public String createToken(Long value, Date now, long expirationTime) {
+    public String createAccessToken(Long id) {
+        return createToken(id, accessTokenExpirationTime);
+    }
+
+    public String createRefreshToken(Long id) {
+        return createToken(id, refreshTokenExpirationTime);
+    }
+
+    public String createToken(Long value, long expirationTime) {
+        Date now = new Date();
+
         return Jwts.builder()
                 .claim("id", value)
                 .setIssuedAt(now)
@@ -42,7 +51,7 @@ public class JwtProvider {
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
 
-            return claimsJws.getBody()
+            return !claimsJws.getBody()
                     .getExpiration()
                     .before(new Date());
         } catch(Exception e) {
@@ -61,8 +70,12 @@ public class JwtProvider {
                             .get("id")
                             .toString()
             );
-        } catch (Exception e) {
-            return null;
+        } catch (ExpiredJwtException e) {
+            return Long.parseLong(
+                    e.getClaims()
+                            .get("id")
+                            .toString()
+            );
         }
     }
 

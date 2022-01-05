@@ -2,7 +2,6 @@ package kr.kro.colla.auth.presentation;
 
 import kr.kro.colla.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -13,29 +12,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class AuthController {
 
-    @Value("${cookie.domain}")
-    private String credentialDomain;
-
-    @Value("${cookie.expiration_time}")
-    private long expirationTime;
-
     private final AuthService authService;
+    private final CookieManager cookieManager;
 
     @GetMapping("/login")
     public ResponseEntity githubLogin(@RequestParam String code) {
         String accessToken = this.authService.githubLogin(code);
-        ResponseCookie cookie = createCookie(accessToken);
+        ResponseCookie cookie = this.cookieManager.createCookie("accessToken", accessToken);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .build();
-    }
-
-    private ResponseCookie createCookie(String value) {
-        return ResponseCookie.from("accessToken", value)
-                .maxAge(expirationTime)
-                .domain(credentialDomain)
-                .path("/")
                 .build();
     }
 

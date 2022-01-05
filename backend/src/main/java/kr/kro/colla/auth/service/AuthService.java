@@ -27,7 +27,7 @@ public class AuthService {
 
         User user = this.userService.createUserIfNotExist(userProfile);
         CreateTokenResponse createTokenResponse = this.jwtProvider.createTokens(user.getId());
-        this.redisManager.saveRefreshToken(createTokenResponse);
+        this.redisManager.saveRefreshToken(user.getId(), createTokenResponse.getRefreshToken());
 
         return createTokenResponse.getAccessToken();
     }
