@@ -31,13 +31,11 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String accessToken = (String) request.getAttribute("accessToken");
 
-        String userId = jwtProvider.parseToken(accessToken);
-        if(userId == null) {
+        Long id = jwtProvider.parseToken(accessToken);
+        if(id == null) {
             return null;
         }
 
-        return LoginUser.builder()
-                .githubId(userId)
-                .build();
+        return new LoginUser(id);
     }
 }

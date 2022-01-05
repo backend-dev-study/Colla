@@ -19,17 +19,17 @@ public class JwtProvider {
     @Value("${jwt.refresh_token_expiration_time}")
     private long refreshTokenExpirationTime;
 
-    public CreateTokenResponse createTokens(String userId) {
+    public CreateTokenResponse createTokens(Long id) {
         Date now = new Date();
-        String accessToken = createToken(userId, now, accessTokenExpirationTime);
-        String refreshToken = createToken(userId, now, refreshTokenExpirationTime);
+        String accessToken = createToken(id, now, accessTokenExpirationTime);
+        String refreshToken = createToken(id, now, refreshTokenExpirationTime);
 
         return new CreateTokenResponse(accessToken, refreshToken);
     }
 
-    public String createToken(String value, Date now, long expirationTime) {
+    public String createToken(Long value, Date now, long expirationTime) {
         return Jwts.builder()
-                .claim("userId", value)
+                .claim("id", value)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -50,14 +50,17 @@ public class JwtProvider {
         }
     }
 
-    public String parseToken(String token) {
+    public Long parseToken(String token) {
         try {
             Jws<Claims> claimsJws = Jwts.parser()
                     .setSigningKey(secretKey)
                     .parseClaimsJws(token);
 
-            return (String) claimsJws.getBody()
-                    .get("userId");
+            return Long.parseLong(
+                    claimsJws.getBody()
+                            .get("id")
+                            .toString()
+            );
         } catch (Exception e) {
             return null;
         }

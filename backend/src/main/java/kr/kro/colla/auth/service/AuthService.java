@@ -4,6 +4,7 @@ import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
 import kr.kro.colla.auth.infrastructure.RedisManager;
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.auth.service.dto.CreateTokenResponse;
+import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,8 @@ public class AuthService {
         String oAuthAccessToken = this.githubOAuthManager.getOAuthAccessToken(code);
         GithubUserProfileResponse userProfile = this.githubOAuthManager.getUserProfile(oAuthAccessToken);
 
-        this.userService.createUserIfNotExist(userProfile);
-        CreateTokenResponse createTokenResponse = this.jwtProvider.createTokens(userProfile.getGithubId());
+        User user = this.userService.createUserIfNotExist(userProfile);
+        CreateTokenResponse createTokenResponse = this.jwtProvider.createTokens(user.getId());
         this.redisManager.saveRefreshToken(createTokenResponse);
 
         return createTokenResponse.getAccessToken();

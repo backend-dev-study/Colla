@@ -12,8 +12,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public void createUserIfNotExist(GithubUserProfileResponse userProfile) {
-        this.userRepository.findByGithubId(userProfile.getGithubId())
+    public User createUserIfNotExist(GithubUserProfileResponse userProfile) {
+        return this.userRepository.findByGithubId(userProfile.getGithubId())
                 .orElseGet(() -> this.userRepository.save(
                                 User.builder()
                                         .name(userProfile.getName())
