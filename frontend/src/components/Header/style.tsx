@@ -1,10 +1,31 @@
 import styled from '@emotion/styled';
-import { Center } from '../../styles/common';
+import { Center, WidthCenter } from '../../styles/common';
 
 export const Container = styled.div`
     display: flex;
     width: 85vw;
     height: 100px;
+`;
+
+export const ProjectTitle = styled.div`
+    font-size: 36px;
+`;
+
+export const ProjectDesc = styled.div`
+    position: absolute;
+    top: 40px;
+    font-size: 24px;
+    text-shadow: #303030;
+    visibility: hidden;
+`;
+
+export const ProjectInfo = styled.div`
+    position: relative;
+    &:hover ${ProjectDesc} {
+        visibility: visible;
+    }
+
+    ${WidthCenter}
 `;
 
 export const LeftNav = styled.div`
