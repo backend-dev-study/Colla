@@ -1,4 +1,4 @@
-package kr.kro.colla.auth.presentation;
+package kr.kro.colla.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;

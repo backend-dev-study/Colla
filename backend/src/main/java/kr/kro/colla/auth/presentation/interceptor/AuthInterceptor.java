@@ -1,10 +1,10 @@
 package kr.kro.colla.auth.presentation.interceptor;
 
 import kr.kro.colla.auth.infrastructure.RedisManager;
-import kr.kro.colla.auth.presentation.CookieManager;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.exception.exception.auth.InvalidTokenException;
 import kr.kro.colla.exception.exception.auth.TokenNotFoundException;
+import kr.kro.colla.utils.CookieManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
