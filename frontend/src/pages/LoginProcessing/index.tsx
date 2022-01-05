@@ -3,6 +3,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 
 import { getAccessToken } from '../../apis/auth';
+import { isResponseSuccess } from '../../apis/common';
 import { Container, Notice } from './style';
 
 const LoginProcessing = ({ history, location }: RouteComponentProps) => {
@@ -14,8 +15,8 @@ const LoginProcessing = ({ history, location }: RouteComponentProps) => {
                     throw Error('github auth code does not exist');
                 }
 
-                const { accessToken } = await getAccessToken(code);
-                accessToken ? history.push('/kanban') : history.push('/');
+                const result = await getAccessToken(code);
+                isResponseSuccess(result.status) ? history.push('/home') : history.push('/');
             } catch (error) {
                 history.push('/');
             }

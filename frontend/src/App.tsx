@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+import ValidationRoute from './components/ValidationRoute';
 import Home from './pages/Home';
 import Kanban from './pages/Kanban';
 import Login from './pages/Login';
@@ -12,9 +13,9 @@ const App = () => (
         <GlobalStyle />
         <Switch>
             <Route exact path="/" component={Login} />
-            <Route exact path="/login" component={LoginProcessing}></Route>
-            <Route exact path="/kanban" component={Kanban} />
-            <Route exact path="/home" component={Home} />
+            <Route exact path="/login" component={LoginProcessing} />
+            <ValidationRoute exact path="/kanban" component={Kanban} />
+            <ValidationRoute exact path="/home" component={Home} />
         </Switch>
     </Router>
 );

@@ -1,7 +1,7 @@
-import axios from 'axios';
+import { client } from './common';
 
 export const getAccessToken = async (code: string) => {
-    const response = await axios.get<{ accessToken: string }>(`${process.env.API_URL}/auth/login?code=${code}`);
+    const response = await client.get(`/auth/login?code=${code}`);
 
-    return response.data;
+    return response;
 };
