@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 
 import HomeImageSrc from '../../../public/assets/images/home-image.png';
+import { isResponseSuccess } from '../../apis/common';
 import { createProject } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
+import { projectDescState, projectNameState } from '../../stores/atom';
 import { Container, HomeImage, ProjectNotice } from './style';
 
 const Home = () => {
     const [projectModal, setProjectModal] = useState(false);
+    const setProjectName = useSetRecoilState(projectNameState);
+    const setProjectDesc = useSetRecoilState(projectDescState);
     const history = useHistory();
 
     const handleModal = () => setProjectModal(!projectModal);
 
     const sendRequest = async (userId: number, name: string, desc: string) => {
         const response = await createProject(userId, name, desc);
-        history.push('/kanban', response.data);
+
+        if (isResponseSuccess(response.status)) {
+            const { name: projectName, description: projectDesc } = response.data;
+            setProjectName(projectName);
+            setProjectDesc(projectDesc);
+            history.push('/kanban', response.data);
+        } else {
+            // eslint-disable-next-line no-alert
+            alert('프로젝트 생성에 실패했습니다.');
+        }
     };
 
     return (
