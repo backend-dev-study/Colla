@@ -18,14 +18,20 @@ public class RedisManager {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void saveRefreshToken(CreateTokenResponse createTokenResponse) {
+    public void saveRefreshToken(Long id, String refreshToken) {
         ValueOperations<String, String> valueOperations = this.redisTemplate.opsForValue();
         valueOperations.set(
-                createTokenResponse.getAccessToken(),
-                createTokenResponse.getRefreshToken(),
+                id.toString(),
+                refreshToken,
                 refreshTokenExpirationTime,
                 TimeUnit.MILLISECONDS
         );
+    }
+
+    public String findValue(String key) {
+        ValueOperations<String, String> valueOperations = this.redisTemplate.opsForValue();
+
+        return valueOperations.get(key);
     }
 
 }

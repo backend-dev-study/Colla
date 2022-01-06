@@ -2,12 +2,14 @@ package kr.kro.colla.user.user.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
+@NoArgsConstructor
 @Getter
 @Builder
 public class CreateProjectRequest {
-    @NotEmpty
+
+    @NotBlank
     private String name;
 
     private String description;
