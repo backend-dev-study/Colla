@@ -11,14 +11,19 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("${jwt.secret_key}")
-    private String secretKey;
+    private final String secretKey;
+    private final long accessTokenExpirationTime;
+    private final long refreshTokenExpirationTime;
 
-    @Value("${jwt.access_token_expiration_time}")
-    private long accessTokenExpirationTime;
-
-    @Value("${jwt.refresh_token_expiration_time}")
-    private long refreshTokenExpirationTime;
+    public JwtProvider(
+            @Value("${jwt.secret_key}") String secretKey,
+            @Value("${jwt.access_token_expiration_time}") long accessTokenExpirationTime,
+            @Value("${jwt.refresh_token_expiration_time}") long refreshTokenExpirationTime
+    ) {
+        this.secretKey = secretKey;
+        this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+    }
 
     public CreateTokenResponse createTokens(Long id) {
         String accessToken = createAccessToken(id);

@@ -1,6 +1,5 @@
 package kr.kro.colla.utils;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 
 import javax.servlet.http.Cookie;
@@ -10,11 +9,14 @@ import java.util.stream.Stream;
 
 public class CookieManager {
 
-    @Value("${cookie.domain}")
-    private String credentialDomain;
+    private final String credentialDomain;
 
-    @Value("${cookie.expiration_time}")
-    private long expirationTime;
+    private final long expirationTime;
+
+    public CookieManager(String credentialDomain, long expirationTime) {
+        this.credentialDomain = credentialDomain;
+        this.expirationTime = expirationTime;
+    }
 
     public ResponseCookie createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
