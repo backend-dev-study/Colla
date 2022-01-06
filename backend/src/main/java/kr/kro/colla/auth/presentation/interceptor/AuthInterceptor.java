@@ -1,20 +1,22 @@
 package kr.kro.colla.auth.presentation.interceptor;
 
-import kr.kro.colla.auth.service.JwtProvider;
+import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.exception.exception.auth.TokenNotFoundException;
+import kr.kro.colla.utils.CookieManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 
 @RequiredArgsConstructor
-@Component
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
+    private final CookieManager cookieManager;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -23,21 +25,24 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         Cookie[] cookies = request.getCookies();
-        Cookie accessToken = parseCookies(cookies, "accessToken");
+        Cookie accessToken = this.cookieManager.parseCookies(cookies, "accessToken");
 
-        if(accessToken == null || jwtProvider.validateToken(accessToken.getValue())) {
-            return false;
+        if(accessToken == null) {
+            throw new TokenNotFoundException();
+        }
+
+        boolean isValid = this.authService.validateAccessToken(accessToken.getValue());
+
+        if(!isValid) {
+            String newAccessToken = this.authService.validateRefreshToken(accessToken.getValue());
+            ResponseCookie cookie = this.cookieManager.createCookie("accessToken", newAccessToken);
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            accessToken.setValue(newAccessToken);
         }
 
         request.setAttribute("accessToken", accessToken.getValue());
         return true;
-    }
-
-    private Cookie parseCookies(Cookie[] cookies, String name) {
-        return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals(name))
-                .findAny()
-                .orElse(null);
     }
 
 }

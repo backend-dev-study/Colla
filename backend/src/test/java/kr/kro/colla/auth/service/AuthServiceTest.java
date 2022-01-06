@@ -1,22 +1,22 @@
 package kr.kro.colla.auth.service;
 
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
+import kr.kro.colla.auth.infrastructure.RedisManager;
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.auth.service.dto.CreateTokenResponse;
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.Optional;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -28,7 +28,10 @@ class AuthServiceTest {
     private JwtProvider jwtProvider;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Mock
+    private RedisManager redisManager;
 
     @InjectMocks
     private AuthService authService;
@@ -40,6 +43,8 @@ class AuthServiceTest {
         String oAuthAccessToken = "oauth-access-token";
         String jwtAccessToken = "jwt-access-token";
         String jwtRefreshToken = "jwt-refresh-token";
+        User user = new User();
+        ReflectionTestUtils.setField(user, "id", 1L);
 
         GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "github-id", "avatar");
         CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
@@ -48,7 +53,9 @@ class AuthServiceTest {
                 .willReturn(oAuthAccessToken);
         given(githubOAuthManager.getUserProfile(oAuthAccessToken))
                 .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
+        given(userService.createUserIfNotExist(githubUserProfileResponse))
+                .willReturn(user);
+        given(jwtProvider.createTokens(user.getId()))
                 .willReturn(createTokenResponse);
 
         // when
@@ -63,70 +70,14 @@ class AuthServiceTest {
         // given
         String unauthorizedCode = "unauthorized-code";
 
-        // when
-        String accessToken = authService.githubLogin(unauthorizedCode);
+        given(githubOAuthManager.getOAuthAccessToken(unauthorizedCode))
+                .willReturn(null);
+        given(githubOAuthManager.getUserProfile(null))
+                .willThrow(HttpClientErrorException.class);
 
-        // then
-        assertThat(accessToken).isNull();
-    }
-
-    @Test
-    void 첫_로그인_시_회원가입을_진행한다() {
-        // given
-        String oauthCode = "oauth-code";
-        String oAuthAccessToken = "oauth-access-token";
-        String jwtAccessToken = "jwt-access-token";
-        String jwtRefreshToken = "jwt-refresh-token";
-
-        GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "kykapple", "avatar");
-        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
-
-        given(githubOAuthManager.getOAuthAccessToken(oauthCode))
-                .willReturn(oAuthAccessToken);
-        given(githubOAuthManager.getUserProfile(oAuthAccessToken))
-                .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
-                .willReturn(createTokenResponse);
-        given(userRepository.findByGithubId(githubUserProfileResponse.getGithubId()))
-                .willReturn(Optional.empty());
-
-        // when
-        String accessToken = authService.githubLogin(oauthCode);
-
-        // then
-        assertThat(accessToken).isEqualTo(jwtAccessToken);
-        verify(userRepository, times(1)).findByGithubId(any(String.class));
-        verify(userRepository, times(1)).save(any(User.class));
-    }
-
-    @Test
-    void 기존_사용자일_경우_회원가입을_진행하지_않는다() {
-        // given
-        String oauthCode = "oauth-code";
-        String oAuthAccessToken = "oauth-access-token";
-        String jwtAccessToken = "jwt-access-token";
-        String jwtRefreshToken = "jwt-refresh-token";
-
-        GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "kykapple", "avatar");
-        User user = new User("user", "kykapple", "avatar");
-        CreateTokenResponse createTokenResponse = new CreateTokenResponse(jwtAccessToken, jwtRefreshToken);
-
-        given(githubOAuthManager.getOAuthAccessToken(oauthCode))
-                .willReturn(oAuthAccessToken);
-        given(githubOAuthManager.getUserProfile(oAuthAccessToken))
-                .willReturn(githubUserProfileResponse);
-        given(jwtProvider.createTokens(githubUserProfileResponse.getGithubId()))
-                .willReturn(createTokenResponse);
-        given(userRepository.findByGithubId(githubUserProfileResponse.getGithubId()))
-                .willReturn(Optional.of(user));
-
-        // when
-        String accessToken = authService.githubLogin(oauthCode);
-
-        // then
-        assertThat(accessToken).isEqualTo(jwtAccessToken);
-        verify(userRepository, times(1)).findByGithubId(any(String.class));
-        verify(userRepository, times(0)).save(any(User.class));
+        // when, then
+        assertThatThrownBy(() -> authService.githubLogin(unauthorizedCode))
+                .isInstanceOf(HttpClientErrorException.class);
     }
 
 }
