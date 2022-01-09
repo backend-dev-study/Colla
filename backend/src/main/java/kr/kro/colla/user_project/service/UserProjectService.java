@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 public class UserProjectService {
     private final UserProjectRepository userProjectRepository;
 
-    public void addUserToProject(User user, Project project){
+    public UserProject addUserToProject(User user, Project project){
         UserProject userProject = UserProject.builder()
                 .user(user)
                 .project(project).build();
 
-        userProjectRepository.save(userProject);
+        return userProjectRepository.save(userProject);
     }
 }
