@@ -3,7 +3,7 @@ package kr.kro.colla.project.project;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
-import kr.kro.colla.common.fixture.User;
+import kr.kro.colla.common.fixture.Auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +31,17 @@ public class AcceptanceTest {
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-        user = new User(jwtProvider);
+        auth = new Auth(jwtProvider);
     }
 
     private Long managerId = 3L;
     private String name = "프로젝트 이름", desc = "프로젝트 설명";
-    private User user;
+    private Auth auth;
 
     @Test
     void 사용자_프로젝트_생성_후_반환한다() {
         // given
-        String accessToken = user.로그인(managerId);
+        String accessToken = auth.로그인(managerId);
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", name);
         requestBody.put("description",desc);
@@ -66,7 +66,7 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
         // given
-        String accessToken = user.로그인(managerId);
+        String accessToken = auth.로그인(managerId);
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("description",desc);
 
