@@ -41,9 +41,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(e.getStatusCode()).body(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionHandleResponse> handleException(Exception e){
-        ExceptionHandleResponse response = new ExceptionHandleResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
+
 }
