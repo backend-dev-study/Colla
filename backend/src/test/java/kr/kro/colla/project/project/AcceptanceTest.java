@@ -83,6 +83,6 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(400))
-                .body("message", equalTo("name : 널이어서는 안됩니다"));
+                .body("message", equalTo("name : 공백일 수 없습니다"));
     }
 }

@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Entity
@@ -28,7 +27,7 @@ public class UserProject {
     private Project project;
 
     @Builder
-    UserProject(User user, Project project){
+    public UserProject(User user, Project project){
         this.user = user;
         this.project = project;
     }
