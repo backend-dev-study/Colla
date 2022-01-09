@@ -48,7 +48,6 @@ public class AcceptanceTest {
 
         // then
         .then().log().all()
-                .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .cookie("accessToken", notNullValue());
     }
@@ -69,7 +68,6 @@ public class AcceptanceTest {
 
         // then
         .then()
-                .assertThat()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
