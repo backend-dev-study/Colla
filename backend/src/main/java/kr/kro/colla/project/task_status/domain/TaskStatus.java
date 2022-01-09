@@ -1,6 +1,7 @@
 package kr.kro.colla.project.task_status.domain;
 
 import kr.kro.colla.task.task.domain.Task;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TaskStatus {
 
     @Id
