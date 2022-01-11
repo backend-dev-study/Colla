@@ -1,4 +1,4 @@
-package kr.kro.colla.project.project;
+package kr.kro.colla.user.user;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
