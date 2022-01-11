@@ -2,6 +2,8 @@ package kr.kro.colla.user.user.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor
