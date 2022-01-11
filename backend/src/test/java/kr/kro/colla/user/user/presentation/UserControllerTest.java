@@ -97,7 +97,7 @@ class UserControllerTest {
         perform.andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("name : must not be null"));
+                .andExpect(jsonPath("$.message").value("name : must not be blank"));
     }
 
 }

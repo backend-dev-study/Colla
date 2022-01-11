@@ -22,11 +22,17 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${cors.allowed_origin}")
     private String origin;
 
+    @Value("${cookie.domain}")
+    private String credentialDomain;
+
+    @Value("${cookie.expiration_time}")
+    private long expirationTime;
+
     private final AuthService authService;
 
     @Bean
     public CookieManager cookieManager() {
-        return new CookieManager();
+        return new CookieManager(credentialDomain, expirationTime);
     }
 
     @Bean

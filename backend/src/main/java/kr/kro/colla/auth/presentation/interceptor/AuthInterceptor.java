@@ -19,7 +19,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     private final CookieManager cookieManager;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (request.getMethod().equals("OPTIONS")){
             return true;
         }
