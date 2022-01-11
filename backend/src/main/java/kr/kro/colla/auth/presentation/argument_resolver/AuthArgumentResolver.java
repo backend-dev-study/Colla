@@ -28,8 +28,7 @@ public class AuthArgumentResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String accessToken = (String) request.getAttribute("accessToken");
-        Long id = this.authService.extractIdFromToken(accessToken);
 
-        return new LoginUser(id);
+        return this.authService.findUserFromToken(accessToken);
     }
 }
