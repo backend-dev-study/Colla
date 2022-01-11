@@ -1,5 +1,6 @@
 package kr.kro.colla.exception;
 
+import kr.kro.colla.exception.exception.NotFoundException;
 import kr.kro.colla.exception.exception.auth.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionHandleResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+    public ResponseEntity<ExceptionHandleResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         FieldError fieldError = e.getFieldError();
         ExceptionHandleResponse response = new ExceptionHandleResponse(HttpStatus.BAD_REQUEST.value(), fieldError.getField() + " : " + fieldError.getDefaultMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -21,7 +22,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<ExceptionHandleResponse> handleHttpClientErrorException(HttpClientErrorException e){
+    public ResponseEntity<ExceptionHandleResponse> handleHttpClientErrorException(HttpClientErrorException e) {
         ExceptionHandleResponse response = new ExceptionHandleResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(response);
@@ -33,5 +34,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(response);
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ExceptionHandleResponse> handleNotFoundException(NotFoundException e) {
+        ExceptionHandleResponse response = new ExceptionHandleResponse(e.getStatusCode().value(), e.getMessage());
+        return ResponseEntity.status(e.getStatusCode()).body(response);
+    }
+
 
 }

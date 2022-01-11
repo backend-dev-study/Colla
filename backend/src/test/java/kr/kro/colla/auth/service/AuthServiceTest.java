@@ -43,7 +43,7 @@ class AuthServiceTest {
         String oAuthAccessToken = "oauth-access-token";
         String jwtAccessToken = "jwt-access-token";
         String jwtRefreshToken = "jwt-refresh-token";
-        User user = new User();
+        User user = User.builder().build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
         GithubUserProfileResponse githubUserProfileResponse = new GithubUserProfileResponse("user", "github-id", "avatar");

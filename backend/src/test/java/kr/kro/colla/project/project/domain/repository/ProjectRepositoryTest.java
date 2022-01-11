@@ -8,6 +8,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolationException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -35,6 +38,7 @@ class ProjectRepositoryTest {
         // then
         assertThat(result.getId()).isNotNull();
         assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getTaskStatuses().size()).isEqualTo(3);
 
     }
 
