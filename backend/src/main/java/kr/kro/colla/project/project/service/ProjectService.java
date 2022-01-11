@@ -2,6 +2,7 @@ package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -4,10 +4,10 @@ import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.user_project.domain.UserProject;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,5 +58,16 @@ public class Project {
         this.managerId = managerId;
         this.name = name;
         this.description = description;
+    }
+
+    @PrePersist
+    private void setDefaultTaskStatus(){
+        this.taskStatuses.add(TaskStatus.builder().name("To Do").build());
+        this.taskStatuses.add(TaskStatus.builder().name("In Progress").build());
+        this.taskStatuses.add(TaskStatus.builder().name("Done").build());
+    }
+
+    public void addStatus(TaskStatus taskStatus){
+        this.taskStatuses.add(taskStatus);
     }
 }

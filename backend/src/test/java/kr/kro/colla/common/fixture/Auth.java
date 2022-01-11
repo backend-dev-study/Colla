@@ -2,11 +2,11 @@ package kr.kro.colla.common.fixture;
 
 import kr.kro.colla.auth.service.JwtProvider;
 
-public class User {
+public class Auth {
 
     private JwtProvider jwtProvider;
 
-    public User(JwtProvider jwtProvider) {
+    public Auth(JwtProvider jwtProvider) {
         this.jwtProvider = jwtProvider;
     }
 
