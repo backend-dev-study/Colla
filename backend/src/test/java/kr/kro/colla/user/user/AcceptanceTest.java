@@ -35,6 +35,10 @@ public class AcceptanceTest {
     @Autowired
     private UserRepository userRepository;
 
+    private Auth auth;
+    private Long managerId;
+    private String name = "프로젝트 이름", desc = "프로젝트 설명";
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
@@ -43,14 +47,11 @@ public class AcceptanceTest {
         User user = User.builder()
                 .githubId("binimini")
                 .name("subin")
-                .avatar("github_content").build();
+                .avatar("github_content")
+                .build();
         userRepository.save(user);
         managerId = user.getId();
     }
-
-    static Long managerId;
-    private String name = "프로젝트 이름", desc = "프로젝트 설명";
-    private Auth auth;
 
     @Test
     void 사용자_프로젝트_생성_성공_후_반환한다() {
