@@ -5,10 +5,7 @@ import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
-import kr.kro.colla.user.user.presentation.dto.CreateProjectResponse;
-import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
-import kr.kro.colla.user.user.presentation.dto.UpdateUserNameResponse;
+import kr.kro.colla.user.user.presentation.dto.*;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +23,23 @@ public class UserController {
     private final ProjectService projectService;
     private final UserProjectService userProjectService;
 
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponse> getUserProfile(@Authenticated LoginUser loginUser) {
+        User user = this.userService.findUserById(loginUser.getId());
+
+        return ResponseEntity.ok(new UserProfileResponse(user));
+    }
+
+    @PatchMapping("/name")
+    public ResponseEntity<UpdateUserNameResponse> updateDisplayName(
+            @Authenticated LoginUser loginUser,
+            @RequestBody UpdateUserNameRequest updateUserNameRequest
+    ) {
+        String updatedName = this.userService.updateDisplayName(loginUser.getId(), updateUserNameRequest.getName());
+
+        return ResponseEntity.ok(new UpdateUserNameResponse(updatedName));
+    }
+
     @PostMapping("/{userId}/projects")
     public ResponseEntity<CreateProjectResponse> createProject(
             @PathVariable("userId") Long userId,
@@ -36,15 +50,6 @@ public class UserController {
         userProjectService.addUserToProject(user, project);
 
         return ResponseEntity.ok(new CreateProjectResponse(project));
-    }
-
-    @PatchMapping("/name")
-    public ResponseEntity<UpdateUserNameResponse> updateDisplayName(
-            @Authenticated LoginUser loginUser,
-            @RequestBody UpdateUserNameRequest updateUserNameRequest
-    ) {
-        String updatedName = this.userService.updateDisplayName(loginUser.getId(), updateUserNameRequest.getName());
-        return ResponseEntity.ok(new UpdateUserNameResponse(updatedName));
     }
 
 }

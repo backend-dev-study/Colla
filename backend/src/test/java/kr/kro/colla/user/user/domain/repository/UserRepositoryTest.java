@@ -33,15 +33,18 @@ class UserRepositoryTest {
 
     @Test
     void github아이디로_사용자를_조회한다() {
+        // given
+        String githubId = "kykapple";
+
         // when
-        User user = userRepository.findByGithubId("kykapple")
+        User result = userRepository.findByGithubId(githubId)
                 .orElseThrow(UserNotFoundException::new);
 
         // then
-        assertThat(user.getId()).isNotNull();
-        assertThat(user.getName()).isEqualTo(user.getName());
-        assertThat(user.getGithubId()).isEqualTo(user.getGithubId());
-        assertThat(user.getAvatar()).isEqualTo(user.getAvatar());
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
     }
 
     @Test
@@ -66,6 +69,22 @@ class UserRepositoryTest {
 
         // then
         assertThat(result.getName()).isEqualTo(newDisplayName);
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 올바른_id로_사용자를_조회한다() {
+        // given
+        Long id = user.getId();
+
+        // when
+        User result = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        // then
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getName()).isEqualTo(user.getName());
         assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
         assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
     }

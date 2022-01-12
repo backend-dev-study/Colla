@@ -29,8 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,6 +65,33 @@ class UserControllerTest {
                 .willReturn(new Cookie("accessToken", accessToken));
         given(authService.validateAccessToken(eq(accessToken)))
                 .willReturn(true);
+    }
+
+    @Test
+    void 사용자의_프로필을_조회한다() throws Exception {
+        // given
+        LoginUser loginUser = new LoginUser(1L);
+        User user = User.builder()
+                .name("kyk")
+                .githubId("kykapple")
+                .avatar("avatar.githubcontent")
+                .build();
+
+        given(authService.findUserFromToken(accessToken))
+                .willReturn(loginUser);
+        given(userService.findUserById(loginUser.getId()))
+                .willReturn(user);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/users/profile")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value(user.getName()))
+                .andExpect(jsonPath("$.githubId").value(user.getGithubId()))
+                .andExpect(jsonPath("$.avatar").value(user.getAvatar()));
     }
 
     @Test
