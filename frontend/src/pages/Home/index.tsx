@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 
 import HomeImageSrc from '../../../public/assets/images/home-image.png';
-import { isResponseSuccess } from '../../apis/common';
 import { createProject } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
@@ -19,16 +18,16 @@ const Home = () => {
     const handleModal = () => setProjectModal(!projectModal);
 
     const sendRequest = async (userId: number, name: string, desc: string) => {
-        const response = await createProject(userId, name, desc);
-
-        if (isResponseSuccess(response.status)) {
+        try {
+            const response = await createProject(userId, name, desc);
             const { name: projectName, description: projectDesc } = response.data;
             setProjectName(projectName);
             setProjectDesc(projectDesc);
+
             history.push('/kanban', response.data);
-        } else {
+        } catch (e: any) {
             // eslint-disable-next-line no-alert
-            alert('프로젝트 생성에 실패했습니다.');
+            window.alert(e.response.data.message);
         }
     };
 
