@@ -1,13 +1,9 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 
-import { projectInfoState } from '../../stores/atom';
+import { projectInfoState } from '../../stores/projectState';
 import UserIcon from '../Icon/User';
 import { Container, LeftNav, ProjectDesc, ProjectInfo, ProjectTitle, RightNav } from './style';
-
-const userName = 'user';
-const userProfileImg = undefined;
-const userGithubId = 'user_github_id';
 
 const Header = () => {
     const projectInfo = useRecoilValue(projectInfoState);
@@ -20,7 +16,7 @@ const Header = () => {
                 </ProjectInfo>
             </LeftNav>
             <RightNav>
-                <UserIcon userName={userName} githubId={userGithubId} image={userProfileImg} size="small" />
+                <UserIcon size="small" />
             </RightNav>
         </Container>
     );
