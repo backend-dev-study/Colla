@@ -1,19 +1,20 @@
 import styled from '@emotion/styled';
 import { GRAY, GREEN } from '../../../styles/color';
+import { Column } from '../../../styles/common';
 
 export const Container = styled.div`
-    display: flex;
-    flex-direction: column;
     justify-content: space-around;
     position: absolute;
-    top: 80px;
-    right: 0px;
+    top: 10px;
+    right: -30px;
     width: 300px;
     height: 250px;
     font-size: 20px;
     border-radius: 20px;
     background: ${GREEN};
     padding: 40px 0 40px 20px;
+
+    ${Column}
 `;
 
 export const DisplayName = styled.div`

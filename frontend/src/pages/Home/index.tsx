@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 
@@ -6,16 +6,14 @@ import HomeImageSrc from '../../../public/assets/images/home-image.png';
 import { createProject } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
+import useModal from '../../hooks/useModal';
 import { projectDescState, projectNameState } from '../../stores/atom';
 import { Container, HomeImage, ProjectNotice } from './style';
 
 const Home = () => {
-    const [projectModal, setProjectModal] = useState(false);
     const setProjectName = useSetRecoilState(projectNameState);
     const setProjectDesc = useSetRecoilState(projectDescState);
     const history = useHistory();
-
-    const handleModal = () => setProjectModal(!projectModal);
 
     const sendRequest = async (userId: number, name: string, desc: string) => {
         try {
@@ -31,13 +29,17 @@ const Home = () => {
         }
     };
 
+    const { setModal, Modal } = useModal();
+
     return (
         <>
             <Header />
             <Container>
                 <HomeImage src={HomeImageSrc} />
-                <ProjectNotice onClick={handleModal}>프로젝트를 추가해보세요!</ProjectNotice>
-                {projectModal ? <ProjectModal onClick={sendRequest} /> : null}
+                <ProjectNotice onClick={setModal}>프로젝트를 추가해보세요!</ProjectNotice>
+                <Modal>
+                    <ProjectModal onClick={sendRequest} />
+                </Modal>
             </Container>
         </>
     );
