@@ -8,6 +8,8 @@ import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 
+import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
+import kr.kro.colla.user.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class AcceptanceTest {
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -123,5 +128,26 @@ public class AcceptanceTest {
             .statusCode(HttpStatus.NOT_FOUND.value())
             .body("status", equalTo(404))
             .body("message", equalTo(new UserNotFoundException().getMessage()));
+    }
+
+    @Test
+    void 사용자는_이름을_변경할_수_있다() {
+        // given
+        String accessToken = auth.로그인(managerId);
+        String newDisplayName = "new-name";
+        UpdateUserNameRequest updateUserNameRequest = new UpdateUserNameRequest(newDisplayName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(updateUserNameRequest)
+        // when
+        .when()
+                .patch("/api/users/name")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo(newDisplayName));
     }
 }
