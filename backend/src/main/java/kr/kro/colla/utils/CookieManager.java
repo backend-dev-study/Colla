@@ -1,8 +1,10 @@
 package kr.kro.colla.utils;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -33,6 +35,14 @@ public class CookieManager {
                 .filter(cookie -> cookie.getName().equals(name))
                 .findAny()
                 .orElse(null);
+    }
+
+    public void expireCookie(HttpServletResponse response, String name) {
+        ResponseCookie clearCookie = ResponseCookie.from(name, null)
+                .maxAge(0)
+                .path("/")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
     }
 
 }

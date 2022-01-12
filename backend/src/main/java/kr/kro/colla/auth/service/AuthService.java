@@ -55,4 +55,8 @@ public class AuthService {
         return new LoginUser(id);
     }
 
+    public void removeRefreshToken(Long id) {
+        this.redisManager.removeRefreshToken(id);
+    }
+
 }

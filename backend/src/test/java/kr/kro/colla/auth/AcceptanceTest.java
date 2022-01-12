@@ -1,12 +1,15 @@
 package kr.kro.colla.auth;
 
 import io.restassured.RestAssured;
+import io.restassured.http.Cookie;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
 import kr.kro.colla.auth.infrastructure.RedisManager;
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.auth.service.JwtProvider;
+import kr.kro.colla.common.fixture.Auth;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +38,12 @@ public class AcceptanceTest {
     @Autowired
     private RedisManager redisManager;
 
+    private Auth auth;
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
+        auth = new Auth(jwtProvider);
     }
 
     @Test
@@ -85,6 +91,31 @@ public class AcceptanceTest {
         // then
         .then()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    void 로그아웃_시_Jwt토큰을_삭제한다() {
+        // given
+        Long id = 1L;
+        String accessToken = auth.로그인(id);
+
+        ExtractableResponse<Response> response = RestAssured
+                .given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+        // when
+        .when()
+                .post("/api/auth/logout")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.NO_CONTENT.value())
+                .extract();
+
+        Cookie cookie = response.detailedCookie("accessToken");
+        assertThat(cookie.getValue()).isBlank();
+        assertThat(cookie.getMaxAge()).isZero();
+        assertThat(redisManager.findValue(id.toString())).isNull();
     }
 
 }

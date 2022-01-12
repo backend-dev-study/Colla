@@ -10,6 +10,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 @RestController
@@ -28,9 +30,13 @@ public class AuthController {
                 .build();
     }
 
-    @GetMapping("/log")
-    public ResponseEntity Log(@Authenticated LoginUser loginUser) {
-        return ResponseEntity.ok(loginUser);
+    @PostMapping("/logout")
+    public ResponseEntity logout(@Authenticated LoginUser loginUser, HttpServletResponse response) {
+        this.cookieManager.expireCookie(response, "accessToken");
+        this.authService.removeRefreshToken(loginUser.getId());
+
+        return ResponseEntity.noContent()
+                .build();
     }
 
 }
