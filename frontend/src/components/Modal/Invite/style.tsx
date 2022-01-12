@@ -5,7 +5,7 @@ import { Modal } from '../../../styles/common';
 export const Wrapper = styled.div`
     position: absolute;
     justify-content: space-around;
-    width: 400px;
+    width: 500px;
     height: 300px;
     font-size: 20px;
     border-radius: 40px;
