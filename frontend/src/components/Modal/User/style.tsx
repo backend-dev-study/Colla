@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { GRAY, GREEN } from '../../../styles/color';
 
 export const Container = styled.div`
     display: flex;
@@ -11,7 +12,7 @@ export const Container = styled.div`
     height: 250px;
     font-size: 20px;
     border-radius: 20px;
-    background: rgba(206, 232, 207);
+    background: ${GREEN};
     padding: 40px 0 40px 20px;
 `;
 
@@ -30,7 +31,7 @@ export const LogoutButton = styled.div`
     padding: 4px 0px;
     border-radius: 20px;
     text-align: center;
-    background: rgba(196, 196, 196);
+    background: ${GRAY};
     margin-right: 20px;
 `;
 

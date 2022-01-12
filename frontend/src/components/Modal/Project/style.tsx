@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { GRAY, GREEN } from '../../../styles/color';
 
 export const Container = styled.div`
     position: absolute;
@@ -7,7 +8,7 @@ export const Container = styled.div`
     height: 400px;
     font-size: 20px;
     border-radius: 40px;
-    background: rgba(206, 232, 207);
+    background: ${GREEN};
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -24,5 +25,5 @@ export const SubmitButton = styled.div`
     padding: 10px 30px;
     border-radius: 20px;
     text-align: center;
-    background: rgba(196, 196, 196);
+    background: ${GRAY};
 `;

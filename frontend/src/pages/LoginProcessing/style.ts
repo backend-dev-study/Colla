@@ -2,10 +2,11 @@ import styled from '@emotion/styled';
 import { Center } from '../../styles/common';
 
 export const Container = styled.div`
-    ${Center}
     height: 90vh;
     flex-direction: column;
     margin: auto 0;
+
+    ${Center}
 `;
 
 export const Notice = styled.div`

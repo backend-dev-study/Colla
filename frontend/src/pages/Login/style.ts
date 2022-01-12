@@ -1,17 +1,20 @@
 import styled from '@emotion/styled';
+import { GREEN } from '../../styles/color';
 import { Center } from '../../styles/common';
 
 export const Container = styled.div`
-    ${Center}
     flex-direction: column;
     margin-top: 70px;
+
+    ${Center}
 `;
 
 export const Logo = styled.div`
-    ${Center}
     font-family: 'Euljiro';
     font-size: 50px;
     font-weight: 1000;
+
+    ${Center}
 `;
 
 export const MainImage = styled.img`
@@ -21,12 +24,13 @@ export const MainImage = styled.img`
 `;
 
 export const LoginButton = styled.div`
-    ${Center}
     width: 500px;
     height: 70px;
     border-radius: 10px;
-    background-color: #cee8cf;
+    background-color: ${GREEN};
     cursor: pointer;
+
+    ${Center}
 `;
 
 export const GithubLogo = styled.img`

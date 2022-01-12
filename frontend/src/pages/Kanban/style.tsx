@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import plusIcon from '../../../public/assets/images/plus-circle.svg';
+import { LIGHT_GRAY } from '../../styles/color';
 
 export const Wrapper = styled.div`
     display: flex;
@@ -13,11 +14,11 @@ export const KanbanAdditional = styled.div`
     width: 300px;
     height: 630px;
     border-radius: 10px;
-    background: rgba(196, 196, 196, 0.2);
+    background: ${LIGHT_GRAY};
     margin-left: 10px;
     margin-right: 10px;
     &:hover {
-        background: rgba(196, 196, 196, 0.35);
+        opacity: 50%;
     }
 `;
 
