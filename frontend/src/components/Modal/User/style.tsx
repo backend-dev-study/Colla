@@ -7,7 +7,7 @@ export const Container = styled.div`
     position: absolute;
     top: 80px;
     right: 0px;
-    width: 300px;
+    width: 380px;
     height: 250px;
     font-size: 20px;
     border-radius: 20px;
@@ -18,6 +18,7 @@ export const Container = styled.div`
 export const DisplayName = styled.div`
     height: 30px;
     margin-right: 10px;
+    min-width: 132px;
 `;
 
 export const UserName = styled.div`
@@ -49,12 +50,14 @@ export const Complete = styled.span`
     margin-left: 10px;
     font-size: 16px;
     cursor: pointer;
+    min-width: 30px;
 `;
 
 export const Cancel = styled.span`
     margin: 0 20px 0 10px;
     font-size: 16px;
     cursor: pointer;
+    min-width: 30px;
 `;
 
 export const Wrapper = styled.div`
