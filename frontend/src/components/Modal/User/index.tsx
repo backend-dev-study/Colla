@@ -1,6 +1,8 @@
 import React, { ChangeEvent, FC, useState } from 'react';
 
 import edit from '../../../../public/assets/images/edit.svg';
+import { logout } from '../../../apis/auth';
+import { isResponseSuccess } from '../../../apis/common';
 import {
     Container,
     Wrapper,
@@ -40,6 +42,13 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
         setShowInputBar(false);
     };
 
+    const handleLogoutButton = async () => {
+        const res = await logout();
+        if (isResponseSuccess(res.status)) {
+            window.location.href = '/';
+        }
+    };
+
     return (
         <Container onClick={preventClose}>
             {id ? (
@@ -61,7 +70,7 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
                         )}
                     </Wrapper>
                     <GithubId>github id : {id}</GithubId>
-                    <LogoutButton>로그아웃</LogoutButton>
+                    <LogoutButton onClick={handleLogoutButton}>로그아웃</LogoutButton>
                 </>
             ) : (
                 <LogoutButton>로그인</LogoutButton>

@@ -32,6 +32,7 @@ export const LogoutButton = styled.div`
     text-align: center;
     background: rgba(196, 196, 196);
     margin-right: 20px;
+    cursor: pointer;
 `;
 
 export const Edit = styled.img`
