@@ -3,6 +3,7 @@ import React, { ChangeEvent, FC, useState } from 'react';
 import edit from '../../../../public/assets/images/edit.svg';
 import { logout } from '../../../apis/auth';
 import { isResponseSuccess } from '../../../apis/common';
+import { updateDisplayName } from '../../../apis/user';
 import {
     Container,
     Wrapper,
@@ -37,9 +38,12 @@ const UserModal: FC<PropType> = ({ userName, id }) => {
         setModifyingName((event.target as HTMLInputElement).value);
     };
 
-    const handleCompleteButton = () => {
-        setDisplayName(modifyingName);
-        setShowInputBar(false);
+    const handleCompleteButton = async () => {
+        const res = await updateDisplayName(modifyingName);
+        if (isResponseSuccess(res.status)) {
+            setDisplayName(modifyingName);
+            setShowInputBar(false);
+        }
     };
 
     const handleLogoutButton = async () => {
