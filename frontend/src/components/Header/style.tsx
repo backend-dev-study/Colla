@@ -30,17 +30,18 @@ export const ProjectInfo = styled.div`
     ${WidthCenter}
 `;
 
+export const ProjectManagement = styled.div`
+    position: relative;
+`;
+
 export const ProjectManageButton = styled.button`
-    width: 90px;
-    height: 40px;
+    position: relative;
+    width: 80px;
+    height: 35px;
     border-radius: 10px;
     margin-left: 20px;
     margin-right: 20px;
     font-size: 20px;
-
-    &:hover {
-        opacity: 50%;
-    }
 `;
 
 export const LeftNav = styled.div`
