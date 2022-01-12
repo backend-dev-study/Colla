@@ -7,7 +7,7 @@ import { isResponseSuccess } from '../../apis/common';
 import { createProject } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
-import { projectDescState, projectNameState } from '../../stores/atom';
+import { projectDescState, projectNameState } from '../../stores/projectState';
 import { Container, HomeImage, ProjectNotice } from './style';
 
 const Home = () => {
