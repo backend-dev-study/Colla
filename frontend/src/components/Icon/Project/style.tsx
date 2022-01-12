@@ -12,9 +12,6 @@ export const Container = styled.div`
     font-size: 30px;
     border-radius: 20px;
     background: ${GRAY};
-    :hover {
-        opacity: 50%;
-    }
 
     ${Center}
 `;

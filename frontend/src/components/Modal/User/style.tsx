@@ -1,20 +1,20 @@
 import styled from '@emotion/styled';
 import { GRAY, GREEN } from '../../../styles/color';
-import { Column } from '../../../styles/common';
+import { Modal } from '../../../styles/common';
 
 export const Container = styled.div`
-    justify-content: space-around;
     position: absolute;
-    top: 10px;
-    right: -30px;
+    justify-content: space-around;
     width: 300px;
     height: 250px;
     font-size: 20px;
-    border-radius: 20px;
+    top: 10px;
+    right: -30px;
     background: ${GREEN};
+    border-radius: 20px;
     padding: 40px 0 40px 20px;
 
-    ${Column}
+    ${Modal}
 `;
 
 export const DisplayName = styled.div`
@@ -28,9 +28,11 @@ export const UserName = styled.div`
 
 export const GithubId = styled.div``;
 
-export const LogoutButton = styled.div`
+export const LogoutButton = styled.button`
     padding: 4px 0px;
-    border-radius: 20px;
+    height: 30px;
+    font-size: 16px;
+    border-radius: 10px;
     text-align: center;
     background: ${GRAY};
     margin-right: 20px;

@@ -23,12 +23,11 @@ export const MainImage = styled.img`
     margin-top: 20px;
 `;
 
-export const LoginButton = styled.div`
+export const LoginButton = styled.button`
     width: 500px;
     height: 70px;
     border-radius: 10px;
     background-color: ${GREEN};
-    cursor: pointer;
 
     ${Center}
 `;
