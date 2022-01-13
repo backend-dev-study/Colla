@@ -43,7 +43,7 @@ public class AcceptanceTest {
 
     private Auth auth;
     private User user;
-
+    private String accessToken;
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
@@ -55,13 +55,13 @@ public class AcceptanceTest {
                 .avatar("github_content")
                 .build();
         userRepository.save(user);
+
+        accessToken = auth.로그인(user.getId());
     }
 
     @Test
     void 로그인한_사용자의_프로필을_조회한다() {
         // given
-        String accessToken = auth.로그인(user.getId());
-
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
@@ -79,7 +79,6 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_생성_성공_후_반환한다() {
         // given
-        String accessToken = auth.로그인(user.getId());
         String name = "프로젝트 이름", desc = "프로젝트 설명";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", name);
@@ -105,7 +104,6 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_생성_시_요청이_잘못돼_에러를_반환한다() throws Exception {
         // given
-        String accessToken = auth.로그인(user.getId());
         String name = "프로젝트 이름", desc = "프로젝트 설명";
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("description", desc);
@@ -129,7 +127,6 @@ public class AcceptanceTest {
     @Test
     void 사용자는_이름을_변경할_수_있다() {
         // given
-        String accessToken = auth.로그인(user.getId());
         String newDisplayName = "new-name";
         UpdateUserNameRequest updateUserNameRequest = new UpdateUserNameRequest(newDisplayName);
 
