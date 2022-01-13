@@ -1,6 +1,7 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 
-import useUserState from '../../../stores/userState';
+import useModal from '../../../hooks/useModal';
+import { useUserState } from '../../../stores/userState';
 import UserModal from '../../Modal/User';
 import { Container, Icon, ImageContainer } from './style';
 
@@ -9,10 +10,8 @@ interface PropType {
 }
 
 const UserIcon: FC<PropType> = ({ size }) => {
-    const [modal, setModal] = useState(false);
     const profile = useUserState();
-
-    const handleModal = () => setModal(!modal);
+    const { Modal, setModal } = useModal();
 
     if (profile.state === 'loading') {
         return (
@@ -25,13 +24,15 @@ const UserIcon: FC<PropType> = ({ size }) => {
     const { displayName, githubId, avatar } = profile.contents;
 
     return (
-        <Icon onClick={handleModal}>
+        <Icon onClick={setModal}>
             {avatar ? (
                 <ImageContainer image={avatar} size={size} />
             ) : (
                 <Container size={size}>{displayName[0].toUpperCase()}</Container>
             )}
-            {modal ? <UserModal userName={displayName} githubId={githubId} /> : null}
+            <Modal>
+                <UserModal userName={displayName} githubId={githubId} />
+            </Modal>
         </Icon>
     );
 };

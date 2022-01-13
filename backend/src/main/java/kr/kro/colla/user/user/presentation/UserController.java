@@ -40,13 +40,13 @@ public class UserController {
         return ResponseEntity.ok(new UpdateUserNameResponse(updatedName));
     }
 
-    @PostMapping("/{userId}/projects")
+    @PostMapping("/projects")
     public ResponseEntity<CreateProjectResponse> createProject(
-            @PathVariable("userId") Long userId,
+            @Authenticated LoginUser loginUser,
             @Valid @RequestBody CreateProjectRequest createProjectRequest
     ) {
-        User user = userService.findUserById(userId);
-        Project project = projectService.createProject(userId, createProjectRequest);
+        User user = userService.findUserById(loginUser.getId());
+        Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
         userProjectService.addUserToProject(user, project);
 
         return ResponseEntity.ok(new CreateProjectResponse(project));

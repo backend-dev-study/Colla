@@ -1,7 +1,7 @@
 import { selector, useRecoilValueLoadable } from 'recoil';
 import { getUserProfile } from '../apis/user';
 
-export const userState = selector({
+const userState = selector({
     key: 'userState',
     get: async () => {
         try {
@@ -13,6 +13,4 @@ export const userState = selector({
     },
 });
 
-const useUserState = () => useRecoilValueLoadable(userState);
-
-export default useUserState;
+export const useUserState = () => useRecoilValueLoadable(userState);

@@ -1,18 +1,20 @@
 import styled from '@emotion/styled';
+import { GRAY, GREEN } from '../../../styles/color';
+import { Modal } from '../../../styles/common';
 
 export const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
     position: absolute;
-    top: 80px;
-    right: 0px;
+    top: 10px;
     width: 380px;
+    justify-content: space-around;
     height: 250px;
     font-size: 20px;
+    right: -70px;
+    background: ${GREEN};
     border-radius: 20px;
-    background: rgba(206, 232, 207);
     padding: 40px 0 40px 20px;
+
+    ${Modal}
 `;
 
 export const DisplayName = styled.div`
@@ -27,11 +29,13 @@ export const UserName = styled.div`
 
 export const GithubId = styled.div``;
 
-export const LogoutButton = styled.div`
+export const LogoutButton = styled.button`
     padding: 4px 0px;
-    border-radius: 20px;
+    height: 30px;
+    font-size: 16px;
+    border-radius: 10px;
     text-align: center;
-    background: rgba(196, 196, 196);
+    background: ${GRAY};
     margin-right: 20px;
     cursor: pointer;
 `;
