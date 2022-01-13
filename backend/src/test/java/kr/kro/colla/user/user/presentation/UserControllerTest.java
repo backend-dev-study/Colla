@@ -3,7 +3,6 @@ package kr.kro.colla.user.user.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
-import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
@@ -55,8 +54,8 @@ class UserControllerTest {
     @MockBean
     private CookieManager cookieManager;
 
-    private Long managerId = 3L;
-    private String accessToken = "token", name = "프로젝트 이름", desc = "프로젝트 설명";
+    private String accessToken = "token";
+    private LoginUser loginUser;
 
     @BeforeEach
     void setUp() {
@@ -65,26 +64,26 @@ class UserControllerTest {
                 .willReturn(new Cookie("accessToken", accessToken));
         given(authService.validateAccessToken(eq(accessToken)))
                 .willReturn(true);
+        loginUser = new LoginUser(345234L);
+        given(authService.findUserFromToken(accessToken))
+                .willReturn(loginUser);
     }
 
     @Test
     void 사용자의_프로필을_조회한다() throws Exception {
         // given
-        LoginUser loginUser = new LoginUser(1L);
         User user = User.builder()
                 .name("kyk")
                 .githubId("kykapple")
                 .avatar("avatar.githubcontent")
                 .build();
 
-        given(authService.findUserFromToken(accessToken))
-                .willReturn(loginUser);
         given(userService.findUserById(loginUser.getId()))
                 .willReturn(user);
 
         // when
         ResultActions perform = mockMvc.perform(get("/users/profile")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -97,12 +96,13 @@ class UserControllerTest {
     @Test
     void 사용자_프로젝트_생성_후_반환한다() throws Exception {
         // given
+        String name = "프로젝트 이름", desc = "프로젝트 설명";
         CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
                 .name(name)
                 .description(desc)
                 .build();
         Project project = Project.builder()
-                .managerId(managerId)
+                .managerId(loginUser.getId())
                 .name(name)
                 .description(desc)
                 .build();
@@ -113,13 +113,13 @@ class UserControllerTest {
                 .build();
         String content = new ObjectMapper().writeValueAsString(createProjectRequest);
 
-        given(userService.findUserById(managerId))
+        given(userService.findUserById(loginUser.getId()))
                 .willReturn(user);
-        given(projectService.createProject(eq(managerId), any(CreateProjectRequest.class)))
+        given(projectService.createProject(any(), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
         // when
-        ResultActions perform = mockMvc.perform(post("/users/" + managerId + "/projects")
+        ResultActions perform = mockMvc.perform(post("/users/projects")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content));
@@ -127,68 +127,37 @@ class UserControllerTest {
         // then
         perform.andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.managerId").value(managerId))
+                .andExpect(jsonPath("$.managerId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.description").value(desc));
+        verify(projectService, times(1)).createProject(eq(loginUser.getId()), any(CreateProjectRequest.class));
     }
 
     @Test
     void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
         // given
+        String desc = "프로젝트 설명";
         CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
                 .description(desc)
                 .build();
-        User user = User.builder()
-                .githubId("binimini")
-                .name("subin")
-                .avatar("github_content")
-                .build();
         String content = new ObjectMapper().writeValueAsString(createProjectRequest);
 
-        given(userService.findUserById(managerId))
-                .willReturn(user);
-
         // when
-        ResultActions perform = mockMvc.perform(post("/users/" + managerId + "/projects")
+        ResultActions perform = mockMvc.perform(post("/users/projects")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content));
 
         // then
-        perform.andDo(print())
+        perform
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("name : must not be blank"));
     }
 
     @Test
-    void 프로젝트_생성_시_해당_사용자가_없을_경우_에러를_반환한다() throws Exception {
-        // given
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .name(name)
-                .description(desc)
-                .build();
-        String content = new ObjectMapper().writeValueAsString(createProjectRequest);
-
-        given(userService.findUserById(managerId))
-                .willThrow(new UserNotFoundException());
-
-        // when
-        ResultActions perform = mockMvc.perform(post("/users/" + managerId + "/projects")
-                .cookie(new Cookie("accessToken", accessToken))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content));
-
-        // then
-        perform.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(new UserNotFoundException().getStatusCode().value()))
-                .andExpect(jsonPath("$.message").value(new UserNotFoundException().getMessage()));
-    }
-
-    @Test
     void 사용자의_이름을_변경한다() throws Exception {
         // given
-        LoginUser loginUser = new LoginUser(1L);
         String newDisplayName = "new-name";
         UpdateUserNameRequest updateUserNameRequest = new UpdateUserNameRequest(newDisplayName);
         String content = new ObjectMapper().writeValueAsString(updateUserNameRequest);
@@ -208,7 +177,6 @@ class UserControllerTest {
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(newDisplayName));
-        verify(authService, times(1)).validateAccessToken(eq(accessToken));
         verify(userService, times(1)).updateDisplayName(eq(loginUser.getId()), eq(newDisplayName));
     }
 

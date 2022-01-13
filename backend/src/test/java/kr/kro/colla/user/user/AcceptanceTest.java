@@ -4,7 +4,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
-import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 
@@ -93,7 +92,7 @@ public class AcceptanceTest {
                 .body(requestBody)
         // when
         .when()
-                .post("/api/users/{userId}/projects", user.getId())
+                .post("/api/users/projects")
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
@@ -118,38 +117,13 @@ public class AcceptanceTest {
                 .body(requestBody)
         // when
         .when()
-                .post("/api/users/{userId}/projects", user.getId())
+                .post("/api/users/projects")
 
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(400))
                 .body("message", equalTo("name : 공백일 수 없습니다"));
-    }
-
-    @Test
-    void 사용자_프로젝트_생성_시_없는_사용자_아이디_요청에_에러_반환한다(){
-        // given
-        String accessToken = auth.로그인(user.getId());
-        String name = "프로젝트 이름", desc = "프로젝트 설명";
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", name);
-        requestBody.put("description",desc);
-
-        given()
-                .contentType(ContentType.JSON)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", accessToken)
-                .body(requestBody)
-        // when
-        .when()
-                .post("/api/users/{userId}/projects",123123)
-
-        // then
-        .then().log().all()
-            .statusCode(HttpStatus.NOT_FOUND.value())
-            .body("status", equalTo(404))
-            .body("message", equalTo(new UserNotFoundException().getMessage()));
     }
 
     @Test
