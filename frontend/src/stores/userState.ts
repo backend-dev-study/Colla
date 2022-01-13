@@ -1,15 +1,15 @@
 import { selector, useRecoilValueLoadable } from 'recoil';
-import { isResponseSuccess } from '../apis/common';
 import { getUserProfile } from '../apis/user';
 
-const userState = selector({
+export const userState = selector({
     key: 'userState',
     get: async () => {
-        const res = await getUserProfile();
-        if (!isResponseSuccess(res.status)) {
+        try {
+            const res = await getUserProfile();
+            return res.data;
+        } catch (e) {
             return null;
         }
-        return res.data;
     },
 });
 
