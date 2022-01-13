@@ -3,7 +3,7 @@ import React, { ChangeEvent, FC, useState } from 'react';
 import ProjectIcon from '../../Icon/Project';
 import { Container, SubmitButton, ProjectNameInput, ProjectDescInput } from './style';
 
-const dummyUserId = 123;
+const dummyUserId = 28;
 
 interface PropType {
     // eslint-disable-next-line no-unused-vars

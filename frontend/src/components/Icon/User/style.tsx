@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { GRAY } from '../../../styles/color';
 import { Center } from '../../../styles/common';
 
 interface Props {
@@ -12,7 +13,7 @@ export const Container = styled.div<Props>`
     font-size: 20px;
     border-radius: 100px;
     border: none;
-    background: rgba(196, 196, 196);
+    background: ${GRAY};
     :hover {
         opacity: 50%;
         cursor: pointer;

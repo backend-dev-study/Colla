@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { LIGHT_GRAY } from '../../styles/color';
 import { WidthCenter } from '../../styles/common';
 
 export const Wrapper = styled.div`
@@ -14,7 +15,7 @@ export const KanbanStatus = styled.div`
     width: 300px;
     height: 50px;
     border-radius: 10px;
-    background: rgba(196, 196, 196, 0.2);
+    background: ${LIGHT_GRAY};
     margin-bottom: 30px;
     font-size: 24px;
     text-align: center;
@@ -26,7 +27,7 @@ export const KanbanIssue = styled.div`
     width: 300px;
     height: 550px;
     border-radius: 10px;
-    background: rgba(196, 196, 196, 0.2);
+    background: ${LIGHT_GRAY};
 
     ${WidthCenter}
 `;

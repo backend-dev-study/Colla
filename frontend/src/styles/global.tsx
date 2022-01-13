@@ -6,10 +6,17 @@ const GlobalStyle = () => (
         styles={css`
             button {
                 border: none;
+                &:hover {
+                    opacity: 50%;
+                    cursor: pointer;
+                }
             }
 
             input {
                 border: none;
+                &:focus {
+                    outline: none;
+                }
             }
 
             @font-face {
