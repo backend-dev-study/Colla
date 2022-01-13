@@ -33,23 +33,72 @@ class UserRepositoryTest {
 
     @Test
     void github아이디로_사용자를_조회한다() {
+        // given
+        String githubId = "kykapple";
+
         // when
-        User user = userRepository.findByGithubId("kykapple")
+        User result = userRepository.findByGithubId(githubId)
                 .orElseThrow(UserNotFoundException::new);
 
         // then
-        assertThat(user.getId()).isNotNull();
-        assertThat(user.getName()).isEqualTo(user.getName());
-        assertThat(user.getGithubId()).isEqualTo(user.getGithubId());
-        assertThat(user.getAvatar()).isEqualTo(user.getAvatar());
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
     }
 
     @Test
-    void github아이디로_사용자를_조회할_수_없다() {
+    void 존재하지_않는_github아이디로_사용자를_조회할_경우_예외를_반환한다() {
         // when, then
-        assertThatThrownBy(() -> userRepository.findByGithubId("asdasd")
-                .orElseThrow(UserNotFoundException::new))
-                .isInstanceOf(UserNotFoundException.class);
+        assertThatThrownBy(
+                () -> userRepository.findByGithubId("asdasd")
+                        .orElseThrow(UserNotFoundException::new)
+        ).isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void 사용자의_닉네임을_변경할_수_있다() {
+        // when
+        String newDisplayName = "new-name";
+        User findUser = userRepository.findById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+        findUser.changeDisplayName(newDisplayName);
+
+        User result = userRepository.findById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+
+        // then
+        assertThat(result.getName()).isEqualTo(newDisplayName);
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 올바른_id로_사용자를_조회한다() {
+        // given
+        Long id = user.getId();
+
+        // when
+        User result = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        // then
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 잘못된_id로_조회할_경우_예외가_발생한다() {
+        // given
+        Long inValidId = 3L;
+
+        // when, then
+        assertThatThrownBy(
+                () -> userRepository.findById(inValidId)
+                        .orElseThrow(UserNotFoundException::new)
+        ).isInstanceOf(UserNotFoundException.class);
     }
 
 }

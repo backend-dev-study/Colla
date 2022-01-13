@@ -7,16 +7,18 @@ import kr.kro.colla.user.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import javax.transaction.Transactional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public User createUserIfNotExist(GithubUserProfileResponse userProfile) {
+    public User createOrUpdateUser(GithubUserProfileResponse userProfile) {
         return this.userRepository.findByGithubId(userProfile.getGithubId())
+                .map(user -> user.changeProfile(userProfile))
                 .orElseGet(() -> this.userRepository.save(
                                 User.builder()
                                         .name(userProfile.getName())
@@ -28,11 +30,16 @@ public class UserService {
     }
 
     public User findUserById(Long id){
-        Optional<User> isUser = userRepository.findById(id);
-        if (isUser.isEmpty()) {
-            throw new UserNotFoundException();
-        }
-
-        return isUser.get();
+        return userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
     }
+
+    public String updateDisplayName(Long id, String displayName) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        user.changeDisplayName(displayName);
+
+        return displayName;
+    }
+
 }

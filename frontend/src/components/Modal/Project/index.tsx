@@ -3,11 +3,9 @@ import React, { ChangeEvent, FC, useState } from 'react';
 import ProjectIcon from '../../Icon/Project';
 import { Container, SubmitButton, ProjectNameInput, ProjectDescInput } from './style';
 
-const dummyUserId = 28;
-
 interface PropType {
     // eslint-disable-next-line no-unused-vars
-    onClick: (id: number, name: string, desc: string) => void;
+    onClick: (name: string, desc: string) => void;
 }
 const ProjectModal: FC<PropType> = ({ onClick }) => {
     const [name, setName] = useState('');
@@ -17,7 +15,7 @@ const ProjectModal: FC<PropType> = ({ onClick }) => {
 
     const handleDescChange = (event: ChangeEvent<HTMLInputElement>) => setDesc(event.target.value);
 
-    const handleSubmit = () => onClick(dummyUserId, name, desc);
+    const handleSubmit = () => onClick(name, desc);
 
     return (
         <Container>

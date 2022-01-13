@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
-import { projectNameState } from '../../stores/atom';
+import { projectNameState } from '../../stores/projectState';
 import { Wrapper, KanbanAddButton, KanbanAdditional } from './style';
 
 const statuses = ['To Do', 'Progress', 'Done'];

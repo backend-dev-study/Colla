@@ -4,12 +4,12 @@ import { Modal } from '../../../styles/common';
 
 export const Container = styled.div`
     position: absolute;
+    top: 10px;
+    width: 380px;
     justify-content: space-around;
-    width: 300px;
     height: 250px;
     font-size: 20px;
-    top: 10px;
-    right: -30px;
+    right: -70px;
     background: ${GREEN};
     border-radius: 20px;
     padding: 40px 0 40px 20px;
@@ -20,6 +20,7 @@ export const Container = styled.div`
 export const DisplayName = styled.div`
     height: 30px;
     margin-right: 10px;
+    min-width: 132px;
 `;
 
 export const UserName = styled.div`
@@ -36,6 +37,7 @@ export const LogoutButton = styled.button`
     text-align: center;
     background: ${GRAY};
     margin-right: 20px;
+    cursor: pointer;
 `;
 
 export const Edit = styled.img`
@@ -52,12 +54,14 @@ export const Complete = styled.span`
     margin-left: 10px;
     font-size: 16px;
     cursor: pointer;
+    min-width: 30px;
 `;
 
 export const Cancel = styled.span`
     margin: 0 20px 0 10px;
     font-size: 16px;
     cursor: pointer;
+    min-width: 30px;
 `;
 
 export const Wrapper = styled.div`
