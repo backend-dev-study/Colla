@@ -5,3 +5,9 @@ export const getAccessToken = async (code: string) => {
 
     return response;
 };
+
+export const logout = async () => {
+    const response = await client.post(`/auth/logout`);
+
+    return response;
+};

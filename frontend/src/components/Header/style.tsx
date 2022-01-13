@@ -3,8 +3,9 @@ import { Center, WidthCenter } from '../../styles/common';
 
 export const Container = styled.div`
     display: flex;
-    width: 85vw;
+    width: 90vw;
     height: 100px;
+    margin-left: 100px;
 `;
 
 export const ProjectTitle = styled.div`
@@ -45,15 +46,15 @@ export const ProjectManageButton = styled.button`
 `;
 
 export const LeftNav = styled.div`
-    flex: 8;
+    flex: 10;
     height: 100%;
 
     ${Center}
 `;
 
 export const RightNav = styled.div`
-    flex: 2;
     height: 100%;
+    margin-top: 20px;
 
     ${Center}
 `;

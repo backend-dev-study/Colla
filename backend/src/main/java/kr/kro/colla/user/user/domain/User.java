@@ -1,5 +1,6 @@
 package kr.kro.colla.user.user.domain;
 
+import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user_project.domain.UserProject;
 import lombok.AccessLevel;
@@ -41,6 +42,17 @@ public class User {
         this.name = name;
         this.githubId = githubId;
         this.avatar = avatar;
+    }
+
+    public User changeProfile(GithubUserProfileResponse profile) {
+        this.name = profile.getName();
+        this.avatar = profile.getAvatar();
+
+        return this;
+    }
+
+    public void changeDisplayName(String name) {
+        this.name = name;
     }
 
 }

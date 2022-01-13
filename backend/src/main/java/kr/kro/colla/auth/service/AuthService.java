@@ -1,5 +1,6 @@
 package kr.kro.colla.auth.service;
 
+import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.infrastructure.GithubOAuthManager;
 import kr.kro.colla.auth.infrastructure.RedisManager;
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
@@ -26,7 +27,7 @@ public class AuthService {
         String oAuthAccessToken = this.githubOAuthManager.getOAuthAccessToken(code);
         GithubUserProfileResponse userProfile = this.githubOAuthManager.getUserProfile(oAuthAccessToken);
 
-        User user = this.userService.createUserIfNotExist(userProfile);
+        User user = this.userService.createOrUpdateUser(userProfile);
         CreateTokenResponse createTokenResponse = this.jwtProvider.createTokens(user.getId());
         this.redisManager.saveRefreshToken(user.getId(), createTokenResponse.getRefreshToken());
 
@@ -49,8 +50,13 @@ public class AuthService {
         return this.jwtProvider.createAccessToken(id);
     }
 
-    public Long extractIdFromToken(String token) {
-        return this.jwtProvider.findIdFromToken(token);
+    public LoginUser findUserFromToken(String token) {
+        Long id = this.jwtProvider.findIdFromToken(token);
+        return new LoginUser(id);
+    }
+
+    public void removeRefreshToken(Long id) {
+        this.redisManager.removeRefreshToken(id);
     }
 
 }

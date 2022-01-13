@@ -1,6 +1,7 @@
 package kr.kro.colla.user.user.service;
 
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
+import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -43,7 +46,7 @@ class UserServiceTest {
                 .willReturn(user);
 
         // when
-        User result = userService.createUserIfNotExist(githubUserProfileResponse);
+        User result = userService.createOrUpdateUser(githubUserProfileResponse);
 
         // then
         verify(userRepository, times(1)).findByGithubId(any(String.class));
@@ -68,7 +71,7 @@ class UserServiceTest {
                 .willReturn(Optional.of(user));
 
         // when
-        User result = userService.createUserIfNotExist(githubUserProfileResponse);
+        User result = userService.createOrUpdateUser(githubUserProfileResponse);
 
         // then
         verify(userRepository, times(1)).findByGithubId(any(String.class));
@@ -77,6 +80,42 @@ class UserServiceTest {
         assertThat(result.getName()).isEqualTo(user.getName());
         assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
         assertThat(result.getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 사용자의_닉네임을_변경한다() {
+        // given
+        Long id = 1L;
+        String newDisplayName = "new-name";
+        User user = User.builder()
+                .name("name")
+                .githubId("kykapple")
+                .avatar("avatar")
+                .build();
+
+        given(userRepository.findById(id))
+                .willReturn(Optional.of(user));
+
+        // when
+        String updatedName = userService.updateDisplayName(id, newDisplayName);
+
+        // then
+        assertThat(updatedName).isEqualTo(newDisplayName);
+        verify(userRepository, times(1)).findById(eq(id));
+    }
+
+    @Test
+    void 올바르지_않은_사용자일_경우_예외가_발생한다() {
+        // given
+        Long inValidId = 3L;
+        String newDisplayName = "new-name";
+
+        given(userRepository.findById(inValidId))
+                .willThrow(UserNotFoundException.class);
+
+        // when, then
+        assertThatThrownBy(() -> userService.updateDisplayName(inValidId, newDisplayName))
+                .isInstanceOf(UserNotFoundException.class);
     }
 
 }

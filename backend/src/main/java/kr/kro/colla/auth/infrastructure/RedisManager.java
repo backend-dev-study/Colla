@@ -28,6 +28,10 @@ public class RedisManager {
         );
     }
 
+    public void removeRefreshToken(Long id) {
+        this.redisTemplate.delete(id.toString());
+    }
+
     public String findValue(String key) {
         ValueOperations<String, String> valueOperations = this.redisTemplate.opsForValue();
 

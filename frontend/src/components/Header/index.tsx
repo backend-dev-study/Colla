@@ -2,7 +2,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 
 import useModal from '../../hooks/useModal';
-import { projectInfoState } from '../../stores/atom';
+import { projectInfoState } from '../../stores/projectState';
 import UserIcon from '../Icon/User';
 import InviteModal from '../Modal/Invite';
 import {
@@ -16,13 +16,10 @@ import {
     RightNav,
 } from './style';
 
-const userName = 'user';
-const userProfileImg = undefined;
-const userGithubId = 'user_github_id';
-
 const Header = () => {
     const { Modal, setModal } = useModal();
     const projectInfo = useRecoilValue(projectInfoState);
+
     return (
         <Container>
             <LeftNav>
@@ -38,7 +35,7 @@ const Header = () => {
                 </ProjectManagement>
             </LeftNav>
             <RightNav>
-                <UserIcon userName={userName} githubId={userGithubId} image={userProfileImg} size="small" />
+                <UserIcon size="small" />
             </RightNav>
         </Container>
     );

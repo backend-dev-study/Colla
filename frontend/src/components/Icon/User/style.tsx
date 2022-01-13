@@ -24,6 +24,7 @@ export const Container = styled.div<Props>`
 
 export const ImageContainer = styled(Container)<Props>`
     background: url(${({ image }) => image});
+    background-size: cover;
 `;
 
 export const Icon = styled.div`

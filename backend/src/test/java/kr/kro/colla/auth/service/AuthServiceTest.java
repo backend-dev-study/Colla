@@ -53,7 +53,7 @@ class AuthServiceTest {
                 .willReturn(oAuthAccessToken);
         given(githubOAuthManager.getUserProfile(oAuthAccessToken))
                 .willReturn(githubUserProfileResponse);
-        given(userService.createUserIfNotExist(githubUserProfileResponse))
+        given(userService.createOrUpdateUser(githubUserProfileResponse))
                 .willReturn(user);
         given(jwtProvider.createTokens(user.getId()))
                 .willReturn(createTokenResponse);
