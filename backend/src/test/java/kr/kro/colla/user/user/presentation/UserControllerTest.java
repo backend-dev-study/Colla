@@ -153,6 +153,7 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("name : must not be blank"));
+        verify(projectService, times(0)).createProject(any(), any());
     }
 
     @Test
