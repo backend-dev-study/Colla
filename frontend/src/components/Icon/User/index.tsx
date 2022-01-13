@@ -1,5 +1,6 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 
+import useModal from '../../../hooks/useModal';
 import UserModal from '../../Modal/User';
 import { Container, Icon, ImageContainer } from './style';
 
@@ -11,19 +12,19 @@ interface PropType {
 }
 
 const UserIcon: FC<PropType> = ({ userName, githubId, image, size }) => {
-    const [modal, setModal] = useState(false);
-
-    const handleModal = () => setModal(!modal);
+    const { Modal, setModal } = useModal();
 
     return (
         <>
-            <Icon onClick={handleModal}>
+            <Icon onClick={setModal}>
                 {image ? (
                     <ImageContainer image={image} size={size} />
                 ) : (
                     <Container size={size}>{userName[0].toUpperCase()}</Container>
                 )}
-                {modal ? <UserModal userName={userName} id={githubId} /> : null}
+                <Modal>
+                    <UserModal userName={userName} id={githubId} />{' '}
+                </Modal>
             </Icon>
         </>
     );
