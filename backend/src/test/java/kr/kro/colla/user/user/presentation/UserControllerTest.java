@@ -115,7 +115,7 @@ class UserControllerTest {
 
         given(userService.findUserById(loginUser.getId()))
                 .willReturn(user);
-        given(projectService.createProject(any(), any(CreateProjectRequest.class)))
+        given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
         // when
