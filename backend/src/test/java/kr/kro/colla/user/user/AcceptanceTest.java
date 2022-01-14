@@ -1,14 +1,21 @@
 package kr.kro.colla.user.user;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
+import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 
 import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
+import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import kr.kro.colla.user.user.service.UserService;
+import kr.kro.colla.user_project.domain.UserProject;
+import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
+import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +26,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -40,6 +49,12 @@ public class AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Autowired
+    private UserProjectRepository userProjectRepository;
 
     private Auth auth;
     private User user;
@@ -142,5 +157,53 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(newDisplayName));
+    }
+
+    @Test
+    void 사용자는_자신이_참여중인_프로젝트_목록을_조회할_수_있다() {
+        // given
+        Project project1 = Project.builder()
+                .managerId(user.getId())
+                .name("project1")
+                .description("project1 description")
+                .build();
+        Project project2 = Project.builder()
+                .managerId(user.getId())
+                .name("project2")
+                .description("project2 description")
+                .build();
+        UserProject userProject1 = UserProject.builder()
+                .user(user)
+                .project(project1)
+                .build();
+        UserProject userProject2 = UserProject.builder()
+                .user(user)
+                .project(project2)
+                .build();
+        projectRepository.save(project1);
+        projectRepository.save(project2);
+        userProjectRepository.save(userProject1);
+        userProjectRepository.save(userProject2);
+
+        List<UserProjectResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/users/projects")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<UserProjectResponse>>() {});
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0).getName()).isEqualTo(project1.getName());
+        assertThat(response.get(1).getDescription()).isEqualTo(project2.getDescription());
+        assertThat(response.get(0).getManagerId()).isEqualTo(user.getId());
+        assertThat(response.get(1).getManagerId()).isEqualTo(user.getId());
     }
 }
