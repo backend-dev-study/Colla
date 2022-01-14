@@ -4,10 +4,13 @@ import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user.user.service.dto.UserProjectResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -15,6 +18,14 @@ import javax.transaction.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    public String updateDisplayName(Long id, String displayName) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        user.changeDisplayName(displayName);
+
+        return displayName;
+    }
 
     public User createOrUpdateUser(GithubUserProfileResponse userProfile) {
         return this.userRepository.findByGithubId(userProfile.getGithubId())
@@ -29,17 +40,16 @@ public class UserService {
                 );
     }
 
+    public List<UserProjectResponseDto> getUserProject(Long id) {
+        return findUserById(id).getProjects()
+                .stream()
+                .map(userProject -> new UserProjectResponseDto(userProject.getProject()))
+                .collect(Collectors.toList());
+    }
+
     public User findUserById(Long id){
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
-    }
-
-    public String updateDisplayName(Long id, String displayName) {
-        User user = this.userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
-        user.changeDisplayName(displayName);
-
-        return displayName;
     }
 
 }

@@ -7,12 +7,14 @@ import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.*;
 import kr.kro.colla.user.user.service.UserService;
+import kr.kro.colla.user.user.service.dto.UserProjectResponseDto;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -47,9 +49,16 @@ public class UserController {
     ) {
         User user = userService.findUserById(loginUser.getId());
         Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
-        userProjectService.addUserToProject(user, project);
+        userProjectService.joinProject(user, project);
 
         return ResponseEntity.ok(new CreateProjectResponse(project));
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<UserProjectResponse>> getUserProject(@Authenticated LoginUser loginUser) {
+        List<UserProjectResponseDto> userProjectResponseDtoList = userService.getUserProject(loginUser.getId());
+
+        return ResponseEntity.ok(UserProjectResponse.of(userProjectResponseDtoList));
     }
 
 }
