@@ -4,14 +4,17 @@ import { useRecoilValue } from 'recoil';
 
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
+import { SideBar } from '../../components/SideBar';
 import { projectNameState } from '../../stores/projectState';
-import { Wrapper, KanbanAddButton, KanbanAdditional } from './style';
+import { Wrapper, KanbanAddButton, KanbanAdditional, Container } from './style';
 
 const statuses = ['To Do', 'Progress', 'Done'];
 
 const Kanban = () => {
     const history = useHistory();
+    const menu = ['로드맵', '백로그', '대시보드', '지도'];
     const projectName = useRecoilValue(projectNameState);
+
     if (!projectName) {
         history.push('/');
     }
@@ -19,14 +22,17 @@ const Kanban = () => {
     return (
         <>
             <Header />
-            <Wrapper>
-                {statuses.map((value) => (
-                    <KanbanCol key={value} status={value} />
-                ))}
-                <KanbanAdditional>
-                    <KanbanAddButton />
-                </KanbanAdditional>
-            </Wrapper>
+            <SideBar props={menu} />
+            <Container>
+                <Wrapper>
+                    {statuses.map((value) => (
+                        <KanbanCol key={value} status={value} />
+                    ))}
+                    <KanbanAdditional>
+                        <KanbanAddButton />
+                    </KanbanAdditional>
+                </Wrapper>
+            </Container>
         </>
     );
 };

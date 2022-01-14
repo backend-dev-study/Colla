@@ -1,6 +1,13 @@
 import styled from '@emotion/styled';
 import plusIcon from '../../../public/assets/images/plus-circle.svg';
 import { LIGHT_GRAY } from '../../styles/color';
+import { Center } from '../../styles/common';
+
+export const Container = styled.div`
+    flex-direction: column;
+
+    ${Center}
+`;
 
 export const Wrapper = styled.div`
     display: flex;
