@@ -18,8 +18,10 @@ export const updateDisplayName = async (displayName: string) => {
     return response;
 };
 
-export const createProject = async (projectName: string, projectDesc: string) => {
-    const response = await client.post(`/users/projects`, { name: projectName, description: projectDesc });
+export const createProject = async (data: FormData) => {
+    const response = await client.post(`/users/projects`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
     return response;
 };
