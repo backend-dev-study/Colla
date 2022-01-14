@@ -11,25 +11,25 @@ import {
     MenuWrapper,
 } from './style';
 
-interface project {
+interface Project {
     name: string;
 }
 
 interface Props {
-    props: Array<project> | Array<string>;
-    delimiter: boolean;
+    props: Array<Project | string>;
+    project?: boolean;
 }
 
-export const SideBar = ({ props, delimiter }: Props) => (
+export const SideBar = ({ props, project }: Props) => (
     <>
         <VerticalBar />
-        {delimiter ? (
+        {project ? (
             <ProjectContainer>
                 <ProjectWrapper>
                     {props.map((el, idx) => (
                         <Project key={idx}>
                             <ProjectIcon />
-                            <span>{(el as project).name}</span>
+                            <span>{(el as Project).name}</span>
                         </Project>
                     ))}
                 </ProjectWrapper>

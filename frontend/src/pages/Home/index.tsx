@@ -44,7 +44,7 @@ const Home = () => {
     return (
         <>
             <Header />
-            <SideBar props={projects} delimiter={true} />
+            <SideBar props={projects} project />
             <Container>
                 <HomeImage src={HomeImageSrc} />
                 <ProjectNotice onClick={setModal}>프로젝트를 추가해보세요!</ProjectNotice>

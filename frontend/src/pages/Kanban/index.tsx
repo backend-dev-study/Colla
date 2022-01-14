@@ -22,7 +22,7 @@ const Kanban = () => {
     return (
         <>
             <Header />
-            <SideBar props={menu} delimiter={false} />
+            <SideBar props={menu} />
             <Container>
                 <Wrapper>
                     {statuses.map((value) => (
