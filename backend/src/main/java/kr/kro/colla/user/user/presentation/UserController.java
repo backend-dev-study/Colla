@@ -45,7 +45,7 @@ public class UserController {
     @PostMapping("/projects")
     public ResponseEntity<CreateProjectResponse> createProject(
             @Authenticated LoginUser loginUser,
-            @Valid @RequestBody CreateProjectRequest createProjectRequest
+            @Valid CreateProjectRequest createProjectRequest
     ) {
         User user = userService.findUserById(loginUser.getId());
         Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
