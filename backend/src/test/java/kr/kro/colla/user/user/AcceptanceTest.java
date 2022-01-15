@@ -1,10 +1,12 @@
 package kr.kro.colla.user.user;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
+import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.user.user.domain.User;
@@ -15,7 +17,6 @@ import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
-import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,18 +95,23 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자_프로젝트_생성_성공_후_반환한다() {
+    void 사용자_프로젝트_생성_성공_후_반환한다() throws IOException {
         // given
-        String name = "프로젝트 이름", desc = "프로젝트 설명";
+        String name = "project name", desc = "project description";
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", name);
         requestBody.put("description",desc);
 
         given()
-                .contentType(ContentType.JSON)
+                .contentType(ContentType.MULTIPART)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
-                .body(requestBody)
+                .multiPart(new MultiPartSpecBuilder(thumbnail.getBytes())
+                        .controlName("thumbnail")
+                        .mimeType("image/png")
+                        .build())
+                .formParams(requestBody)
         // when
         .when()
                 .post("/api/users/projects")
@@ -120,14 +128,19 @@ public class AcceptanceTest {
     void 사용자_프로젝트_생성_시_요청이_잘못돼_에러를_반환한다() throws Exception {
         // given
         String name = "프로젝트 이름", desc = "프로젝트 설명";
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("description", desc);
 
         given()
-                .contentType(ContentType.JSON)
+                .contentType(ContentType.MULTIPART)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
-                .body(requestBody)
+                .multiPart(new MultiPartSpecBuilder(thumbnail.getBytes())
+                        .controlName("thumbnail")
+                        .mimeType("image/png")
+                        .build())
+                .formParams(requestBody)
         // when
         .when()
                 .post("/api/users/projects")

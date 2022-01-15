@@ -1,10 +1,10 @@
 package kr.kro.colla.user.user.presentation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
@@ -22,9 +22,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 
@@ -110,10 +113,7 @@ class UserControllerTest {
     void 사용자_프로젝트_생성_후_반환한다() throws Exception {
         // given
         String name = "프로젝트 이름", desc = "프로젝트 설명";
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .name(name)
-                .description(desc)
-                .build();
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Project project = Project.builder()
                 .managerId(loginUser.getId())
                 .name(name)
@@ -124,18 +124,20 @@ class UserControllerTest {
                 .name("subin")
                 .avatar("github_content")
                 .build();
-        String content = objectMapper.writeValueAsString(createProjectRequest);
+        ReflectionTestUtils.setField(user, "id", loginUser.getId());
 
         given(userService.findUserById(loginUser.getId()))
                 .willReturn(user);
         given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
-        // when
-        ResultActions perform = mockMvc.perform(post("/users/projects")
+        ResultActions perform = mockMvc.perform(multipart("/users/projects")
+                .file(thumbnail)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(content));
+                .param("name", name)
+                .param("description", desc));
+        // when
 
         // then
         perform.andDo(print())
@@ -150,16 +152,14 @@ class UserControllerTest {
     void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
         // given
         String desc = "프로젝트 설명";
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .description(desc)
-                .build();
-        String content = objectMapper.writeValueAsString(createProjectRequest);
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
 
         // when
-        ResultActions perform = mockMvc.perform(post("/users/projects")
+        ResultActions perform = mockMvc.perform(multipart("/users/projects")
+                .file(thumbnail)
                 .cookie(new Cookie("accessToken", accessToken))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content));
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .param("description", desc));
 
         // then
         perform

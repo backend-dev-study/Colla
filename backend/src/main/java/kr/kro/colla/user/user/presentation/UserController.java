@@ -48,7 +48,7 @@ public class UserController {
             @Valid CreateProjectRequest createProjectRequest
     ) {
         User user = userService.findUserById(loginUser.getId());
-        Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
+        Project project = projectService.createProject(user.getId(), createProjectRequest);
         userProjectService.joinProject(user, project);
 
         return ResponseEntity.ok(new CreateProjectResponse(project));
