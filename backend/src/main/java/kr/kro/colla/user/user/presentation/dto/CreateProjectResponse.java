@@ -13,10 +13,13 @@ public class CreateProjectResponse {
 
     private String description;
 
+    private String thumbnail;
+
     public CreateProjectResponse(Project project){
         this.id = project.getId();
         this.managerId = project.getManagerId();
         this.name = project.getName();
         this.description = project.getDescription();
+        this.thumbnail = project.getThumbnail();
     }
 }
