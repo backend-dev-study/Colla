@@ -4,7 +4,6 @@ import kr.kro.colla.user.notice.domain.NoticeType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
@@ -17,4 +16,6 @@ public class CreateNoticeRequest {
 
     private String mentionedURL;
 
+    @NotNull
+    private Long targetUserId;
 }
