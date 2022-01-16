@@ -14,11 +14,14 @@ public class UserProjectResponseDto {
 
     private String description;
 
+    public String thumbnail;
+
     public UserProjectResponseDto(Project project) {
         this.id = project.getId();
         this.managerId = project.getManagerId();
         this.name = project.getName();
         this.description = project.getDescription();
+        this.thumbnail = project.getThumbnail();
     }
 
 }

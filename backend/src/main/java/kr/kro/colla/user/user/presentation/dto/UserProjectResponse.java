@@ -19,11 +19,14 @@ public class UserProjectResponse {
 
     private String description;
 
+    private String thumbnail;
+
     private UserProjectResponse(UserProjectResponseDto userProjectResponseDto) {
         this.id = userProjectResponseDto.getId();
         this.managerId = userProjectResponseDto.getManagerId();
         this.name = userProjectResponseDto.getName();
         this.description = userProjectResponseDto.getDescription();
+        this.thumbnail = userProjectResponseDto.getThumbnail();
     }
 
     public static List<UserProjectResponse> of(List<UserProjectResponseDto> userProjectResponseDtoList) {
