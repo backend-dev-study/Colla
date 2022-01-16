@@ -1,6 +1,5 @@
 package kr.kro.colla.user.notice.domain;
 
-import kr.kro.colla.user.notice.domain.converter.BooleanToIntegerConverter;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +25,6 @@ public class Notice {
     private String mentionedUrl;
 
     @NotNull
-    @Convert(converter = BooleanToIntegerConverter.class)
     @Column
     private Boolean isChecked;
 
