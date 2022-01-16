@@ -22,16 +22,16 @@ public class Notice {
     private NoticeType noticeType;
 
     @Column
-    private String mentionedUrl;
+    private String mentionedURL;
 
     @NotNull
     @Column
     private Boolean isChecked;
 
     @Builder
-    public Notice(NoticeType noticeType, String mentionedUrl){
-        this.noticeType = noticeType;
+    public Notice(NoticeType noticeType, String mentionedURL){
         this.isChecked = false;
-        this.mentionedUrl = mentionedUrl;
+        this.noticeType = noticeType;
+        this.mentionedURL = mentionedURL;
     }
 }
