@@ -25,3 +25,9 @@ export const createProject = async (data: FormData) => {
 
     return response;
 };
+
+export const getUserProjects = async () => {
+    const response = await client.get(`/users/projects`);
+
+    return response;
+}

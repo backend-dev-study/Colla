@@ -3,7 +3,7 @@ import React, { ChangeEvent, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { createProject } from '../../../apis/user';
-import { projectDescState, projectNameState } from '../../../stores/projectState';
+import { projectDescState, projectNameState, projectThumbnailState } from '../../../stores/projectState';
 import { createFormData } from '../../../utils/common';
 import ProjectIcon from '../../Icon/Project';
 import { Container, SubmitButton, ProjectNameInput, ProjectDescInput } from './style';
@@ -16,7 +16,7 @@ const ProjectModal = () => {
 
     const setProjectName = useSetRecoilState(projectNameState);
     const setProjectDesc = useSetRecoilState(projectDescState);
-    // const setProjectThumbnail = useSetRecoilState(projectThumbnailState);
+    const setProjectThumbnail = useSetRecoilState(projectThumbnailState);
 
     const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => setName(event.target.value);
 
@@ -26,9 +26,10 @@ const ProjectModal = () => {
         try {
             const formData = createFormData({ name, description, thumbnail });
             const response = await createProject(formData);
-            const { name: projectName, description: projectDesc } = response.data;
+            const { name: projectName, description: projectDesc, thumbnail: projectThumbnail } = response.data;
             setProjectName(projectName);
             setProjectDesc(projectDesc);
+            setProjectThumbnail(projectThumbnail);
 
             history.push('/kanban', response.data);
         } catch (e: any) {
