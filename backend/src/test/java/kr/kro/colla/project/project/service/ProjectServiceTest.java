@@ -2,8 +2,8 @@ package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.user.user.infrastructure.S3Storage;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.given;
 class ProjectServiceTest {
 
     @Mock
-    private S3Storage s3Storage;
+    private ProjectProfileStorage projectProfileStorage;
 
     @Mock
     private ProjectRepository projectRepository;
@@ -53,7 +53,7 @@ class ProjectServiceTest {
         ReflectionTestUtils.setField(project, "id", id);
         ReflectionTestUtils.setField(project, "taskStatuses", List.of("To do", "In progress", "Done"));
 
-        given(s3Storage.upload(any(MultipartFile.class)))
+        given(projectProfileStorage.upload(any(MultipartFile.class)))
                 .willReturn(FileProvider.extractImageUrl(thumbnail1));
         given(projectRepository.save(any(Project.class)))
                 .willReturn(project);
