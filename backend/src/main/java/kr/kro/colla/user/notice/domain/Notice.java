@@ -28,12 +28,12 @@ public class Notice {
     @NotNull
     @Convert(converter = BooleanToIntegerConverter.class)
     @Column
-    private boolean isChecked;
+    private Boolean isChecked;
 
     @Builder
-    public Notice(NoticeType noticeType, boolean isChecked, String mentionedUrl){
+    public Notice(NoticeType noticeType, String mentionedUrl){
         this.noticeType = noticeType;
-        this.isChecked = isChecked;
+        this.isChecked = false;
         this.mentionedUrl = mentionedUrl;
     }
 }
