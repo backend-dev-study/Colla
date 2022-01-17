@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,15 +42,22 @@ public class UserController {
     }
 
     @PostMapping("/projects")
-    public ResponseEntity<CreateProjectResponse> createProject(
+    public ResponseEntity<UserProjectResponse> createProject(
             @Authenticated LoginUser loginUser,
-            @Valid @RequestBody CreateProjectRequest createProjectRequest
+            @Valid CreateProjectRequest createProjectRequest
     ) {
         User user = userService.findUserById(loginUser.getId());
-        Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
-        userProjectService.addUserToProject(user, project);
+        Project project = projectService.createProject(user.getId(), createProjectRequest);
+        userProjectService.joinProject(user, project);
 
-        return ResponseEntity.ok(new CreateProjectResponse(project));
+        return ResponseEntity.ok(new UserProjectResponse(project));
+    }
+
+    @GetMapping("/projects")
+    public ResponseEntity<List<UserProjectResponse>> getUserProject(@Authenticated LoginUser loginUser) {
+        List<UserProjectResponse> userProjectResponseDtoList = userService.getUserProject(loginUser.getId());
+
+        return ResponseEntity.ok(userProjectResponseDtoList);
     }
 
 }

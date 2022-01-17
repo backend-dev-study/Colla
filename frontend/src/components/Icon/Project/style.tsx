@@ -1,21 +1,23 @@
 import styled from '@emotion/styled';
-import { GRAY } from '../../../styles/color';
 import { Center } from '../../../styles/common';
 
-interface Props {
-    image: string;
-}
-
 export const Container = styled.div`
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
     font-size: 30px;
-    border-radius: 20px;
-    background: ${GRAY};
+    border-radius: 10px;
 
     ${Center}
 `;
 
-export const ImageContainer = styled(Container)<Props>`
-    background: url(${({ image }) => image});
+export const FileInput = styled.input`
+    display: none;
+`;
+
+export const Image = styled.img`
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
 `;

@@ -57,11 +57,12 @@ export const Project = styled.div`
     ${SideBarComponent}
 `;
 
-export const ProjectIcon = styled.div`
+export const ProjectIcon = styled.img`
     width: 70px;
     height: 70px;
-    background-color: black;
     border-radius: 10px;
+    cursor: pointer;
+    object-fit: cover;
     margin-right: 10px;
 `;
 

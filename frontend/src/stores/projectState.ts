@@ -10,10 +10,16 @@ export const projectDescState = atom({
     default: null,
 });
 
+export const projectThumbnailState = atom({
+    key: 'projectThumbnail',
+    default: null,
+});
+
 export const projectInfoState = selector({
     key: 'project',
     get: ({ get }) => ({
         name: get(projectNameState),
         desc: get(projectDescState),
+        thumbnail: get(projectThumbnailState),
     }),
 });

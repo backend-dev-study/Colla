@@ -33,6 +33,8 @@ public class Project {
     @Column
     private String description;
 
+    @Column
+    private String thumbnail;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<UserProject> members = new ArrayList<>();
@@ -54,10 +56,11 @@ public class Project {
     private List<Story> stories = new ArrayList<>();
 
     @Builder
-    public Project(Long managerId, String name, String description){
+    public Project(Long managerId, String name, String description, String thumbnail){
         this.managerId = managerId;
         this.name = name;
         this.description = description;
+        this.thumbnail = thumbnail;
     }
 
     @PrePersist

@@ -2,13 +2,11 @@ package kr.kro.colla.user.user.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
-@NoArgsConstructor
 @Getter
-@Builder
 public class CreateProjectRequest {
 
     @NotBlank
@@ -16,10 +14,13 @@ public class CreateProjectRequest {
 
     private String description;
 
+    private MultipartFile thumbnail;
+
     @Builder
-    public CreateProjectRequest(String name, String description) {
+    public CreateProjectRequest(String name, String description, MultipartFile thumbnail) {
         this.name = name;
         this.description = description;
+        this.thumbnail = thumbnail;
     }
 
 }
