@@ -3,6 +3,7 @@ package kr.kro.colla.project.project.presentation;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
@@ -24,11 +25,11 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/members")
     public ResponseEntity joinMember(@Authenticated LoginUser loginUser,
-                                     @PathVariable long projectId, @RequestBody String githubId){
+                                     @PathVariable long projectId, @RequestBody ProjectMemberRequest projectMemberRequest){
         Project project = projectService.findProjectById(projectId);
         User manager = userService.findUserById(loginUser.getId());
 
-        User user = userService.findByGithubId(githubId);
+        User user = userService.findByGithubId(projectMemberRequest.getGithubId());
         UserProject userProject = userProjectService.joinProject(user, project);
         return ResponseEntity.ok(new ProjectMemberResponse(userProject));
     }
