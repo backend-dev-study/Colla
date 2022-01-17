@@ -12,7 +12,6 @@ import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user.user.service.dto.UserProjectResponseDto;
 import kr.kro.colla.user_project.service.UserProjectService;
 import kr.kro.colla.utils.CookieManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 
@@ -205,9 +203,9 @@ class UserControllerTest {
                 .name("project2")
                 .description("project2 description")
                 .build();
-        List<UserProjectResponseDto> userProjectResponseDtoList = List.of(
-                new UserProjectResponseDto(project1),
-                new UserProjectResponseDto(project2)
+        List<UserProjectResponse> userProjectResponseDtoList = List.of(
+                new UserProjectResponse(project1),
+                new UserProjectResponse(project2)
         );
 
         given(userService.getUserProject(loginUser.getId()))
