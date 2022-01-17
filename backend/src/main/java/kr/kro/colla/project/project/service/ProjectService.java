@@ -1,5 +1,6 @@
 package kr.kro.colla.project.project.service;
 
+import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
@@ -24,5 +25,10 @@ public class ProjectService {
                 .build();
 
         return projectRepository.save(project);
+    }
+
+    public Project findProjectById(Long projectId){
+        return projectRepository.findById(projectId)
+                .orElseThrow(ProjectNotFoundException::new);
     }
 }
