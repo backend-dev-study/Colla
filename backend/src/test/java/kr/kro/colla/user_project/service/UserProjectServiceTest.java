@@ -43,7 +43,7 @@ class UserProjectServiceTest {
         given(userProjectRepository.save(any(UserProject.class))).willReturn(userProject);
 
         // when
-        UserProject result = userProjectService.addUserToProject(user, project);
+        UserProject result = userProjectService.joinProject(user, project);
 
         // then
         verify(userProjectRepository, times(1)).save(any(UserProject.class));

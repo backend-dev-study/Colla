@@ -1,45 +1,27 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import React, { useEffect, useState } from 'react';
 
 import HomeImageSrc from '../../../public/assets/images/home-image.png';
-import { createProject } from '../../apis/user';
+import { getUserProjects } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
 import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
-import { projectDescState, projectNameState } from '../../stores/projectState';
 import { Container, HomeImage, ProjectNotice } from './style';
 
-const projects = [
-    {
-        name: '프로젝트 1',
-    },
-    {
-        name: '프로젝트 2',
-    },
-];
-
 const Home = () => {
-    const setProjectName = useSetRecoilState(projectNameState);
-    const setProjectDesc = useSetRecoilState(projectDescState);
-    const history = useHistory();
-
-    const sendRequest = async (name: string, desc: string) => {
-        try {
-            const response = await createProject(name, desc);
-            const { name: projectName, description: projectDesc } = response.data;
-            setProjectName(projectName);
-            setProjectDesc(projectDesc);
-
-            history.push('/kanban', response.data);
-        } catch (e: any) {
-            // eslint-disable-next-line no-alert
-            window.alert(e.response.data.message);
-        }
-    };
-
+    const [projects, setProjects] = useState([]);
     const { setModal, Modal } = useModal();
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await getUserProjects();
+                setProjects(res.data);
+            } catch (err) {
+                setProjects([]);
+            }
+        })();
+    }, []);
 
     return (
         <>
@@ -49,7 +31,7 @@ const Home = () => {
                 <HomeImage src={HomeImageSrc} />
                 <ProjectNotice onClick={setModal}>프로젝트를 추가해보세요!</ProjectNotice>
                 <Modal>
-                    <ProjectModal onClick={sendRequest} />
+                    <ProjectModal />
                 </Modal>
             </Container>
         </>

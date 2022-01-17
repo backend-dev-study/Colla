@@ -1,13 +1,16 @@
 package kr.kro.colla.user.user.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
+import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.service.UserProjectService;
 import kr.kro.colla.utils.CookieManager;
@@ -18,11 +21,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import javax.servlet.http.Cookie;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -38,6 +48,9 @@ class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private AuthService authService;
@@ -60,11 +73,12 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         String accessToken = "token";
+        loginUser = new LoginUser(345234L);
+
         given(cookieManager.parseCookies(any(Cookie[].class), eq("accessToken")))
                 .willReturn(new Cookie("accessToken", accessToken));
         given(authService.validateAccessToken(eq(accessToken)))
                 .willReturn(true);
-        loginUser = new LoginUser(345234L);
         given(authService.findUserFromToken(accessToken))
                 .willReturn(loginUser);
     }
@@ -97,10 +111,7 @@ class UserControllerTest {
     void 사용자_프로젝트_생성_후_반환한다() throws Exception {
         // given
         String name = "프로젝트 이름", desc = "프로젝트 설명";
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .name(name)
-                .description(desc)
-                .build();
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Project project = Project.builder()
                 .managerId(loginUser.getId())
                 .name(name)
@@ -111,18 +122,20 @@ class UserControllerTest {
                 .name("subin")
                 .avatar("github_content")
                 .build();
-        String content = new ObjectMapper().writeValueAsString(createProjectRequest);
+        ReflectionTestUtils.setField(user, "id", loginUser.getId());
 
         given(userService.findUserById(loginUser.getId()))
                 .willReturn(user);
         given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
-        // when
-        ResultActions perform = mockMvc.perform(post("/users/projects")
+        ResultActions perform = mockMvc.perform(multipart("/users/projects")
+                .file(thumbnail)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(content));
+                .param("name", name)
+                .param("description", desc));
+        // when
 
         // then
         perform.andDo(print())
@@ -137,16 +150,14 @@ class UserControllerTest {
     void 사용자_프로젝트_생성_실패_시_에러를_반환한다() throws Exception {
         // given
         String desc = "프로젝트 설명";
-        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
-                .description(desc)
-                .build();
-        String content = new ObjectMapper().writeValueAsString(createProjectRequest);
+        MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
 
         // when
-        ResultActions perform = mockMvc.perform(post("/users/projects")
+        ResultActions perform = mockMvc.perform(multipart("/users/projects")
+                .file(thumbnail)
                 .cookie(new Cookie("accessToken", accessToken))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content));
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .param("description", desc));
 
         // then
         perform
@@ -161,10 +172,8 @@ class UserControllerTest {
         // given
         String newDisplayName = "new-name";
         UpdateUserNameRequest updateUserNameRequest = new UpdateUserNameRequest(newDisplayName);
-        String content = new ObjectMapper().writeValueAsString(updateUserNameRequest);
+        String content = objectMapper.writeValueAsString(updateUserNameRequest);
 
-        given(authService.findUserFromToken(accessToken))
-                .willReturn(loginUser);
         given(userService.updateDisplayName(eq(loginUser.getId()), eq(newDisplayName)))
                 .willReturn(newDisplayName);
 
@@ -179,6 +188,45 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(newDisplayName));
         verify(userService, times(1)).updateDisplayName(eq(loginUser.getId()), eq(newDisplayName));
+    }
+
+    @Test
+    void 사용자가_진행중인_프로젝트_목록을_조회한다() throws Exception {
+        // given
+        Project project1 = Project.builder()
+                .managerId(loginUser.getId())
+                .name("project1")
+                .description("project1 description")
+                .build();
+        Project project2 = Project.builder()
+                .managerId(loginUser.getId())
+                .name("project2")
+                .description("project2 description")
+                .build();
+        List<UserProjectResponse> userProjectResponseDtoList = List.of(
+                new UserProjectResponse(project1),
+                new UserProjectResponse(project2)
+        );
+
+        given(userService.getUserProject(loginUser.getId()))
+                .willReturn(userProjectResponseDtoList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/users/projects")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        MvcResult result = perform.andReturn();
+        CollectionType collectionType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, UserProjectResponse.class);
+        List<UserProjectResponse> userProjectResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
+
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].name").value(containsInAnyOrder(project1.getName(), project2.getName())))
+                .andExpect(jsonPath("$[*].description").value(containsInAnyOrder(project1.getDescription(), project2.getDescription())));
+        assertThat(userProjectResponseList.size()).isEqualTo(2);
     }
 
 }
