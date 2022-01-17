@@ -52,4 +52,8 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
+    public User findByGithubId(String githubId){
+        return userRepository.findByGithubId(githubId)
+                .orElseThrow(UserNotFoundException::new);
+    }
 }
