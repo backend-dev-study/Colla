@@ -5,6 +5,7 @@ import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
@@ -22,6 +23,13 @@ public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
     private final UserProjectService userProjectService;
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ProjectResponse> getProject(@PathVariable long projectId) {
+        ProjectResponse projectResponse = projectService.getProject(projectId);
+
+        return ResponseEntity.ok(projectResponse);
+    }
 
     @PostMapping("/{projectId}/members")
     public ResponseEntity joinMember(@Authenticated LoginUser loginUser,
