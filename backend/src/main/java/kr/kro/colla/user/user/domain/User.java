@@ -51,8 +51,7 @@ public class User {
         return this;
     }
 
-    public void changeDisplayName(String name) {
-        this.name = name;
-    }
+    public void changeDisplayName(String name) { this.name = name; }
 
+    public void addNotice(Notice notice){ this.notices.add(notice); }
 }
