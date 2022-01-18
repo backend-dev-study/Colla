@@ -2,7 +2,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 
 import useModal from '../../hooks/useModal';
-import { projectInfoState } from '../../stores/projectState';
+import { projectState } from '../../stores/projectState';
 import UserIcon from '../Icon/User';
 import InviteModal from '../Modal/Invite';
 import {
@@ -18,17 +18,17 @@ import {
 
 const Header = () => {
     const { Modal, setModal } = useModal();
-    const projectInfo = useRecoilValue(projectInfoState);
+    const project = useRecoilValue(projectState);
 
     return (
         <Container>
             <LeftNav>
                 <ProjectInfo>
-                    <ProjectTitle>{projectInfo.name}</ProjectTitle>
-                    <ProjectDesc>{projectInfo.desc}</ProjectDesc>
+                    <ProjectTitle>{project.name}</ProjectTitle>
+                    <ProjectDesc>{project.description}</ProjectDesc>
                 </ProjectInfo>
                 <ProjectManagement>
-                    {projectInfo.name ? <ProjectManageButton onClick={setModal}>관리</ProjectManageButton> : null}
+                    {project.name ? <ProjectManageButton onClick={setModal}>관리</ProjectManageButton> : null}
                     <Modal>
                         <InviteModal />
                     </Modal>
