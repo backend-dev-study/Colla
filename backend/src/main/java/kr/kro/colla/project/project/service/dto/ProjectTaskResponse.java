@@ -2,7 +2,9 @@ package kr.kro.colla.project.project.service.dto;
 
 import kr.kro.colla.task.task.domain.Task;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class ProjectTaskResponse {
 
