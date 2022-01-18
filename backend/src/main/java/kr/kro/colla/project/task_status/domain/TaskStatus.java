@@ -26,7 +26,6 @@ public class TaskStatus {
     @JoinColumn(name = "status_id")
     private List<Task> tasks = new ArrayList<>();
 
-    @Builder
     public TaskStatus(String name){
         this.name = name;
     }
