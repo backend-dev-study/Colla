@@ -9,6 +9,7 @@ import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,8 +36,6 @@ import static org.mockito.Mockito.verify;
 public class NoticeServiceTest {
     @Mock
     private NoticeRepository noticeRepository;
-    @Mock
-    private UserService userService;
 
     @InjectMocks
     private NoticeService noticeService;
@@ -61,13 +60,11 @@ public class NoticeServiceTest {
         CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.INVITE_USER)
                 .mentionedURL(mentionURL)
-                .targetUserId(userId)
+                .receiver(user)
                 .build();
 
         given(noticeRepository.save(any(Notice.class)))
                 .willReturn(notice);
-        given(userService.findUserById(userId))
-                .willReturn(user);
 
         // when
         Notice result = noticeService.createNotice(createNoticeRequest);
@@ -85,10 +82,14 @@ public class NoticeServiceTest {
     void 알림_생성시_필드_검증에_실패한다(){
         // given
         String mentionURL = "mention";
-        Long userId = 234L;
+        User user = User.builder()
+                .name("binimini")
+                .githubId("binimini")
+                .avatar("github_content")
+                .build();
         CreateNoticeRequest createNoticeRequest1 = CreateNoticeRequest.builder()
                 .mentionedURL(mentionURL)
-                .targetUserId(userId)
+                .receiver(user)
                 .build();
 
         CreateNoticeRequest createNoticeRequest2 = CreateNoticeRequest.builder()
@@ -105,26 +106,7 @@ public class NoticeServiceTest {
         assertThat(violations1.toArray()).extracting("propertyPath").toString().contains("noticeType");
 
         assertThat(violations2.size()).isEqualTo(1);
-        assertThat(violations1.toArray()).extracting("propertyPath").toString().contains("targetUserId");
+        assertThat(violations1.toArray()).extracting("propertyPath").toString().contains("receiver");
     }
 
-    @Test
-    void 알림_생성시_존재하지_않는_대상_사용자로_실패한다(){
-        // given
-        String mentionURL = "mention";
-        Long userId = 234L;
-        CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
-                .mentionedURL(mentionURL)
-                .targetUserId(userId)
-                .build();
-
-        given(userService.findUserById(userId))
-                .willThrow(new UserNotFoundException());
-
-        // when
-        assertThatThrownBy(()->{
-            noticeService.createNotice(createNoticeRequest);
-        }).isInstanceOf(UserNotFoundException.class);
-
-    }
 }
