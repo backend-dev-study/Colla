@@ -16,10 +16,9 @@ import javax.validation.Valid;
 @Service
 public class NoticeService {
     private final NoticeRepository noticeRepository;
-    private final UserService userService;
 
     public Notice createNotice(@Valid CreateNoticeRequest createNoticeRequest) {
-        User user = userService.findUserById(createNoticeRequest.getTargetUserId());
+        User user = createNoticeRequest.getReceiver();
 
         Notice notice = Notice.builder()
                 .noticeType(createNoticeRequest.getNoticeType())
