@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from 'react';
 
 import { useHistory } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import { createProject } from '../../../apis/user';
 import { projectState } from '../../../stores/projectState';
 import { createFormData } from '../../../utils/common';
@@ -14,7 +14,7 @@ const ProjectModal = () => {
     const [description, setDescription] = useState('');
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
-    const [projectStates, setProjectState] = useRecoilState(projectState);
+    const setProjectState = useSetRecoilState(projectState);
 
     const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => setName(event.target.value);
 
@@ -38,8 +38,6 @@ const ProjectModal = () => {
                 description: projectDescription,
                 thumbnail: projectThumbnail,
             });
-
-            console.log(projectStates);
 
             history.push('/kanban', response.data);
         } catch (e: any) {

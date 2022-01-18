@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 
@@ -18,10 +18,6 @@ const Kanban = () => {
     if (!project.id) {
         history.push('/home');
     }
-
-    useEffect(() => {
-        console.log(project.id);
-    }, []);
 
     return (
         <>
