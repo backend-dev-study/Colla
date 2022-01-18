@@ -26,7 +26,9 @@ public class ProjectService {
     private final ProjectProfileStorage projectProfileStorage;
 
     public Project createProject(Long managerId, CreateProjectRequest createProjectRequest) {
-        String thumbnailUrl = projectProfileStorage.upload(createProjectRequest.getThumbnail());
+        String thumbnailUrl = createProjectRequest.getThumbnail() != null
+                ? projectProfileStorage.upload(createProjectRequest.getThumbnail())
+                : null;
         Project project = Project.builder()
                 .managerId(managerId)
                 .name(createProjectRequest.getName())
