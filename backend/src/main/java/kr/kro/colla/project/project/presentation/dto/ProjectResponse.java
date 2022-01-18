@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @Getter
@@ -23,6 +24,6 @@ public class ProjectResponse {
 
     private List<UserProfileResponse> members;
 
-    private List<ProjectTaskResponse> tasks;
+    private Map<String, List<ProjectTaskResponse>> tasks;
 
 }

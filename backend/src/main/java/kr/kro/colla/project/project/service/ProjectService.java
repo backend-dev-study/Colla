@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -36,6 +39,17 @@ public class ProjectService {
 
     public ProjectResponse getProject(Long projectId) {
         Project project = findProjectById(projectId);
+        Map<String, List<ProjectTaskResponse>> tasks = new HashMap<>();
+        project.getTaskStatuses()
+                .stream()
+                .forEach(taskStatus -> {
+                    List<ProjectTaskResponse> taskList = taskStatus.getTasks()
+                            .stream()
+                            .map(ProjectTaskResponse::new)
+                            .collect(Collectors.toList());
+                    tasks.put(taskStatus.getName(), taskList);
+                });
+
 
         return ProjectResponse.builder()
                 .id(project.getId())
@@ -47,10 +61,7 @@ public class ProjectService {
                         .stream()
                         .map(userProject -> new UserProfileResponse(userProject.getUser()))
                         .collect(Collectors.toList()))
-                .tasks(project.getTasks()
-                        .stream()
-                        .map(task -> new ProjectTaskResponse(task))
-                        .collect(Collectors.toList()))
+                .tasks(tasks)
                 .build();
     }
 
