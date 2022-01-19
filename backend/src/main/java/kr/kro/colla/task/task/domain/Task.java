@@ -44,10 +44,6 @@ public class Task {
     private Integer priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_status_id")
-    private TaskStatus taskStatus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "story_id")
     private Story story;
 
