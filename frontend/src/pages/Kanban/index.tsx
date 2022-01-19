@@ -5,7 +5,7 @@ import { useRecoilValue } from 'recoil';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
 import { SideBar } from '../../components/SideBar';
-import { projectNameState } from '../../stores/projectState';
+import { projectState } from '../../stores/projectState';
 import { Wrapper, KanbanAddButton, KanbanAdditional, Container } from './style';
 
 const statuses = ['To Do', 'Progress', 'Done'];
@@ -13,10 +13,10 @@ const statuses = ['To Do', 'Progress', 'Done'];
 const Kanban = () => {
     const history = useHistory();
     const menu = ['로드맵', '백로그', '대시보드', '지도'];
-    const projectName = useRecoilValue(projectNameState);
+    const project = useRecoilValue(projectState);
 
-    if (!projectName) {
-        history.push('/');
+    if (!project.id) {
+        history.push('/home');
     }
 
     return (

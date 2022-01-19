@@ -65,9 +65,9 @@ public class Project {
 
     @PrePersist
     private void setDefaultTaskStatus(){
-        this.taskStatuses.add(TaskStatus.builder().name("To Do").build());
-        this.taskStatuses.add(TaskStatus.builder().name("In Progress").build());
-        this.taskStatuses.add(TaskStatus.builder().name("Done").build());
+        this.taskStatuses.add(new TaskStatus("To Do"));
+        this.taskStatuses.add(new TaskStatus("In Progress"));
+        this.taskStatuses.add(new TaskStatus("Done"));
     }
 
     public void addStatus(TaskStatus taskStatus){

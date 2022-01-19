@@ -129,13 +129,13 @@ class UserControllerTest {
         given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
+        // when
         ResultActions perform = mockMvc.perform(multipart("/users/projects")
                 .file(thumbnail)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("name", name)
                 .param("description", desc));
-        // when
 
         // then
         perform.andDo(print())
