@@ -24,10 +24,10 @@ export const KanbanStatus = styled.div`
 `;
 
 export const KanbanIssue = styled.div`
+    display: flex;
     width: 300px;
     height: 550px;
     border-radius: 10px;
     background: ${LIGHT_GRAY};
-
-    ${WidthCenter}
+    flex-direction: column;
 `;
