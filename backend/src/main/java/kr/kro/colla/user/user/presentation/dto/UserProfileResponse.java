@@ -2,7 +2,9 @@ package kr.kro.colla.user.user.presentation.dto;
 
 import kr.kro.colla.user.user.domain.User;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class UserProfileResponse {
 

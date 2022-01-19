@@ -1,25 +1,18 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'recoil';
 
-export const projectNameState = atom({
-    key: 'projectName',
-    default: null,
-});
+interface project {
+    id: number;
+    name: string;
+    description: string;
+    thumbnail: string;
+}
 
-export const projectDescState = atom({
-    key: 'projectDesc',
-    default: null,
-});
-
-export const projectThumbnailState = atom({
-    key: 'projectThumbnail',
-    default: null,
-});
-
-export const projectInfoState = selector({
+export const projectState = atom<project>({
     key: 'project',
-    get: ({ get }) => ({
-        name: get(projectNameState),
-        desc: get(projectDescState),
-        thumbnail: get(projectThumbnailState),
-    }),
+    default: {
+        id: -1,
+        name: '',
+        description: '',
+        thumbnail: '',
+    },
 });

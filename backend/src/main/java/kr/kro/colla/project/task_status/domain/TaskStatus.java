@@ -2,7 +2,6 @@ package kr.kro.colla.project.task_status.domain;
 
 import kr.kro.colla.task.task.domain.Task;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,11 +21,10 @@ public class TaskStatus {
     @Column
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id")
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "task_status_id")
     private List<Task> tasks = new ArrayList<>();
 
-    @Builder
     public TaskStatus(String name){
         this.name = name;
     }

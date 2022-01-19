@@ -1,6 +1,7 @@
 package kr.kro.colla.task.task.domain;
 
 import kr.kro.colla.comment.domain.Comment;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.history.domain.History;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
@@ -21,10 +22,6 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "story_id")
-    private Story story;
-
     @Column
     private String title;
 
@@ -33,9 +30,6 @@ public class Task {
 
     @Column
     private String images;
-
-    @Column
-    private String status;
 
     @Column
     private String managerName;
@@ -48,6 +42,10 @@ public class Task {
 
     @Column
     private Integer priority;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "story_id")
+    private Story story;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")

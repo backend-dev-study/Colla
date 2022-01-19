@@ -62,6 +62,7 @@ public class AcceptanceTest {
     private Auth auth;
     private User user;
     private String accessToken;
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;

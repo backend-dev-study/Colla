@@ -6,6 +6,13 @@ interface userProfile {
     avatar: string;
 }
 
+interface project {
+    id: number;
+    name: string;
+    description: string;
+    thumbnail: string;
+}
+
 export const getUserProfile = async () => {
     const response = await client.get<userProfile>(`/users/profile`);
 
@@ -19,7 +26,7 @@ export const updateDisplayName = async (displayName: string) => {
 };
 
 export const createProject = async (data: FormData) => {
-    const response = await client.post(`/users/projects`, data, {
+    const response = await client.post<project>(`/users/projects`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 
@@ -30,4 +37,4 @@ export const getUserProjects = async () => {
     const response = await client.get(`/users/projects`);
 
     return response;
-}
+};
