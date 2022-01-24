@@ -52,7 +52,7 @@ public class ProjectController {
                 .receiver(user)
                 .build();
         noticeService.createNotice(createNoticeRequest);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{projectId}/members/decision")

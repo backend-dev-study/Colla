@@ -6,6 +6,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
@@ -101,4 +102,45 @@ public class AcceptanceTest {
         assertThat(response.getTasks().containsKey("Done")).isTrue();
     }
 
+    @Test
+    void 사용자_프로젝트_초대에_성공한다() {
+        // given
+        Long projectId = 132432L;
+        String githubId = "binimini";
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/"+projectId+"/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 사용자_초대를_githubId_부족으로_실패한다() {
+        // given
+        Long projectId = 132432L;
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/"+projectId+"/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", containsString("githubId"))
+                .body("message", containsString("비어 있을 수 없습니다"));
+    }
 }
