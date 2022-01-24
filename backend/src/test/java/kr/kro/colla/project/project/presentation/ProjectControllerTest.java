@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -13,6 +15,7 @@ import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user.user.service.UserService;
+import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import kr.kro.colla.utils.CookieManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -124,7 +128,14 @@ class ProjectControllerTest {
         Long projectId = 123142L;
         String githubId = "binimini";
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
+        User user = User.builder()
+                .name("subin")
+                .githubId(githubId)
+                .avatar("github")
+                .build();
 
+        given(userService.findByGithubId(githubId))
+                .willReturn(user);
         // when
         ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members")
                 .cookie(new Cookie("accessToken", this.accessToken))
@@ -132,7 +143,7 @@ class ProjectControllerTest {
                 .content(objectMapper.writeValueAsString(projectMemberRequest)));
         // then
         perform
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
         verify(noticeService, times(1)).createNotice(any(CreateNoticeRequest.class));
     }
 
@@ -156,23 +167,61 @@ class ProjectControllerTest {
     }
 
     @Test
-    void 사용자_초대를_권한_부족으로_실패한다(){
+    void 사용자가_프로젝트_초대를_거절한다() throws Exception {
+        // given
+        Long projectId = 123142L;
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
 
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members/decision")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectMemberDecision)));
+        // then
+        perform
+                .andExpect(status().isNoContent());
+        verify(userProjectService, times(0)).joinProject(any(User.class), any(Project.class));
     }
 
     @Test
-    void 사용자가_프로젝트_초대를_거절한다(){
+    void 사용자가_프로젝트_초대를_수락한다() throws Exception {
+// given
+        Long projectId = 123142L, userId = loginUser.getId();
+        String userName = "subin", userAvatar = "github_contents", userGithubId = "binimini";
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
+        User user = User.builder()
+                .name(userName)
+                .avatar(userAvatar)
+                .githubId(userGithubId)
+                .build();
+        ReflectionTestUtils.setField(user, "id", userId);
+        Project project = Project.builder()
+                .name("project_name")
+                .build();
+        UserProject userProject = UserProject.builder()
+                .user(user)
+                .project(project)
+                .build();
 
-    }
-
-    @Test
-    void 사용자가_프로젝트_초대를_수락한다(){
-
-    }
-
-    @Test
-    void 초대_알람이_없을시_초대_결정에_실패한다(){
-
+        given(userService.findUserById(any()))
+                .willReturn(user);
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(userProjectService.joinProject(any(User.class), any(Project.class)))
+                .willReturn(userProject);
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members/decision")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectMemberDecision)));
+        // then
+        perform
+                .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").value(userId))
+                        .andExpect(jsonPath("$.name").value(userName))
+                        .andExpect(jsonPath("$.avatar").value(userAvatar))
+                        .andExpect(jsonPath("$.githubId").value(userGithubId));
+        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
     }
 
 }
