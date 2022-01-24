@@ -16,10 +16,10 @@ public class ProjectTaskResponse {
 
     private Integer priority;
 
-    public ProjectTaskResponse(Task task) {
+    public ProjectTaskResponse(Task task, String managerName) {
         this.id = task.getId();
         this.title = task.getTitle();
-        this.managerName = task.getManagerName();
+        this.managerName = managerName;
         this.priority = task.getPriority();
     }
 

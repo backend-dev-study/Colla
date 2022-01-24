@@ -8,6 +8,7 @@ import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
+import kr.kro.colla.user_project.domain.UserProject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,13 +42,20 @@ public class ProjectService {
 
     public ProjectResponse getProject(Long projectId) {
         Project project = findProjectById(projectId);
+        Map<Long, String> members = new HashMap<>();
         Map<String, List<ProjectTaskResponse>> tasks = new HashMap<>();
+
+        project.getMembers()
+                .stream()
+                .map(UserProject::getUser)
+                .forEach(user -> members.put(user.getId(), user.getName()));
+
         project.getTaskStatuses()
                 .stream()
                 .forEach(taskStatus -> {
                     List<ProjectTaskResponse> taskList = taskStatus.getTasks()
                             .stream()
-                            .map(ProjectTaskResponse::new)
+                            .map(task -> new ProjectTaskResponse(task, members.get(task.getManagerId())))
                             .collect(Collectors.toList());
                     tasks.put(taskStatus.getName(), taskList);
                 });
