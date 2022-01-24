@@ -40,7 +40,7 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/members")
-    public ResponseEntity inviteMember(@Authenticated LoginUser loginUser,
+    public ResponseEntity inviteUser(@Authenticated LoginUser loginUser,
                                        @PathVariable long projectId, @Valid @RequestBody ProjectMemberRequest projectMemberRequest){
         Project project = projectService.findProjectById(projectId);
         User manager = userService.findUserById(loginUser.getId());
@@ -56,7 +56,7 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/members/decision")
-    public ResponseEntity DecideInvitation(@Authenticated LoginUser loginUser,
+    public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
                                            @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
         User user = userService.findUserById(loginUser.getId());
         // user 알림 체크 및 읽음 처리
