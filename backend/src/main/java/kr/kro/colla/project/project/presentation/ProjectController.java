@@ -49,7 +49,7 @@ public class ProjectController {
         User user = userService.findByGithubId(projectMemberRequest.getGithubId());
         CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.INVITE_USER)
-                .receiver(user)
+                .receiverId(user.getId())
                 .build();
         noticeService.createNotice(createNoticeRequest);
         return ResponseEntity.ok().build();

@@ -68,6 +68,7 @@ public class ProjectService {
     }
 
     public Project findProjectById(Long projectId){
+        System.out.println(projectId);
         return projectRepository.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
     }

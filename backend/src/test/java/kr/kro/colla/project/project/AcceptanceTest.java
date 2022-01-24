@@ -10,7 +10,10 @@ import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
 import kr.kro.colla.user_project.service.UserProjectService;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,8 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+
+import javax.transaction.Transactional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +47,9 @@ public class AcceptanceTest {
 
     @Autowired
     private UserProjectService userProjectService;
+
+    @Autowired
+    private UserProjectRepository userProjectRepository;
 
     private Auth auth;
     private User user;
@@ -68,7 +76,14 @@ public class AcceptanceTest {
         userProjectService.joinProject(user, project);
 
         auth = new Auth(jwtProvider);
-        accessToken = auth.로그인(1L);
+        accessToken = auth.로그인(user.getId());
+    }
+
+    @AfterEach
+    void rollback(){
+        userProjectRepository.deleteAll();
+        userRepository.deleteAll();
+        projectRepository.deleteAll();
     }
 
     @Test
@@ -105,9 +120,13 @@ public class AcceptanceTest {
     @Test
     void 사용자_프로젝트_초대에_성공한다() {
         // given
-        Long projectId = 132432L;
-        String githubId = "binimini";
-        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
+        User member = User.builder()
+                .name("subin")
+                .githubId("binimini")
+                .avatar("profile")
+                .build();
+        userRepository.save(member);
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(member.getGithubId());
 
         given()
                 .contentType(ContentType.JSON)
@@ -116,10 +135,11 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+projectId+"/members")
+                .post("/api/projects/"+project.getId()+"/members")
         // then
         .then()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.OK.value())
+                .log();
     }
 
     @Test
