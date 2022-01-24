@@ -1,18 +1,17 @@
 import React, { FC, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 
-import { ItemType } from '../../types/kanban';
+import { ItemType, TaskType } from '../../types/kanban';
 import { Wrapper } from './style';
 
 interface PropType {
-    id: number;
-    index: number;
-    title: string;
+    task: TaskType;
     changeColumn: Function;
     moveHandler: Function;
 }
 
-const Task: FC<PropType> = ({ id, index, title, changeColumn, moveHandler }) => {
+const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
+    const { id, title, managerName, priority, index } = task;
     const [{ isDragging }, drag] = useDrag({
         type: 'task_type',
         item: { id, index, name: 'task', type: 'task_type' },
@@ -37,7 +36,7 @@ const Task: FC<PropType> = ({ id, index, title, changeColumn, moveHandler }) => 
             }
 
             const dragIndex = item.index;
-            const hoverIndex = index;
+            const hoverIndex = index!;
             if (dragIndex === hoverIndex) {
                 return;
             }
@@ -66,7 +65,11 @@ const Task: FC<PropType> = ({ id, index, title, changeColumn, moveHandler }) => 
 
     return (
         <Wrapper ref={ref} style={{ opacity }}>
-            {title}
+            <div>
+                {title}
+                {priority}
+            </div>
+            <div>{managerName}</div>
         </Wrapper>
     );
 };

@@ -1,35 +1,26 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 
+import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
 import { SideBar } from '../../components/SideBar';
-import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
 import { Wrapper, KanbanAddButton, KanbanAdditional, Container } from './style';
 
-const dummyTasks = [
-    { id: 1, name: 'task 1', column: 'To Do' },
-    { id: 2, name: 'task 2', column: 'To Do' },
-    { id: 3, name: 'task 3', column: 'To Do' },
-    { id: 4, name: 'task 4', column: 'In Progress' },
-    { id: 5, name: 'task 5', column: 'In Progress' },
-    { id: 6, name: 'task 6', column: 'In Progress' },
-    { id: 7, name: 'task 7', column: 'Done' },
-    { id: 8, name: 'task 8', column: 'Done' },
-    { id: 9, name: 'task 9', column: 'Done' },
-];
+interface stateType {
+    projectId: number;
+}
 
 const Kanban = () => {
     const history = useHistory();
-    const project = useRecoilValue(projectState);
-    const [taskList, setTaskList] = useState<Array<TaskType>>(dummyTasks);
+    const { state } = useLocation<stateType>();
+    const [taskList, setTaskList] = useState<Array<TaskType>>([]);
 
     const statuses = ['To Do', 'In Progress', 'Done'];
     const menu = ['로드맵', '백로그', '대시보드', '지도'];
 
-    if (!project.id) {
+    if (!state.projectId) {
         history.push('/home');
     }
 
@@ -55,6 +46,18 @@ const Kanban = () => {
             return prevStateArray;
         });
     };
+
+    useEffect(() => {
+        (async () => {
+            const res = await getProject(state.projectId);
+            const { tasks } = res.data;
+            setTaskList([
+                ...tasks['To Do'].map((task) => ({ ...task, column: 'To Do' })),
+                ...tasks['In Progress'].map((task) => ({ ...task, column: 'In Progress' })),
+                ...tasks['Done'].map((task) => ({ ...task, column: 'Done' })),
+            ]);
+        })();
+    }, []);
 
     return (
         <>

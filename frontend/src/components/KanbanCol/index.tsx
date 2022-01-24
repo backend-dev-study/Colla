@@ -32,15 +32,8 @@ const KanbanCol: FC<PropType> = ({ status, tasks, changeColumn, moveTaskHandler 
             <Wrapper>
                 <KanbanStatus>{status}</KanbanStatus>
                 <KanbanIssue ref={drop}>
-                    {tasks.map(({ id, name, index }) => (
-                        <Task
-                            key={id}
-                            id={id}
-                            title={name}
-                            index={index!}
-                            changeColumn={changeColumn}
-                            moveHandler={moveTaskHandler}
-                        />
+                    {tasks.map((task) => (
+                        <Task key={task.id} task={task} changeColumn={changeColumn} moveHandler={moveTaskHandler} />
                     ))}
                 </KanbanIssue>
             </Wrapper>
