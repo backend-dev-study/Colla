@@ -17,5 +17,5 @@ public class CreateNoticeRequest {
     private String mentionedURL;
 
     @NotNull
-    private User receiver;
+    private Long receiverId;
 }
