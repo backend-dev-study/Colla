@@ -43,7 +43,7 @@ export const Task = styled.div`
 `;
 
 export const TaskTitle = styled.div`
-    max-width: 280px;
+    max-width: 260px;
 `;
 
 export const Priority = styled.div``;
