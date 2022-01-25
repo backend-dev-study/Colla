@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
@@ -77,7 +78,7 @@ const Kanban = () => {
                         />
                     ))}
                     <KanbanAdditional>
-                        <KanbanAddButton />
+                        <KanbanAddButton src={PlusIcon} />
                     </KanbanAdditional>
                 </Wrapper>
             </Container>

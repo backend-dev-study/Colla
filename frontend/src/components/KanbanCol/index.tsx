@@ -1,9 +1,10 @@
 import React, { FC } from 'react';
 import { useDrop } from 'react-dnd';
 
+import PlusIconSrc from '../../../public/assets/images/plus-circle.svg';
 import { ItemType, TaskType } from '../../types/kanban';
 import Task from '../Task';
-import { Wrapper, KanbanStatus, KanbanIssue } from './style';
+import { Wrapper, KanbanStatus, KanbanIssue, AddTaskButton, PlusIcon } from './style';
 
 interface PropType {
     status: string;
@@ -35,6 +36,10 @@ const KanbanCol: FC<PropType> = ({ status, tasks, changeColumn, moveTaskHandler 
                     {tasks.map((task) => (
                         <Task key={task.id} task={task} changeColumn={changeColumn} moveHandler={moveTaskHandler} />
                     ))}
+                    <AddTaskButton>
+                        <PlusIcon src={PlusIconSrc} />
+                        새로 만들기
+                    </AddTaskButton>
                 </KanbanIssue>
             </Wrapper>
         </>

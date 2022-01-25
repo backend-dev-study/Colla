@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import plusIcon from '../../../public/assets/images/plus-circle.svg';
 import { LIGHT_GRAY } from '../../styles/color';
 import { Center } from '../../styles/common';
 
@@ -11,7 +10,8 @@ export const Container = styled.div`
 
 export const Wrapper = styled.div`
     display: flex;
-    width: 1000px;
+    align-items: start;
+    width: 1300px;
     overflow-x: scroll;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -19,20 +19,20 @@ export const Wrapper = styled.div`
 
 export const KanbanAdditional = styled.div`
     width: 300px;
-    height: 630px;
+    height: 50px;
     border-radius: 10px;
     background: ${LIGHT_GRAY};
     margin-left: 10px;
     margin-right: 10px;
     &:hover {
         opacity: 50%;
+        cursor: pointer;
     }
+
+    ${Center}
 `;
 
-export const KanbanAddButton = styled.button`
-    width: 300px;
-    height: 630px;
-    border-radius: 10px;
-    background: no-repeat center url(${plusIcon});
-    cursor: pointer;
+export const KanbanAddButton = styled.img`
+    width: 40px;
+    height: 40px;
 `;
