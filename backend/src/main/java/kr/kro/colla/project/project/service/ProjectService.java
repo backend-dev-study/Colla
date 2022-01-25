@@ -6,6 +6,7 @@ import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
+import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user_project.domain.UserProject;
@@ -16,6 +17,7 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,20 +44,24 @@ public class ProjectService {
 
     public ProjectResponse getProject(Long projectId) {
         Project project = findProjectById(projectId);
-        Map<Long, String> members = new HashMap<>();
+        Map<Long, User> members = new HashMap<>();
         Map<String, List<ProjectTaskResponse>> tasks = new HashMap<>();
 
         project.getMembers()
                 .stream()
                 .map(UserProject::getUser)
-                .forEach(user -> members.put(user.getId(), user.getName()));
+                .forEach(user -> members.put(user.getId(), user));
+
+        System.out.println(members.get(1L));
 
         project.getTaskStatuses()
                 .stream()
                 .forEach(taskStatus -> {
                     List<ProjectTaskResponse> taskList = taskStatus.getTasks()
                             .stream()
-                            .map(task -> new ProjectTaskResponse(task, members.get(task.getManagerId())))
+                            .map(task -> task.getManagerId() != null
+                                    ? new ProjectTaskResponse(task, members.get(task.getManagerId()))
+                                    : new ProjectTaskResponse(task))
                             .collect(Collectors.toList());
                     tasks.put(taskStatus.getName(), taskList);
                 });
