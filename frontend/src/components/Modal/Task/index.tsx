@@ -1,6 +1,13 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
+import DeleteIconSrc from '../../../../public/assets/images/delete.png';
 import DownIconSrc from '../../../../public/assets/images/down.png';
+import StarImgSrc from '../../../../public/assets/images/star.png';
+import { TaskType } from '../../../types/kanban';
+import { PreTaskDropDown } from '../../DropDown/PreTask';
+import { Task, TaskTitle } from '../../DropDown/PreTask/style';
+import { Star } from '../../Task/style';
+import { StoryModal } from '../Story';
 import {
     TaskContainer,
     Title,
@@ -16,21 +23,40 @@ import {
     MemberList,
     Status,
     Priority,
-    Modal,
+    ModalContainer,
     CancelButton,
     CompleteButton,
     ButtonContainer,
+    PreTaskList,
+    DeleteButton,
+    PreTask,
 } from './style';
 
 interface PropType {
     status: string;
+    taskList: TaskType[];
+    hideModal: Function;
 }
 
-export const TaskModal: FC<PropType> = ({ status }) => {
-    const addStory = async () => {};
+export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
+    const [storyModalVisible, setStoryModalVisible] = useState(false);
+    const [preTaskVisible, setPreTaskVisible] = useState(false);
+    const [preTaskList, setPreTaskList] = useState([]);
+
+    const showStoryModal = () => {
+        setStoryModalVisible((prev) => !prev);
+    };
+
+    const showPreTaskList = () => {
+        setPreTaskVisible((prev) => !prev);
+    };
+
+    const deletePreTask = (idx: number) => {
+        setPreTaskList((prev) => prev.filter((el) => el !== idx));
+    };
 
     return (
-        <Modal>
+        <ModalContainer>
             <Container>
                 <TaskContainer>
                     <Title>
@@ -46,14 +72,32 @@ export const TaskModal: FC<PropType> = ({ status }) => {
                         <DropDown>
                             <DownIcon src={DownIconSrc} />
                         </DropDown>
-                        <AddButton onClick={addStory}>추가하기</AddButton>
+                        <AddButton onClick={showStoryModal}>추가하기</AddButton>
                     </TaskComponent>
                     <TaskComponent>
                         <span>선행 테스크</span>
-                        <DropDown>
+                        <DropDown onClick={showPreTaskList}>
                             <DownIcon src={DownIconSrc} />
                         </DropDown>
                     </TaskComponent>
+                    <PreTaskList>
+                        {preTaskList.map((taskIdx, idx) => (
+                            <PreTask key={idx}>
+                                <Task>
+                                    <TaskTitle>{taskList[taskIdx].title}</TaskTitle>
+                                    <div>
+                                        {Array(taskList[taskIdx].priority)
+                                            .fill(0)
+                                            .map((el, i) => i + 1)
+                                            .map((el) => (
+                                                <Star key={el} src={StarImgSrc} />
+                                            ))}
+                                    </div>
+                                </Task>
+                                <DeleteButton src={DeleteIconSrc} onClick={() => deletePreTask(taskIdx)} />
+                            </PreTask>
+                        ))}
+                    </PreTaskList>
                 </TaskContainer>
                 <DetailContainer>
                     <DetailComponent>
@@ -81,9 +125,17 @@ export const TaskModal: FC<PropType> = ({ status }) => {
                 </DetailContainer>
             </Container>
             <ButtonContainer>
-                <CancelButton>취소</CancelButton>
+                <CancelButton onClick={() => hideModal()}>취소</CancelButton>
                 <CompleteButton>완료</CompleteButton>
             </ButtonContainer>
-        </Modal>
+            {storyModalVisible ? <StoryModal showStoryModal={showStoryModal} /> : null}
+            {preTaskVisible ? (
+                <PreTaskDropDown
+                    taskList={taskList}
+                    setPreTaskList={setPreTaskList}
+                    setPreTaskVisible={setPreTaskVisible}
+                />
+            ) : null}
+        </ModalContainer>
     );
 };

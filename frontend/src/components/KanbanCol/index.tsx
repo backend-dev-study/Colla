@@ -10,12 +10,13 @@ import { Wrapper, KanbanStatus, KanbanIssue, AddTaskButton, PlusIcon } from './s
 
 interface PropType {
     status: string;
+    taskList: TaskType[];
     tasks: TaskType[];
     changeColumn: Function;
     moveTaskHandler: Function;
 }
 
-const KanbanCol: FC<PropType> = ({ status, tasks, changeColumn, moveTaskHandler }) => {
+const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTaskHandler }) => {
     const { Modal, setModal } = useModal();
     const [, drop] = useDrop({
         accept: 'task_type',
@@ -46,7 +47,7 @@ const KanbanCol: FC<PropType> = ({ status, tasks, changeColumn, moveTaskHandler 
                 </KanbanIssue>
             </Wrapper>
             <Modal>
-                <TaskModal status={status} hideModal={setModal} />
+                <TaskModal status={status} taskList={taskList} hideModal={setModal} />
             </Modal>
         </>
     );

@@ -70,6 +70,7 @@ const Kanban = () => {
                         <KanbanCol
                             key={value}
                             status={value}
+                            taskList={taskList}
                             tasks={taskList
                                 .map((task, index) => ({ ...task, index }))
                                 .filter((task) => task.column === value)}
