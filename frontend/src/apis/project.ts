@@ -10,6 +10,7 @@ interface task {
     id: number;
     title: string;
     managerName: string;
+    avatar: string;
     priority: number;
 }
 

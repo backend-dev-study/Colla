@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-
 import { useDrop } from 'react-dnd';
+
 import { ItemType, TaskType } from '../../types/kanban';
 import Task from '../Task';
 import { Wrapper, KanbanStatus, KanbanIssue } from './style';

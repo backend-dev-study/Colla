@@ -30,4 +30,5 @@ export const KanbanIssue = styled.div`
     border-radius: 10px;
     background: ${LIGHT_GRAY};
     flex-direction: column;
+    align-items: center;
 `;

@@ -1,8 +1,9 @@
 import React, { FC, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 
+import StarImgSrc from '../../../public/assets/images/star.png';
 import { ItemType, TaskType } from '../../types/kanban';
-import { Wrapper } from './style';
+import { Wrapper, Title, TaskTitle, Priority, Star, Manager, Avatar, Name } from './style';
 
 interface PropType {
     task: TaskType;
@@ -11,7 +12,7 @@ interface PropType {
 }
 
 const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
-    const { id, title, managerName, priority, index } = task;
+    const { id, title, managerName, avatar, priority, index } = task;
     const [{ isDragging }, drag] = useDrag({
         type: 'task_type',
         item: { id, index, name: 'task', type: 'task_type' },
@@ -65,11 +66,27 @@ const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
 
     return (
         <Wrapper ref={ref} style={{ opacity }}>
-            <div>
-                {title}
-                {priority}
-            </div>
-            <div>{managerName}</div>
+            <Title>
+                <TaskTitle>{title}</TaskTitle>
+                <Priority>
+                    {Array(priority)
+                        .fill(0)
+                        .map((el, i) => i + 1)
+                        .map((el) => (
+                            <Star key={el} src={StarImgSrc} />
+                        ))}
+                </Priority>
+            </Title>
+            <Manager>
+                {avatar ? (
+                    <>
+                        <Avatar src={avatar} />
+                        <Name>{managerName}</Name>
+                    </>
+                ) : (
+                    managerName
+                )}
+            </Manager>
         </Wrapper>
     );
 };
