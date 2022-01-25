@@ -46,7 +46,7 @@ const KanbanCol: FC<PropType> = ({ status, tasks, changeColumn, moveTaskHandler 
                 </KanbanIssue>
             </Wrapper>
             <Modal>
-                <TaskModal status={status} />
+                <TaskModal status={status} hideModal={setModal} />
             </Modal>
         </>
     );

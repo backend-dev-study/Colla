@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { GRAY } from '../../../styles/color';
 import { LiftUp } from '../../../styles/common';
 
-export const Modal = styled.div`
+export const ModalContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 880px;
@@ -69,6 +69,7 @@ export const DropDown = styled.div`
     border-radius: 10px;
     padding-left: 10px;
     background-color: #fff;
+    cursor: pointer;
 `;
 
 export const DownIcon = styled.img`
@@ -138,7 +139,7 @@ export const ButtonContainer = styled.div`
 const Button = css`
     width: 50px;
     height: 50px;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
     text-decoration: underline;
 
@@ -153,7 +154,7 @@ export const CancelButton = styled.div`
 `;
 
 export const CompleteButton = styled.div`
-    margin-right: 17px;
+    margin-right: 19px;
 
     ${Button};
 `;
