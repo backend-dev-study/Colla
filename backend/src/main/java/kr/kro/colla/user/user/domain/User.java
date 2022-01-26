@@ -53,5 +53,5 @@ public class User {
 
     public void changeDisplayName(String name) { this.name = name; }
 
-    public void addNotice(Notice notice){ this.notices.add(notice); }
+    public void addNotice(Notice notice) { this.notices.add(notice); }
 }

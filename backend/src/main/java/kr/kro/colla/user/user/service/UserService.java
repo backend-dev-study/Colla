@@ -5,6 +5,7 @@ import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,8 @@ public class UserService {
                 );
     }
 
-    public List<Notice> getUserNotices(Long id){
-        return findUserById(id).getNotices();
+    public List<UserNoticeResponse> getUserNotices(Long id){
+        return findUserById(id).getNotices().stream().map(notice-> new UserNoticeResponse(notice)).collect(Collectors.toList());
 
     }
     public List<UserProjectResponse> getUserProjects(Long id) {
