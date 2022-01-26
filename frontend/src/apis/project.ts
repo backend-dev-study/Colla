@@ -37,3 +37,9 @@ export const createStory = async (projectId: number, title: string) => {
 
     return response;
 };
+
+export const getProjectStories = async (projectId: number) => {
+    const response = await client.get(`/projects/${projectId}/stories`);
+
+    return response;
+};

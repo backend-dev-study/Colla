@@ -6,6 +6,7 @@ import StarImgSrc from '../../../../public/assets/images/star.png';
 import { TaskType } from '../../../types/kanban';
 import { PreTaskDropDown } from '../../DropDown/PreTask';
 import { Task, TaskTitle } from '../../DropDown/PreTask/style';
+import { StoryDropDown } from '../../DropDown/Story';
 import { Star } from '../../Task/style';
 import { StoryModal } from '../Story';
 import {
@@ -41,11 +42,16 @@ interface PropType {
 export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [story, setStory] = useState('');
     const [storyModalVisible, setStoryModalVisible] = useState(false);
+    const [storyVisible, setStoryVisible] = useState(false);
     const [preTaskVisible, setPreTaskVisible] = useState(false);
     const [preTaskList, setPreTaskList] = useState([]);
 
     const showStoryModal = () => {
         setStoryModalVisible((prev) => !prev);
+    };
+
+    const showStoryList = () => {
+        setStoryVisible((prev) => !prev);
     };
 
     const showPreTaskList = () => {
@@ -70,7 +76,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                     </TaskComponent>
                     <TaskComponent>
                         <span>스토리</span>
-                        <DropDown>
+                        <DropDown onClick={showStoryList}>
                             {story}
                             <DownIcon src={DownIconSrc} />
                         </DropDown>
@@ -138,6 +144,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                     setPreTaskVisible={setPreTaskVisible}
                 />
             ) : null}
+            {storyVisible ? <StoryDropDown setStory={setStory} setStoryVisible={setStoryVisible} /> : null}
         </ModalContainer>
     );
 };

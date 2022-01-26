@@ -1,14 +1,13 @@
+import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { GRAY } from '../../../styles/color';
 
-export const TaskList = styled.div`
+export const List = css`
     position: absolute;
     display: flex;
     flex-direction: column;
     width: 375px;
-    height: 300px;
-    top: 430px;
-    left: 120px;
+    max-height: 300px;
     border: 1px solid ${GRAY};
     border-radius: 10px;
     padding-left: 10px;
@@ -25,7 +24,14 @@ export const TaskList = styled.div`
     }
 `;
 
-export const Task = styled.div`
+export const TaskList = styled.div`
+    top: 430px;
+    left: 120px;
+
+    ${List}
+`;
+
+export const Work = css`
     display: flex;
     width: 337px;
     justify-content: space-between;
@@ -39,11 +45,20 @@ export const Task = styled.div`
 
     :hover {
         background-color: #f1f1f1;
+        cursor: pointer;
     }
 `;
 
-export const TaskTitle = styled.div`
+export const Task = styled.div`
+    ${Work}
+`;
+
+export const Title = css`
     max-width: 260px;
+`;
+
+export const TaskTitle = styled.div`
+    ${Title}
 `;
 
 export const Priority = styled.div``;
