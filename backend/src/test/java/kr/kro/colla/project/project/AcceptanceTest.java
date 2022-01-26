@@ -1,6 +1,7 @@
 package kr.kro.colla.project.project;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
@@ -9,6 +10,8 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
@@ -24,6 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -186,5 +191,35 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("title", equalTo(title));
+    }
+
+    @Test
+    void 사용자가_프로젝트_스토리를_조회한다() {
+        // given
+        Story story = Story.builder()
+                .title("story title")
+                .preStories("[]")
+                .project(project)
+                .build();
+        storyRepository.save(story);
+
+        List<ProjectStoryResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + project.getId() + "/stories")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectStoryResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getTitle()).isEqualTo(story.getTitle());
     }
 }

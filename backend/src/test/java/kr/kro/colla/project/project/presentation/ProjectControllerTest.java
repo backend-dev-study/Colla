@@ -2,13 +2,11 @@ package kr.kro.colla.project.project.presentation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.story.domain.Story;
@@ -29,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import javax.servlet.http.Cookie;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -279,6 +279,36 @@ class ProjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("title : must not be blank"));
         verify(storyService, never()).createStory(eq(projectId), any(CreateStoryRequest.class));
+    }
+
+    @Test
+    void 프로젝트의_스토리를_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Story story = Story.builder()
+                .title("story title")
+                .preStories("[]")
+                .build();
+        List<ProjectStoryResponse> projectStoryResponses = List.of(new ProjectStoryResponse(story));
+
+        given(projectService.getProjectStories(projectId))
+                .willReturn(projectStoryResponses);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/stories")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        MvcResult result = perform.andReturn();
+        CollectionType collectionType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, ProjectStoryResponse.class);
+        List<ProjectStoryResponse> projectStoryResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
+
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value(story.getTitle()));
+        assertThat(projectStoryResponseList.size()).isEqualTo(1);
     }
 
 }

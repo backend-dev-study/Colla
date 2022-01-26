@@ -5,7 +5,9 @@ import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user_project.domain.UserProject;
@@ -24,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -113,6 +117,36 @@ class ProjectServiceTest {
         assertThat(result.getMembers().get(0).getGithubId()).isEqualTo(user.getGithubId());
         assertThat(result.getTasks().size()).isEqualTo(3);
         assertThat(result.getTasks().get("Done")).isEmpty();
+    }
+
+    @Test
+    void 프로젝트의_스토리를_조회한다() {
+        // given
+        String fileName = "thumbnail.png";
+        MultipartFile thumbnail1 = FileProvider.getTestMultipartFile(fileName);
+        Project project = Project.builder()
+                .managerId(managerId)
+                .name(name)
+                .description(desc)
+                .thumbnail(FileProvider.extractImageUrl(thumbnail1))
+                .build();
+        Story story = Story.builder()
+                .title("story title")
+                .preStories("[]")
+                .build();
+        ReflectionTestUtils.setField(project, "stories", List.of(story));
+
+        given(projectRepository.findById(eq(id)))
+                .willReturn(Optional.of(project));
+
+        // when
+        List<ProjectStoryResponse> result = projectService.getProjectStories(id);
+
+        // then
+        ProjectStoryResponse response = result.get(0);
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(response.getTitle()).isEqualTo(story.getTitle());
+        verify(projectRepository, times(1)).findById(1L);
     }
 
 }
