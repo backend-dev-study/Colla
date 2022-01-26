@@ -34,4 +34,6 @@ public class Notice {
         this.noticeType = noticeType;
         this.mentionedURL = mentionedURL;
     }
+
+    public void check() { this.isChecked = true; }
 }

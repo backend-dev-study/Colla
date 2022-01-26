@@ -44,8 +44,8 @@ public class UserService {
 
     public List<UserNoticeResponse> getUserNotices(Long id){
         return findUserById(id).getNotices().stream().map(notice-> new UserNoticeResponse(notice)).collect(Collectors.toList());
-
     }
+
     public List<UserProjectResponse> getUserProjects(Long id) {
         return findUserById(id).getProjects()
                 .stream()

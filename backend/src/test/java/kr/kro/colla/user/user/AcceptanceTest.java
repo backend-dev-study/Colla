@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
@@ -235,7 +233,7 @@ public class AcceptanceTest {
 
     @Transactional
     @Test
-    void 사용자는_사용자의_알림들을_조회할_수_있다(){
+    void 사용자는_사용자의_알림들을_조회할_수_있다() {
         // given
         List<Notice> data = new ArrayList<>();
         Notice notice1 = Notice.builder()
