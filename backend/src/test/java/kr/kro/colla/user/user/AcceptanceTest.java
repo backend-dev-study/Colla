@@ -12,6 +12,8 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
+import kr.kro.colla.user.notice.service.NoticeService;
+import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 
@@ -61,6 +63,8 @@ public class AcceptanceTest {
     private UserProjectRepository userProjectRepository;
     @Autowired
     private NoticeRepository noticeRepository;
+    @Autowired
+    private NoticeService noticeService;
 
     private Auth auth;
     private User user;
@@ -231,27 +235,23 @@ public class AcceptanceTest {
         assertThat(response.get(1).getManagerId()).isEqualTo(user.getId());
     }
 
-    @Transactional
     @Test
-    void 사용자는_사용자의_알림들을_조회할_수_있다() {
+    void 사용자는_사용자의_알림들을_조회할_수_있다(){
         // given
-        List<Notice> data = new ArrayList<>();
-        Notice notice1 = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .build();
-        Notice notice2 = Notice.builder()
+        CreateNoticeRequest createNoticeRequest1 = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.MENTION_USER)
                 .mentionedURL("test/url/for/mention")
+                .receiverId(user.getId())
                 .build();
-        data.add(notice1);
-        data.add(notice2);
+        CreateNoticeRequest createNoticeRequest2 = CreateNoticeRequest.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .receiverId(user.getId())
+                .build();
 
-        noticeRepository.save(notice1);
-        noticeRepository.save(notice2);
-
-        User receiver = userRepository.findById(user.getId()).get();
-        receiver.addNotice(notice1);
-        receiver.addNotice(notice2);
+        List<Notice> notices = List.of(
+                noticeService.createNotice(createNoticeRequest1),
+                noticeService.createNotice(createNoticeRequest2)
+        );
 
         List<Notice> response = given()
                 .contentType(ContentType.JSON)
@@ -260,22 +260,23 @@ public class AcceptanceTest {
         // when
         .when()
                 .get("/api/users/notices")
+
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
                 .as(new TypeRef<List<Notice>>() {});
-        assertThat(response.size()).isEqualTo(2);
 
+        assertThat(response.size()).isEqualTo(2);
         IntStream
                 .range(0, response.size())
                 .forEach(i->{
-                            assertThat(response.get(i).getId()).isEqualTo(data.get(i).getId());
-                            assertThat(response.get(i).getNoticeType()).isEqualTo(data.get(i).getNoticeType());
-                            assertThat(response.get(i).getIsChecked()).isEqualTo(data.get(i).getIsChecked());
-                            assertThat(response.get(i).getMentionedURL()).isEqualTo(data.get(i).getMentionedURL());
-                    });
+                    assertThat(response.get(i).getId()).isEqualTo(notices.get(i).getId());
+                    assertThat(response.get(i).getNoticeType()).isEqualTo(notices.get(i).getNoticeType());
+                    assertThat(response.get(i).getIsChecked()).isEqualTo(notices.get(i).getIsChecked());
+                    assertThat(response.get(i).getMentionedURL()).isEqualTo(notices.get(i).getMentionedURL());
+                });
 
     }
 }
