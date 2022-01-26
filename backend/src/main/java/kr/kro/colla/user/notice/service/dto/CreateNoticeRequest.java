@@ -1,7 +1,7 @@
 package kr.kro.colla.user.notice.service.dto;
 
 import kr.kro.colla.user.notice.domain.NoticeType;
-import lombok.AccessLevel;
+import kr.kro.colla.user.user.domain.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,5 +17,5 @@ public class CreateNoticeRequest {
     private String mentionedURL;
 
     @NotNull
-    private Long targetUserId;
+    private Long receiverId;
 }

@@ -9,17 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-@Validated
 @RequiredArgsConstructor
 @Service
 public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final UserService userService;
 
-    public Notice createNotice(@Valid CreateNoticeRequest createNoticeRequest) {
-        User user = userService.findUserById(createNoticeRequest.getTargetUserId());
+    @Transactional
+    public Notice createNotice(CreateNoticeRequest createNoticeRequest) {
+        User user = userService.findUserById(createNoticeRequest.getReceiverId());
 
         Notice notice = Notice.builder()
                 .noticeType(createNoticeRequest.getNoticeType())
