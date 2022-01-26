@@ -2,13 +2,11 @@ package kr.kro.colla.project.project.presentation;
 
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
-import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
+import kr.kro.colla.story.domain.Story;
+import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
@@ -27,9 +25,10 @@ import javax.validation.Valid;
 @RequestMapping("/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
     private final UserService userService;
+    private final StoryService storyService;
     private final NoticeService noticeService;
+    private final ProjectService projectService;
     private final UserProjectService userProjectService;
 
     @GetMapping("/{projectId}")
@@ -69,4 +68,12 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
 
     }
+
+    @PostMapping("/{projectId}/stories")
+    public ResponseEntity createStory(@PathVariable Long projectId, @Valid @RequestBody CreateStoryRequest createStoryRequest) {
+        Story story = storyService.createStory(projectId, createStoryRequest);
+
+        return ResponseEntity.ok(new CreateStoryResponse(story));
+    }
+
 }
