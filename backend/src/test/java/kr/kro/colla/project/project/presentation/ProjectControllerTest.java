@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
+import kr.kro.colla.story.domain.Story;
+import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
@@ -38,8 +41,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,21 +52,30 @@ class ProjectControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private CookieManager cookieManager;
 
     @MockBean
     private AuthService authService;
+
     @MockBean
     private ProjectService projectService;
+
     @MockBean
     private UserService userService;
+
     @MockBean
     private UserProjectService userProjectService;
+
     @MockBean
     private NoticeService noticeService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @MockBean
+    private StoryService storyService;
+
     private String accessToken = "token";
     private LoginUser loginUser;
 
@@ -137,7 +148,7 @@ class ProjectControllerTest {
         given(userService.findByGithubId(githubId))
                 .willReturn(user);
         // when
-        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members")
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberRequest)));
@@ -154,7 +165,7 @@ class ProjectControllerTest {
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
 
         // when
-        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members")
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberRequest)));
@@ -173,7 +184,7 @@ class ProjectControllerTest {
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
 
         // when
-        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members/decision")
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
@@ -185,7 +196,7 @@ class ProjectControllerTest {
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() throws Exception {
-// given
+        // given
         Long projectId = 123142L, userId = loginUser.getId();
         String userName = "subin", userAvatar = "github_contents", userGithubId = "binimini";
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
@@ -210,7 +221,7 @@ class ProjectControllerTest {
         given(userProjectService.joinProject(any(User.class), any(Project.class)))
                 .willReturn(userProject);
         // when
-        ResultActions perform = mockMvc.perform(post("/projects/"+projectId+"/members/decision")
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
@@ -222,6 +233,52 @@ class ProjectControllerTest {
                         .andExpect(jsonPath("$.avatar").value(userAvatar))
                         .andExpect(jsonPath("$.githubId").value(userGithubId));
         verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+    }
+
+    @Test
+    void 프로젝트_스토리를_생성한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        String title = "story title";
+        Story story = Story.builder()
+                .title(title)
+                .preStories("[]")
+                .build();
+        String content = objectMapper.writeValueAsString(new CreateStoryRequest(title));
+
+        given(storyService.createStory(eq(projectId), any(CreateStoryRequest.class)))
+                .willReturn(story);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/stories")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(title));
+        verify(storyService, times(1)).createStory(eq(projectId), any(CreateStoryRequest.class));
+    }
+
+    @Test
+    void 스토리_제목이_없다면_스토리_생성에_실패한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        String content = objectMapper.writeValueAsString(new CreateStoryRequest(""));
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/stories")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("title : must not be blank"));
+        verify(storyService, never()).createStory(eq(projectId), any(CreateStoryRequest.class));
     }
 
 }
