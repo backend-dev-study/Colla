@@ -52,8 +52,6 @@ public class ProjectService {
                 .map(UserProject::getUser)
                 .forEach(user -> members.put(user.getId(), user));
 
-        System.out.println(members.get(1L));
-
         project.getTaskStatuses()
                 .stream()
                 .forEach(taskStatus -> {
