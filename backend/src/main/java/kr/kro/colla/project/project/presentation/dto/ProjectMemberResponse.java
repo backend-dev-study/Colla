@@ -7,6 +7,8 @@ import lombok.Getter;
 @Getter
 public class ProjectMemberResponse {
 
+    private Long id;
+
     private String name;
 
     private String avatar;
@@ -15,6 +17,7 @@ public class ProjectMemberResponse {
 
     public ProjectMemberResponse(UserProject userProject){
         User user = userProject.getUser();
+        this.id = user.getId();
         this.name = user.getName();
         this.avatar = user.getAvatar();
         this.githubId = user.getGithubId();

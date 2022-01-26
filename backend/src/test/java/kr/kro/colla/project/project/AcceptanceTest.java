@@ -6,10 +6,14 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
 import kr.kro.colla.user_project.service.UserProjectService;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,8 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+
+import javax.transaction.Transactional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +47,9 @@ public class AcceptanceTest {
 
     @Autowired
     private UserProjectService userProjectService;
+
+    @Autowired
+    private UserProjectRepository userProjectRepository;
 
     private Auth auth;
     private User user;
@@ -67,7 +76,14 @@ public class AcceptanceTest {
         userProjectService.joinProject(user, project);
 
         auth = new Auth(jwtProvider);
-        accessToken = auth.로그인(1L);
+        accessToken = auth.로그인(user.getId());
+    }
+
+    @AfterEach
+    void rollback(){
+        userProjectRepository.deleteAll();
+        userRepository.deleteAll();
+        projectRepository.deleteAll();
     }
 
     @Test
@@ -101,4 +117,50 @@ public class AcceptanceTest {
         assertThat(response.getTasks().containsKey("Done")).isTrue();
     }
 
+    @Test
+    void 사용자_프로젝트_초대에_성공한다() {
+        // given
+        User member = User.builder()
+                .name("subin")
+                .githubId("binimini")
+                .avatar("profile")
+                .build();
+        userRepository.save(member);
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(member.getGithubId());
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/"+project.getId()+"/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .log();
+    }
+
+    @Test
+    void 사용자_초대를_githubId_부족으로_실패한다() {
+        // given
+        Long projectId = 132432L;
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/"+projectId+"/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", containsString("githubId"))
+                .body("message", containsString("비어 있을 수 없습니다"));
+    }
 }
