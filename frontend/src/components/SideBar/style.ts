@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { GREEN } from '../../styles/color';
 
 export const VerticalBar = styled.div`
-    position: absolute;
+    position: fixed;
     height: 85vh;
     margin: -10px 0 0 30px;
     border: 2px solid ${GREEN};
@@ -67,7 +67,7 @@ export const ProjectIcon = styled.img`
 `;
 
 export const MenuContainer = styled.div`
-    position: absolute;
+    position: fixed;
     height: 770px;
     display: flex;
     flex-direction: column;
