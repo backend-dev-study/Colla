@@ -6,13 +6,14 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
 import kr.kro.colla.user_project.service.UserProjectService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +50,9 @@ public class AcceptanceTest {
 
     @Autowired
     private UserProjectRepository userProjectRepository;
+
+    @Autowired
+    private StoryRepository storyRepository;
 
     private Auth auth;
     private User user;
@@ -81,6 +84,7 @@ public class AcceptanceTest {
 
     @AfterEach
     void rollback(){
+        storyRepository.deleteAll();
         userProjectRepository.deleteAll();
         userRepository.deleteAll();
         projectRepository.deleteAll();
@@ -89,8 +93,6 @@ public class AcceptanceTest {
     @Test
     void 프로젝트_목록에서_클릭한_프로젝트를_조회한다() {
         // given
-        Long projectId = 1L;
-
         ProjectResponse response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -98,7 +100,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + projectId)
+                .get("/api/projects/" + project.getId())
 
         // then
         .then()
@@ -135,7 +137,7 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+project.getId()+"/members")
+                .post("/api/projects/" + project.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
@@ -155,12 +157,34 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+projectId+"/members")
+                .post("/api/projects/" + projectId + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", containsString("githubId"))
                 .body("message", containsString("비어 있을 수 없습니다"));
+    }
+
+    @Test
+    void 사용자가_프로젝트_스토리를_생성한다() {
+        // given
+        String title = "story title";
+        CreateStoryRequest createStoryRequest = new CreateStoryRequest(title);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createStoryRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/stories")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("title", equalTo(title));
     }
 }
