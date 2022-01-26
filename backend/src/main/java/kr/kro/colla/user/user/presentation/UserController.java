@@ -4,6 +4,7 @@ import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
+import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.*;
 import kr.kro.colla.user.user.service.UserService;
@@ -55,9 +56,13 @@ public class UserController {
 
     @GetMapping("/projects")
     public ResponseEntity<List<UserProjectResponse>> getUserProject(@Authenticated LoginUser loginUser) {
-        List<UserProjectResponse> userProjectResponseDtoList = userService.getUserProject(loginUser.getId());
+        List<UserProjectResponse> userProjectResponseDtoList = userService.getUserProjects(loginUser.getId());
 
         return ResponseEntity.ok(userProjectResponseDtoList);
     }
 
+    @GetMapping("/notices")
+    public ResponseEntity<List<Notice>> getUserNotices(@Authenticated LoginUser loginUser) {
+        return ResponseEntity.ok(userService.getUserNotices(loginUser.getId()));
+    }
 }

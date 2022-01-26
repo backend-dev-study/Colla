@@ -208,7 +208,7 @@ class UserControllerTest {
                 new UserProjectResponse(project2)
         );
 
-        given(userService.getUserProject(loginUser.getId()))
+        given(userService.getUserProjects(loginUser.getId()))
                 .willReturn(userProjectResponseDtoList);
 
         // when
