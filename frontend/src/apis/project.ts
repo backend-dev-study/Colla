@@ -31,3 +31,9 @@ export const getProject = async (projectId: number) => {
 
     return response;
 };
+
+export const createStory = async (projectId: number, title: string) => {
+    const response = await client.post(`/projects/${projectId}/stories`, { title });
+
+    return response;
+};

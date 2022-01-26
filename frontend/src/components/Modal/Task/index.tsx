@@ -39,6 +39,7 @@ interface PropType {
 }
 
 export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
+    const [story, setStory] = useState('');
     const [storyModalVisible, setStoryModalVisible] = useState(false);
     const [preTaskVisible, setPreTaskVisible] = useState(false);
     const [preTaskList, setPreTaskList] = useState([]);
@@ -70,6 +71,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                     <TaskComponent>
                         <span>스토리</span>
                         <DropDown>
+                            {story}
                             <DownIcon src={DownIconSrc} />
                         </DropDown>
                         <AddButton onClick={showStoryModal}>추가하기</AddButton>
@@ -128,7 +130,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                 <CancelButton onClick={() => hideModal()}>취소</CancelButton>
                 <CompleteButton>완료</CompleteButton>
             </ButtonContainer>
-            {storyModalVisible ? <StoryModal showStoryModal={showStoryModal} /> : null}
+            {storyModalVisible ? <StoryModal showStoryModal={showStoryModal} selectStory={setStory} /> : null}
             {preTaskVisible ? (
                 <PreTaskDropDown
                     taskList={taskList}
