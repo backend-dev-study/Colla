@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -74,6 +75,13 @@ public class ProjectController {
         Story story = storyService.createStory(projectId, createStoryRequest);
 
         return ResponseEntity.ok(new CreateStoryResponse(story));
+    }
+
+    @GetMapping("/{projectId}/stories")
+    public ResponseEntity<List<ProjectStoryResponse>> getProjectStories(@PathVariable Long projectId) {
+        List<ProjectStoryResponse> projectStories = projectService.getProjectStories(projectId);
+
+        return ResponseEntity.ok(projectStories);
     }
 
 }
