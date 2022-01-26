@@ -29,7 +29,7 @@ export const StoryDropDown: FC<PropType> = ({ setStory, setStoryVisible }) => {
                 setStoryList([]);
             }
         })();
-    });
+    }, []);
 
     return (
         <StoryList>

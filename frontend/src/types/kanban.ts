@@ -16,6 +16,5 @@ export interface ItemType {
 }
 
 export interface StoryType {
-    id: number;
     title: string;
 }
