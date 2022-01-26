@@ -1,6 +1,9 @@
 export interface TaskType {
     id: number;
-    name: string;
+    title: string;
+    managerName: string;
+    avatar: string;
+    priority: number;
     column: string;
     index?: number;
 }

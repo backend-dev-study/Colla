@@ -1,7 +1,6 @@
 package kr.kro.colla.task.task.domain;
 
 import kr.kro.colla.comment.domain.Comment;
-import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.history.domain.History;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
@@ -23,6 +22,9 @@ public class Task {
     private Long id;
 
     @Column
+    private Long managerId;
+
+    @Column
     private String title;
 
     @Column
@@ -30,9 +32,6 @@ public class Task {
 
     @Column
     private String images;
-
-    @Column
-    private String managerName;
 
     @CreatedDate
     private LocalDateTime createdAt;

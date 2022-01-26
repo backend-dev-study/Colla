@@ -40,7 +40,10 @@ export const SideBar = ({ props, project }: Props) => {
             description,
             thumbnail,
         });
-        history.push('/kanban');
+        history.push({
+            pathname: '/kanban',
+            state: { projectId: id },
+        });
     };
 
     return (

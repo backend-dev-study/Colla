@@ -22,6 +22,7 @@ public class CookieManager {
 
     public ResponseCookie createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
+                .sameSite("Lax")
                 .maxAge(expirationTime)
                 .domain(credentialDomain)
                 .path("/")
