@@ -7,11 +7,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.user.user.domain.User;
@@ -256,10 +252,36 @@ public class AcceptanceTest {
                 .body(projectMemberDecision)
         // when
         .when()
-                .post("/api/projects/"+project.getId()+"/members/decision")
+                .post("/api/projects/" + project.getId() + "/members/decision")
 
         // then
         .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }
+
+    @Test
+    void 사용자가_프로젝트_멤버를_조회한다() {
+        // given
+        List<ProjectMemberResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + project.getId() + "/members")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectMemberResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getId()).isEqualTo(user.getId());
+        assertThat(response.get(0).getName()).isEqualTo(user.getName());
+        assertThat(response.get(0).getAvatar()).isEqualTo(user.getAvatar());
+    }
+
 }

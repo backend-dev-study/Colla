@@ -119,7 +119,7 @@ class ProjectControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId)
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -148,7 +148,7 @@ class ProjectControllerTest {
                 .willReturn(user);
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberRequest)));
         // then
@@ -165,7 +165,7 @@ class ProjectControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberRequest)));
         // then
@@ -184,7 +184,7 @@ class ProjectControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
         // then
@@ -221,7 +221,7 @@ class ProjectControllerTest {
                 .willReturn(userProject);
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
         // then
@@ -295,7 +295,7 @@ class ProjectControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/stories")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -308,6 +308,38 @@ class ProjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value(story.getTitle()));
         assertThat(projectStoryResponseList.size()).isEqualTo(1);
+    }
+
+    @Test
+    void 프로젝트_멤버를_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        User user = User.builder()
+                .name("yeongkee")
+                .githubId("kykapple")
+                .avatar("github_content")
+                .build();
+        List<ProjectMemberResponse> projectMemberResponses = List.of(new ProjectMemberResponse(user));
+
+        given(projectService.getProjectMembers(projectId))
+                .willReturn(projectMemberResponses);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/members")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        MvcResult result = perform.andReturn();
+        CollectionType collectionType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, ProjectMemberResponse.class);
+        List<ProjectMemberResponse> projectMemberResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
+
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value(user.getName()))
+                .andExpect(jsonPath("$[0].avatar").value(user.getAvatar()));
+        assertThat(projectMemberResponseList).hasSize(1);
     }
 
 }
