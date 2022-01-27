@@ -125,6 +125,7 @@ export const DetailComponent = styled.div`
 
 export const MemberList = styled.div`
     display: flex;
+    align-items: center;
     width: 200px;
     height: 30px;
     border: 1px solid #000;

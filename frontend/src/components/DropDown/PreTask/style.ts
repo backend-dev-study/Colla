@@ -25,7 +25,7 @@ export const List = css`
 `;
 
 export const TaskList = styled.div`
-    top: 430px;
+    top: 450px;
     left: 120px;
 
     ${List}
