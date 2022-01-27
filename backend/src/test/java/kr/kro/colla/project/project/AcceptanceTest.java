@@ -8,6 +8,7 @@ import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
@@ -26,7 +27,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-
 
 import java.util.List;
 
@@ -125,7 +125,7 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자_프로젝트_초대에_성공한다() {
+    void 사용자를_프로젝트에_초대하는데_성공한다() {
         // given
         User member = User.builder()
                 .name("subin")
@@ -152,7 +152,6 @@ public class AcceptanceTest {
     @Test
     void 사용자_초대를_githubId_부족으로_실패한다() {
         // given
-        Long projectId = 132432L;
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
 
         given()
@@ -162,7 +161,7 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/" + projectId + "/members")
+                .post("/api/projects/" + project.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -194,6 +193,29 @@ public class AcceptanceTest {
     }
 
     @Test
+    void 사용자가_프로젝트_초대를_수락한다() {
+        // given
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberDecision)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/members/decision")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", equalTo(user.getId().intValue()))
+                .body("name", equalTo(user.getName()))
+                .body("avatar", equalTo(user.getAvatar()))
+                .body("githubId", equalTo(user.getGithubId()));
+    }
+
+    @Test
     void 사용자가_프로젝트_스토리를_조회한다() {
         // given
         Story story = Story.builder()
@@ -221,5 +243,23 @@ public class AcceptanceTest {
 
         assertThat(response.size()).isEqualTo(1);
         assertThat(response.get(0).getTitle()).isEqualTo(story.getTitle());
+    }
+
+    @Test
+    void 사용자가_프로젝트_초대를_거절한다() {
+        // given
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberDecision)
+        // when
+        .when()
+                .post("/api/projects/"+project.getId()+"/members/decision")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 }

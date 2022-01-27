@@ -1,6 +1,5 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
@@ -228,10 +227,10 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.id").value(userId))
-                        .andExpect(jsonPath("$.name").value(userName))
-                        .andExpect(jsonPath("$.avatar").value(userAvatar))
-                        .andExpect(jsonPath("$.githubId").value(userGithubId));
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.name").value(userName))
+                .andExpect(jsonPath("$.avatar").value(userAvatar))
+                .andExpect(jsonPath("$.githubId").value(userGithubId));
         verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
     }
 
