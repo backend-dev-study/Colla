@@ -1,6 +1,5 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
@@ -185,7 +184,7 @@ class ProjectControllerTest {
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() throws Exception {
-// given
+        // given
         Long projectId = 123142L, userId = loginUser.getId();
         String userName = "subin", userAvatar = "github_contents", userGithubId = "binimini";
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
@@ -217,10 +216,10 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk())
-                        .andExpect(jsonPath("$.id").value(userId))
-                        .andExpect(jsonPath("$.name").value(userName))
-                        .andExpect(jsonPath("$.avatar").value(userAvatar))
-                        .andExpect(jsonPath("$.githubId").value(userGithubId));
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.name").value(userName))
+                .andExpect(jsonPath("$.avatar").value(userAvatar))
+                .andExpect(jsonPath("$.githubId").value(userGithubId));
         verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
     }
 

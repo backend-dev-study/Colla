@@ -6,6 +6,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.user.user.domain.User;
@@ -22,9 +23,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-
-import javax.transaction.Transactional;
-
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -89,8 +87,6 @@ public class AcceptanceTest {
     @Test
     void 프로젝트_목록에서_클릭한_프로젝트를_조회한다() {
         // given
-        Long projectId = 1L;
-
         ProjectResponse response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -98,7 +94,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + projectId)
+                .get("/api/projects/" + project.getId())
 
         // then
         .then()
@@ -118,7 +114,7 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자_프로젝트_초대에_성공한다() {
+    void 사용자를_프로젝트에_초대하는데_성공한다() {
         // given
         User member = User.builder()
                 .name("subin")
@@ -145,7 +141,6 @@ public class AcceptanceTest {
     @Test
     void 사용자_초대를_githubId_부족으로_실패한다() {
         // given
-        Long projectId = 132432L;
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
 
         given()
@@ -155,12 +150,52 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+projectId+"/members")
+                .post("/api/projects/"+project.getId()+"/members")
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", containsString("githubId"))
                 .body("message", containsString("비어 있을 수 없습니다"));
+    }
+
+    @Test
+    void 사용자가_프로젝트_초대를_수락한다() {
+        // given
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberDecision)
+        // when
+        .when()
+                .post("/api/projects/"+project.getId()+"/members/decision")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", equalTo(user.getId().intValue()))
+                .body("name", equalTo(user.getName()))
+                .body("avatar", equalTo(user.getAvatar()))
+                .body("githubId", equalTo(user.getGithubId()));
+    }
+
+    @Test
+    void 사용자가_프로젝트_초대를_거절한다() {
+        // given
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberDecision)
+        // when
+        .when()
+                .post("/api/projects/"+project.getId()+"/members/decision")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 }
