@@ -1,19 +1,23 @@
 package kr.kro.colla.project.project;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberRequest;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.story.domain.Story;
+import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
 import kr.kro.colla.user_project.service.UserProjectService;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +27,9 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -48,6 +55,9 @@ public class AcceptanceTest {
 
     @Autowired
     private UserProjectRepository userProjectRepository;
+
+    @Autowired
+    private StoryRepository storyRepository;
 
     private Auth auth;
     private User user;
@@ -79,6 +89,7 @@ public class AcceptanceTest {
 
     @AfterEach
     void rollback(){
+        storyRepository.deleteAll();
         userProjectRepository.deleteAll();
         userRepository.deleteAll();
         projectRepository.deleteAll();
@@ -131,7 +142,7 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+project.getId()+"/members")
+                .post("/api/projects/" + project.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
@@ -150,13 +161,35 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/"+project.getId()+"/members")
+                .post("/api/projects/" + project.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", containsString("githubId"))
                 .body("message", containsString("비어 있을 수 없습니다"));
+    }
+
+    @Test
+    void 사용자가_프로젝트_스토리를_생성한다() {
+        // given
+        String title = "story title";
+        CreateStoryRequest createStoryRequest = new CreateStoryRequest(title);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createStoryRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/stories")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("title", equalTo(title));
     }
 
     @Test
@@ -168,9 +201,10 @@ public class AcceptanceTest {
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
                 .body(projectMemberDecision)
+
         // when
         .when()
-                .post("/api/projects/"+project.getId()+"/members/decision")
+                .post("/api/projects/" + project.getId() + "/members/decision")
 
         // then
         .then()
@@ -179,6 +213,36 @@ public class AcceptanceTest {
                 .body("name", equalTo(user.getName()))
                 .body("avatar", equalTo(user.getAvatar()))
                 .body("githubId", equalTo(user.getGithubId()));
+    }
+
+    @Test
+    void 사용자가_프로젝트_스토리를_조회한다() {
+        // given
+        Story story = Story.builder()
+                .title("story title")
+                .preStories("[]")
+                .project(project)
+                .build();
+        storyRepository.save(story);
+
+        List<ProjectStoryResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + project.getId() + "/stories")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectStoryResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getTitle()).isEqualTo(story.getTitle());
     }
 
     @Test

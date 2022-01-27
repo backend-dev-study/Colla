@@ -84,10 +84,11 @@ export const DescriptionArea = styled.textarea`
 
 export const DropDown = styled.div`
     display: flex;
+    align-items: center;
     width: 375px;
-    height: 30px;
+    min-height: 30px;
     border-radius: 10px;
-    padding-left: 10px;
+    padding: 5px 0 5px 10px;
     background-color: #fff;
     cursor: pointer;
 `;
@@ -95,7 +96,7 @@ export const DropDown = styled.div`
 export const DownIcon = styled.img`
     width: 15px;
     height: 15px;
-    margin: 6px 12px 0 auto;
+    margin: 0 12px 0 auto;
 `;
 
 export const AddButton = styled.div`

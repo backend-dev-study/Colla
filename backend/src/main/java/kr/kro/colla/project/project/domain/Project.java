@@ -51,8 +51,7 @@ public class Project {
     @JoinColumn(name = "project_id")
     private List<TaskStatus> taskStatuses = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Story> stories = new ArrayList<>();
 
     @Builder

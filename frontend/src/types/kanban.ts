@@ -14,3 +14,7 @@ export interface ItemType {
     name: string;
     type: string;
 }
+
+export interface StoryType {
+    title: string;
+}

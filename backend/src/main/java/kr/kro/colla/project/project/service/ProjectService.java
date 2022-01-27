@@ -5,6 +5,7 @@ import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
@@ -77,6 +78,13 @@ public class ProjectService {
                         .collect(Collectors.toList()))
                 .tasks(tasks)
                 .build();
+    }
+
+    public List<ProjectStoryResponse> getProjectStories(Long projectId) {
+        return findProjectById(projectId).getStories()
+                .stream()
+                .map(ProjectStoryResponse::new)
+                .collect(Collectors.toList());
     }
 
     public Project findProjectById(Long projectId){
