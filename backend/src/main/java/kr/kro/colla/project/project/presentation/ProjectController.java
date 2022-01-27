@@ -71,10 +71,10 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/stories")
-    public ResponseEntity createStory(@PathVariable Long projectId, @Valid @RequestBody CreateStoryRequest createStoryRequest) {
+    public ResponseEntity<ProjectStoryResponse> createStory(@PathVariable Long projectId, @Valid @RequestBody CreateStoryRequest createStoryRequest) {
         Story story = storyService.createStory(projectId, createStoryRequest);
 
-        return ResponseEntity.ok(new CreateStoryResponse(story));
+        return ResponseEntity.ok(new ProjectStoryResponse(story));
     }
 
     @GetMapping("/{projectId}/stories")

@@ -2,6 +2,7 @@ package kr.kro.colla.story.domain;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.task.domain.Task;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 public class Story {
