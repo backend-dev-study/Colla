@@ -4,6 +4,7 @@ import DeleteIconSrc from '../../../../public/assets/images/delete.png';
 import DownIconSrc from '../../../../public/assets/images/down.png';
 import StarImgSrc from '../../../../public/assets/images/star.png';
 import { TaskType } from '../../../types/kanban';
+import { MemberDropDown } from '../../DropDown/Member';
 import { PreTaskDropDown } from '../../DropDown/PreTask';
 import { Task, TaskTitle } from '../../DropDown/PreTask/style';
 import { StoryDropDown } from '../../DropDown/Story';
@@ -45,6 +46,8 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [storyVisible, setStoryVisible] = useState(false);
     const [preTaskVisible, setPreTaskVisible] = useState(false);
     const [preTaskList, setPreTaskList] = useState([]);
+    const [manager, setManager] = useState('');
+    const [memberVisible, setMemberVisible] = useState(false);
 
     const showStoryModal = () => {
         setStoryModalVisible((prev) => !prev);
@@ -60,6 +63,10 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
 
     const deletePreTask = (idx: number) => {
         setPreTaskList((prev) => prev.filter((el) => el !== idx));
+    };
+
+    const showMemberList = () => {
+        setMemberVisible((prev) => !prev);
     };
 
     return (
@@ -110,7 +117,8 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                 <DetailContainer>
                     <DetailComponent>
                         담당자
-                        <MemberList>
+                        <MemberList onClick={showMemberList}>
+                            {manager}
                             <DownIcon src={DownIconSrc} />
                         </MemberList>
                     </DetailComponent>
@@ -145,6 +153,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                 />
             ) : null}
             {storyVisible ? <StoryDropDown setStory={setStory} setStoryVisible={setStoryVisible} /> : null}
+            {memberVisible ? <MemberDropDown setManager={setManager} setMemberVisible={setMemberVisible} /> : null}
         </ModalContainer>
     );
 };
