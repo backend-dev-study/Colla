@@ -7,9 +7,12 @@ import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
+import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
+import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.service.UserProjectService;
@@ -30,6 +33,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.servlet.http.Cookie;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -208,7 +212,7 @@ class UserControllerTest {
                 new UserProjectResponse(project2)
         );
 
-        given(userService.getUserProject(loginUser.getId()))
+        given(userService.getUserProjects(loginUser.getId()))
                 .willReturn(userProjectResponseDtoList);
 
         // when
@@ -229,4 +233,42 @@ class UserControllerTest {
         assertThat(userProjectResponseList.size()).isEqualTo(2);
     }
 
+    @Test
+    void 사용자의_알림을_조회한다() throws Exception {
+        // given
+        String mention = "mentioned_url";
+        Long noticeId1 = 62453L, noticeId2 = 7532L, noticeId3 = 54543L;
+        Notice notice1 = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .build();
+        ReflectionTestUtils.setField(notice1,"id", noticeId1);
+        Notice notice2 = Notice.builder()
+                .noticeType(NoticeType.MENTION_USER)
+                .mentionedURL(mention)
+                .build();
+        ReflectionTestUtils.setField(notice2,"id", noticeId2);
+        Notice notice3 = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .build();
+        ReflectionTestUtils.setField(notice3,"id", noticeId3);
+
+        given(userService.getUserNotices(loginUser.getId()))
+                .willReturn(List.of(notice1, notice2, notice3).stream().map(notice-> new UserNoticeResponse(notice)).collect(Collectors.toList()));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/users/notices")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        MvcResult result = perform.andReturn();
+        System.out.println(result.getResponse().getContentAsString());
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].id").value(containsInAnyOrder(noticeId1.intValue(), noticeId2.intValue(), noticeId3.intValue())))
+                .andExpect(jsonPath("$[*].noticeType").value(containsInAnyOrder(notice1.getNoticeType().name(), notice2.getNoticeType().name(), notice3.getNoticeType().name())))
+                .andExpect(jsonPath("$[*].mentionedURL").value(containsInAnyOrder(notice1.getMentionedURL(), notice2.getMentionedURL(), notice3.getMentionedURL())))
+                .andExpect(jsonPath("$[*].isChecked").value(containsInAnyOrder(false, false, false)))
+                .andExpect(jsonPath("$.length()").value(3));
+    }
 }
