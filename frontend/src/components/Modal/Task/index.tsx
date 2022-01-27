@@ -32,6 +32,7 @@ import {
     PreTaskList,
     DeleteButton,
     PreTask,
+    Weight,
 } from './style';
 
 interface PropType {
@@ -48,6 +49,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [preTaskList, setPreTaskList] = useState([]);
     const [manager, setManager] = useState('');
     const [memberVisible, setMemberVisible] = useState(false);
+    const [priority, setPriority] = useState(-1);
 
     const showStoryModal = () => {
         setStoryModalVisible((prev) => !prev);
@@ -67,6 +69,10 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
 
     const showMemberList = () => {
         setMemberVisible((prev) => !prev);
+    };
+
+    const changePriority = (idx: number) => {
+        setPriority(idx);
     };
 
     return (
@@ -133,7 +139,13 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                                 .fill(0)
                                 .map((el, i) => i + 1)
                                 .map((el, idx) => (
-                                    <span key={idx}>{el}</span>
+                                    <Weight
+                                        key={idx}
+                                        className={priority === idx ? 'selected' : ''}
+                                        onClick={() => changePriority(idx)}
+                                    >
+                                        {el}
+                                    </Weight>
                                 ))}
                         </Priority>
                     </DetailComponent>
