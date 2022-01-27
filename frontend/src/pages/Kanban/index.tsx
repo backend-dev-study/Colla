@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
+import { useSetRecoilState } from 'recoil';
 import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
 import { SideBar } from '../../components/SideBar';
+import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
 import { Wrapper, KanbanAddButton, KanbanAdditional, Container } from './style';
 
@@ -17,6 +19,7 @@ const Kanban = () => {
     const history = useHistory();
     const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
+    const setProjectState = useSetRecoilState(projectState);
 
     const statuses = ['To Do', 'In Progress', 'Done'];
     const menu = ['로드맵', '백로그', '대시보드', '지도'];
@@ -51,7 +54,13 @@ const Kanban = () => {
     useEffect(() => {
         (async () => {
             const res = await getProject(state.projectId);
-            const { tasks } = res.data;
+            const { id, name, description, thumbnail, tasks } = res.data;
+            setProjectState({
+                id,
+                name,
+                description,
+                thumbnail,
+            });
             setTaskList([
                 ...tasks['To Do'].map((task) => ({ ...task, column: 'To Do' })),
                 ...tasks['In Progress'].map((task) => ({ ...task, column: 'In Progress' })),
