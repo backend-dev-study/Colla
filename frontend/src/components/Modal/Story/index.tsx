@@ -36,7 +36,7 @@ export const StoryModal: FC<PropType> = ({ showStoryModal, selectStory }) => {
                 <StoryArea value={story} onChange={handleModifyStory} />
             </Story>
             <ButtonContainer>
-                <CancelButton onClick={() => showStoryModal}>취소</CancelButton>
+                <CancelButton onClick={() => showStoryModal()}>취소</CancelButton>
                 <CompleteButton onClick={handleCompleteButton}>완료</CompleteButton>
             </ButtonContainer>
         </Container>
