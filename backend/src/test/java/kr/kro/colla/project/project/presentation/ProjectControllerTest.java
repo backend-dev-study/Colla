@@ -326,7 +326,7 @@ class ProjectControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/members")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
