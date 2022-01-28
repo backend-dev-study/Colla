@@ -4,6 +4,7 @@ import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
@@ -18,7 +19,6 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -84,6 +84,13 @@ public class ProjectService {
         return findProjectById(projectId).getStories()
                 .stream()
                 .map(ProjectStoryResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProjectMemberResponse> getProjectMembers(Long projectId) {
+        return findProjectById(projectId).getMembers()
+                .stream()
+                .map(userProject -> new ProjectMemberResponse(userProject.getUser()))
                 .collect(Collectors.toList());
     }
 

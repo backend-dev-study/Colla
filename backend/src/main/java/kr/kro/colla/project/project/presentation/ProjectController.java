@@ -64,7 +64,7 @@ public class ProjectController {
 
         if (projectMemberDecision.isAccept()){
             UserProject userProject = userProjectService.joinProject(user, project);
-            return ResponseEntity.ok(new ProjectMemberResponse(userProject));
+            return ResponseEntity.ok(new ProjectMemberResponse(userProject.getUser()));
         }
         return ResponseEntity.noContent().build();
 
@@ -82,6 +82,13 @@ public class ProjectController {
         List<ProjectStoryResponse> projectStories = projectService.getProjectStories(projectId);
 
         return ResponseEntity.ok(projectStories);
+    }
+
+    @GetMapping("/{projectId}/members")
+    public ResponseEntity<List<ProjectMemberResponse>> getProjectMembers(@PathVariable Long projectId) {
+        List<ProjectMemberResponse> projectMembers = projectService.getProjectMembers(projectId);
+
+        return ResponseEntity.ok(projectMembers);
     }
 
 }

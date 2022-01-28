@@ -1,9 +1,10 @@
 package kr.kro.colla.project.project.presentation.dto;
 
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user_project.domain.UserProject;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class ProjectMemberResponse {
 
@@ -15,8 +16,7 @@ public class ProjectMemberResponse {
 
     private String githubId;
 
-    public ProjectMemberResponse(UserProject userProject){
-        User user = userProject.getUser();
+    public ProjectMemberResponse(User user){
         this.id = user.getId();
         this.name = user.getName();
         this.avatar = user.getAvatar();

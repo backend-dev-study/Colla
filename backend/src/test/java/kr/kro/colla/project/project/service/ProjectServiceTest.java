@@ -4,6 +4,7 @@ import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
@@ -147,6 +148,41 @@ class ProjectServiceTest {
         assertThat(result.size()).isEqualTo(1);
         assertThat(response.getTitle()).isEqualTo(story.getTitle());
         verify(projectRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void 프로젝트의_멤버를_조회한다() {
+        // given
+        Project project = Project.builder()
+                .managerId(managerId)
+                .name(name)
+                .description(desc)
+                .build();
+        User user = User.builder()
+                .name("yeongkee")
+                .githubId("kykapple")
+                .avatar("github_content")
+                .build();
+        UserProject userProject = UserProject.builder()
+                .project(project)
+                .user(user)
+                .build();
+        ReflectionTestUtils.setField(project, "members", List.of(userProject));
+        ReflectionTestUtils.setField(userProject, "user", user);
+
+        given(projectRepository.findById(id))
+                .willReturn(Optional.of(project));
+
+        // when
+        List<ProjectMemberResponse> result = projectService.getProjectMembers(id);
+
+        // then
+        ProjectMemberResponse response = result.get(0);
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(response.getName()).isEqualTo(user.getName());
+        assertThat(response.getAvatar()).isEqualTo(user.getAvatar());
+        verify(projectRepository, times(1)).findById(1L);
+
     }
 
 }
