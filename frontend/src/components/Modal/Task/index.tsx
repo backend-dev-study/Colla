@@ -4,6 +4,7 @@ import DeleteIconSrc from '../../../../public/assets/images/delete.png';
 import DownIconSrc from '../../../../public/assets/images/down.png';
 import StarImgSrc from '../../../../public/assets/images/star.png';
 import { TaskType } from '../../../types/kanban';
+import { MemberDropDown } from '../../DropDown/Member';
 import { PreTaskDropDown } from '../../DropDown/PreTask';
 import { Task, TaskTitle } from '../../DropDown/PreTask/style';
 import { StoryDropDown } from '../../DropDown/Story';
@@ -31,6 +32,7 @@ import {
     PreTaskList,
     DeleteButton,
     PreTask,
+    Weight,
 } from './style';
 
 interface PropType {
@@ -45,6 +47,9 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [storyVisible, setStoryVisible] = useState(false);
     const [preTaskVisible, setPreTaskVisible] = useState(false);
     const [preTaskList, setPreTaskList] = useState([]);
+    const [manager, setManager] = useState('');
+    const [memberVisible, setMemberVisible] = useState(false);
+    const [priority, setPriority] = useState(-1);
 
     const showStoryModal = () => {
         setStoryModalVisible((prev) => !prev);
@@ -60,6 +65,14 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
 
     const deletePreTask = (idx: number) => {
         setPreTaskList((prev) => prev.filter((el) => el !== idx));
+    };
+
+    const showMemberList = () => {
+        setMemberVisible((prev) => !prev);
+    };
+
+    const changePriority = (idx: number) => {
+        setPriority(idx);
     };
 
     return (
@@ -110,7 +123,8 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                 <DetailContainer>
                     <DetailComponent>
                         담당자
-                        <MemberList>
+                        <MemberList onClick={showMemberList}>
+                            {manager}
                             <DownIcon src={DownIconSrc} />
                         </MemberList>
                     </DetailComponent>
@@ -125,7 +139,13 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                                 .fill(0)
                                 .map((el, i) => i + 1)
                                 .map((el, idx) => (
-                                    <span key={idx}>{el}</span>
+                                    <Weight
+                                        key={idx}
+                                        className={priority === idx ? 'selected' : ''}
+                                        onClick={() => changePriority(idx)}
+                                    >
+                                        {el}
+                                    </Weight>
                                 ))}
                         </Priority>
                     </DetailComponent>
@@ -145,6 +165,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                 />
             ) : null}
             {storyVisible ? <StoryDropDown setStory={setStory} setStoryVisible={setStoryVisible} /> : null}
+            {memberVisible ? <MemberDropDown setManager={setManager} setMemberVisible={setMemberVisible} /> : null}
         </ModalContainer>
     );
 };
