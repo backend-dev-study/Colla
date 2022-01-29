@@ -1,6 +1,5 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
-import { GRAY } from '../../../styles/color';
 import { LiftUp } from '../../../styles/common';
 
 export const ModalContainer = styled.div`
@@ -19,147 +18,10 @@ export const Container = styled.div`
     flex-direction: row;
 `;
 
-export const TaskContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
-export const Title = styled.div`
-    display: flex;
-    margin: 40px 0 0 40px;
-
-    span {
-        margin-top: 12px;
-        min-width: 80px;
-    }
-`;
-
-export const TitleInput = styled.input`
-    border: none;
-    width: 375px;
-    height: 40px;
-    border-radius: 10px;
-    padding-left: 10px;
-    font-size: 15px;
-`;
-
-export const TaskComponent = styled.div`
-    display: flex;
-    margin: 20px 0 0 40px;
-
-    span {
-        min-width: 80px;
-        margin-top: 6px;
-    }
-`;
-
-export const PreTaskList = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 375px;
-    margin-left: 130px;
-`;
-
-export const PreTask = styled.div`
-    display: flex;
-    width: 375px;
-    align-items: center;
-`;
-
-export const DeleteButton = styled.img`
-    width: 15px;
-    height: 15px;
-    margin-right: 12px;
-    cursor: pointer;
-`;
-
-export const DescriptionArea = styled.textarea`
-    font-size: 15px;
-    border: none;
-    resize: none;
-    outline: none;
-    border-radius: 10px;
-    padding: 10px 0 0 10px;
-`;
-
-export const DropDown = styled.div`
-    display: flex;
-    align-items: center;
-    width: 375px;
-    min-height: 30px;
-    border-radius: 10px;
-    padding: 5px 0 5px 10px;
-    background-color: #fff;
-    cursor: pointer;
-`;
-
 export const DownIcon = styled.img`
     width: 15px;
     height: 15px;
     margin: 0 12px 0 auto;
-`;
-
-export const AddButton = styled.div`
-    margin-top: 5px;
-    margin-left: 10px;
-    cursor: pointer;
-
-    ${LiftUp}
-`;
-
-export const DetailContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 260px;
-    min-height: 330px;
-    margin: 30px 0 0 40px;
-    border-radius: 20px;
-    background-color: ${GRAY};
-`;
-
-export const DetailComponent = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin: 20px 0 0 20px;
-`;
-
-export const MemberList = styled.div`
-    display: flex;
-    align-items: center;
-    width: 200px;
-    min-height: 25px;
-    border: 1px solid #000;
-    border-radius: 10px;
-    margin-top: 10px;
-    padding: 5px 0 5px 10px;
-    background-color: transparent;
-    cursor: pointer;
-`;
-
-export const Status = styled.div`
-    margin-top: 10px;
-`;
-
-export const Priority = styled.div`
-    display: flex;
-    justify-content: space-between;
-    width: 200px;
-    margin-top: 10px;
-`;
-
-export const Weight = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    ${LiftUp}
-
-    &.selected {
-        border: 1px solid #000;
-        border-radius: 50px;
-    }
 `;
 
 export const ButtonContainer = styled.div`
