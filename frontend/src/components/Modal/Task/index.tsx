@@ -8,8 +8,10 @@ import { MemberDropDown } from '../../DropDown/Member';
 import { PreTaskDropDown } from '../../DropDown/PreTask';
 import { Task, TaskTitle } from '../../DropDown/PreTask/style';
 import { StoryDropDown } from '../../DropDown/Story';
+import { TagList } from '../../TagList';
 import { Star } from '../../Task/style';
 import { StoryModal } from '../Story';
+import { TagModal } from '../Tag';
 import {
     TaskContainer,
     Title,
@@ -41,6 +43,18 @@ interface PropType {
     hideModal: Function;
 }
 
+const dummy: Array<string> = [
+    '백엔드',
+    '프론트엔드',
+    '리팩토링',
+    '배포',
+    'bug fix',
+    'hot fix',
+    'enhancement',
+    'refactoring',
+    'document',
+];
+
 export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [story, setStory] = useState('');
     const [storyModalVisible, setStoryModalVisible] = useState(false);
@@ -50,6 +64,8 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [manager, setManager] = useState('');
     const [memberVisible, setMemberVisible] = useState(false);
     const [priority, setPriority] = useState(-1);
+    const [tagModalVisible, setTagModalVisible] = useState(true);
+    const [tags, setTags] = useState(dummy);
 
     const showStoryModal = () => {
         setStoryModalVisible((prev) => !prev);
@@ -73,6 +89,10 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
 
     const changePriority = (idx: number) => {
         setPriority(idx);
+    };
+
+    const showTagModal = () => {
+        setTagModalVisible((prev) => !prev);
     };
 
     return (
@@ -149,7 +169,10 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
                                 ))}
                         </Priority>
                     </DetailComponent>
-                    <DetailComponent>태그</DetailComponent>
+                    <DetailComponent>
+                        태그
+                        <TagList tags={tags} showTagModal={showTagModal} />
+                    </DetailComponent>
                 </DetailContainer>
             </Container>
             <ButtonContainer>
@@ -166,6 +189,7 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
             ) : null}
             {storyVisible ? <StoryDropDown setStory={setStory} setStoryVisible={setStoryVisible} /> : null}
             {memberVisible ? <MemberDropDown setManager={setManager} setMemberVisible={setMemberVisible} /> : null}
+            {tagModalVisible ? <TagModal showTagModal={showTagModal} setTags={setTags} /> : null}
         </ModalContainer>
     );
 };
