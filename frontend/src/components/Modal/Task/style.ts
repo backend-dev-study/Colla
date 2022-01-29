@@ -111,7 +111,7 @@ export const DetailContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 260px;
-    height: 330px;
+    min-height: 330px;
     margin: 30px 0 0 40px;
     border-radius: 20px;
     background-color: ${GRAY};
@@ -187,7 +187,7 @@ export const CancelButton = styled.div`
 `;
 
 export const CompleteButton = styled.div`
-    margin-right: 19px;
+    margin-right: 20px;
 
     ${Button};
 `;

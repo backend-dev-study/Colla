@@ -49,3 +49,9 @@ export const getProjectMembers = async (projectId: number) => {
 
     return response;
 };
+
+export const createTag = async (projectId: number, name: string) => {
+    const response = await client.post(`/projects/${projectId}/tags`, { name });
+
+    return response;
+};

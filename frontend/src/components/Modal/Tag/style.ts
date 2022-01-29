@@ -3,12 +3,12 @@ import { ModalContainer } from '../../../styles/modal';
 
 export const Container = styled.div`
     width: 400px;
-    height: 200px;
+    height: 150px;
 
     ${ModalContainer}
 `;
 
-export const Story = styled.div`
+export const Tag = styled.div`
     display: flex;
     flex-direction: column;
 
@@ -17,14 +17,12 @@ export const Story = styled.div`
     }
 `;
 
-export const StoryArea = styled.textarea`
-    width: 350px;
-    height: 80px;
-    font-size: 15px;
-    border-radius: 10px;
+export const TagInput = styled.input`
     border: none;
-    resize: none;
-    outline: none;
-    margin: 10px 0 0 20px;
-    padding: 10px 0 0 10px;
+    width: 350px;
+    height: 35px;
+    border-radius: 10px;
+    padding-left: 10px;
+    font-size: 15px;
+    margin: 10px 0 0 15px;
 `;
