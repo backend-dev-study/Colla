@@ -10,7 +10,9 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
+import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.domain.repository.TagRepository;
+import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
@@ -338,7 +340,38 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", containsString("공백일 수 없습니다"));
+    }
 
+    @Test
+    void 사용자가_프로젝트에_등록되어_있는_테스크_태그들을_조회한다() {
+        // given
+        Tag tag = new Tag("backend");
+        tagRepository.save(tag);
+
+        TaskTag taskTag = TaskTag.builder()
+                .project(project)
+                .tag(tag)
+                .build();
+        taskTagRepository.save(taskTag);
+
+        List<ProjectTagResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTagResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getName()).isEqualTo(tag.getName());
     }
 
 }

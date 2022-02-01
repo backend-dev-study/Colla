@@ -100,7 +100,7 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}/tags")
-    public ResponseEntity getProjectTags(@PathVariable Long projectId) {
+    public ResponseEntity<List<ProjectTagResponse>> getProjectTags(@PathVariable Long projectId) {
         List<ProjectTagResponse> projectTags = projectService.getProjectTags(projectId);
 
         return ResponseEntity.ok(projectTags);

@@ -4,14 +4,12 @@ import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.project.project.presentation.dto.CreateTagRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
+import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
@@ -219,6 +217,34 @@ class ProjectServiceTest {
         verify(projectRepository, times(1)).findById(id);
         verify(tagService, times(1)).createTagIfNotExist(any(String.class));
         verify(taskTagService, times(1)).addNewTag(any(Project.class), any(Tag.class));
+    }
+
+    @Test
+    void 프로젝트에_등록되어_있는_테스크_태그들을_조회한다() {
+        // given
+        Project project = Project.builder()
+                .managerId(managerId)
+                .name(name)
+                .description(desc)
+                .build();
+        Tag tag = new Tag("backend");
+        TaskTag taskTag = TaskTag.builder()
+                .project(project)
+                .tag(tag)
+                .build();
+        ReflectionTestUtils.setField(project, "taskTags", List.of(taskTag));
+        ReflectionTestUtils.setField(taskTag, "tag", tag);
+
+        given(projectRepository.findById(id))
+                .willReturn(Optional.of(project));
+
+        // when
+        List<ProjectTagResponse> result = projectService.getProjectTags(id);
+
+        // then
+        ProjectTagResponse projectTagResponse = result.get(0);
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(projectTagResponse.getName()).isEqualTo(tag.getName());
     }
 
 }

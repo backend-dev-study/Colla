@@ -386,4 +386,38 @@ class ProjectControllerTest {
         verify(projectService, never()).createTag(eq(projectId), any(CreateTagRequest.class));
     }
 
+    @Test
+    void 프로젝트에_등록되어_있는_테스크_태그들을_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Tag backendTag = new Tag("backend");
+        Tag frontendTag = new Tag("frontend");
+        Tag refactoringTag = new Tag("refactoring");
+        List<ProjectTagResponse> projectTagResponses = List.of(
+                new ProjectTagResponse(backendTag),
+                new ProjectTagResponse(frontendTag),
+                new ProjectTagResponse(refactoringTag)
+        );
+
+        given(projectService.getProjectTags(projectId))
+                .willReturn(projectTagResponses);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tags")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        MvcResult result = perform.andReturn();
+        CollectionType collectionType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, ProjectTagResponse.class);
+        List<ProjectTagResponse> projectTagResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
+
+        perform
+                .andExpect(status().isOk());
+        assertThat(projectTagResponseList.size()).isEqualTo(3);
+        assertThat(projectTagResponseList).extracting("name")
+                .contains("backend", "frontend", "refactoring");
+    }
+
 }
