@@ -10,6 +10,8 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
+import kr.kro.colla.task.tag.domain.repository.TagRepository;
+import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
@@ -55,6 +57,12 @@ public class AcceptanceTest {
     @Autowired
     private StoryRepository storyRepository;
 
+    @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
+    private TaskTagRepository taskTagRepository;
+
     private Auth auth;
     private User user;
     private Project project;
@@ -85,6 +93,8 @@ public class AcceptanceTest {
 
     @AfterEach
     void rollback(){
+        taskTagRepository.deleteAll();
+        tagRepository.deleteAll();
         storyRepository.deleteAll();
         userProjectRepository.deleteAll();
         userRepository.deleteAll();
@@ -224,7 +234,7 @@ public class AcceptanceTest {
         List<ProjectStoryResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -265,7 +275,7 @@ public class AcceptanceTest {
         List<ProjectMemberResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -282,6 +292,50 @@ public class AcceptanceTest {
         assertThat(response.get(0).getId()).isEqualTo(user.getId());
         assertThat(response.get(0).getName()).isEqualTo(user.getName());
         assertThat(response.get(0).getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 사용자가_프로젝트에서_사용할_새로운_태스크_태그를_생성한다() {
+        // given
+        String tagName = "backend";
+        CreateTagRequest createTagRequest = new CreateTagRequest(tagName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createTagRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo(createTagRequest.getName()));
+    }
+
+    @Test
+    void 사용자는_빈_태스크_태그를_생성할_수_없다() {
+        // given
+        CreateTagRequest createTagRequest = new CreateTagRequest("");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createTagRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", containsString("공백일 수 없습니다"));
+
     }
 
 }

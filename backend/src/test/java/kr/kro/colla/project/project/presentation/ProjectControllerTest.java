@@ -1,5 +1,6 @@
 package kr.kro.colla.project.project.presentation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
@@ -10,6 +11,7 @@ import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
+import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
@@ -340,6 +342,48 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$[0].name").value(user.getName()))
                 .andExpect(jsonPath("$[0].avatar").value(user.getAvatar()));
         assertThat(projectMemberResponseList).hasSize(1);
+    }
+
+    @Test
+    void 프로젝트에서_사용할_태그를_생성한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        String tagName = "backend";
+        Tag tag = new Tag(tagName);
+        String content = objectMapper.writeValueAsString(new CreateTagRequest(tagName));
+
+        given(projectService.createTag(eq(projectId), any(CreateTagRequest.class)))
+                .willReturn(tag);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/tags")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(tag.getName()));
+    }
+
+    @Test
+    void 태그의_제목이_없다면_태그_생성에_실패한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        String content = objectMapper.writeValueAsString(new CreateTagRequest(""));
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/tags")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("name : must not be blank"));
+        verify(projectService, never()).createTag(eq(projectId), any(CreateTagRequest.class));
     }
 
 }
