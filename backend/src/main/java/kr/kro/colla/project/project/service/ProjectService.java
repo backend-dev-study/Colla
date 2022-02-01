@@ -4,10 +4,7 @@ import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.project.project.presentation.dto.CreateTagRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
@@ -106,6 +103,14 @@ public class ProjectService {
         taskTagService.addNewTag(project, tag);
 
         return tag;
+    }
+
+    public List<ProjectTagResponse> getProjectTags(Long projectId) {
+        return findProjectById(projectId).getTaskTags()
+                .stream()
+                .map(taskTag -> taskTag.getTag())
+                .map(tag -> new ProjectTagResponse(tag))
+                .collect(Collectors.toList());
     }
 
     public Project findProjectById(Long projectId){

@@ -93,10 +93,17 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/tags")
-    public ResponseEntity<CreateTagResponse> createTag(@PathVariable Long projectId, @Valid @RequestBody CreateTagRequest createTagRequest) {
+    public ResponseEntity<ProjectTagResponse> createTag(@PathVariable Long projectId, @Valid @RequestBody CreateTagRequest createTagRequest) {
         Tag tag = projectService.createTag(projectId, createTagRequest);
 
-        return ResponseEntity.ok(new CreateTagResponse(tag));
+        return ResponseEntity.ok(new ProjectTagResponse(tag));
+    }
+
+    @GetMapping("/{projectId}/tags")
+    public ResponseEntity getProjectTags(@PathVariable Long projectId) {
+        List<ProjectTagResponse> projectTags = projectService.getProjectTags(projectId);
+
+        return ResponseEntity.ok(projectTags);
     }
 
 }

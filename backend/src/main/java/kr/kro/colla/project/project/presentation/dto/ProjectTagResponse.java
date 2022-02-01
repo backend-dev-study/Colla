@@ -4,11 +4,11 @@ import kr.kro.colla.task.tag.domain.Tag;
 import lombok.Getter;
 
 @Getter
-public class CreateTagResponse {
+public class ProjectTagResponse {
 
     private String name;
 
-    public CreateTagResponse(Tag tag) {
+    public ProjectTagResponse(Tag tag) {
         this.name = tag.getName();
     }
 
