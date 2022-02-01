@@ -4,6 +4,7 @@ import { ModalContainer } from '../../../styles/modal';
 export const Container = styled.div`
     width: 400px;
     height: 200px;
+    margin: 130px 0 0 235px;
 
     ${ModalContainer}
 `;

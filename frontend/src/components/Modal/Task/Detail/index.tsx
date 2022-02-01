@@ -4,7 +4,6 @@ import DownIconSrc from '../../../../../public/assets/images/down.png';
 import { MemberDropDown } from '../../../DropDown/Member';
 import { Priority } from '../../../List/Priority';
 import { TagList } from '../../../List/TagList';
-import { TagModal } from '../../Tag';
 import { DownIcon } from '../style';
 import { DetailComponent, DetailContainer, MemberList, Status } from './style';
 
@@ -12,30 +11,12 @@ interface PropType {
     status: string;
 }
 
-const dummy: Array<string> = [
-    '백엔드',
-    '프론트엔드',
-    '리팩토링',
-    '배포',
-    'bug fix',
-    'hot fix',
-    'enhancement',
-    'refactoring',
-    'document',
-];
-
 export const DetailInfoContainer: FC<PropType> = ({ status }) => {
     const [manager, setManager] = useState('');
     const [memberVisible, setMemberVisible] = useState(false);
-    const [tags, setTags] = useState(dummy);
-    const [tagModalVisible, setTagModalVisible] = useState(false);
 
     const showMemberList = () => {
         setMemberVisible((prev) => !prev);
-    };
-
-    const showTagModal = () => {
-        setTagModalVisible((prev) => !prev);
     };
 
     return (
@@ -58,11 +39,10 @@ export const DetailInfoContainer: FC<PropType> = ({ status }) => {
                 </DetailComponent>
                 <DetailComponent>
                     태그
-                    <TagList tags={tags} showTagModal={showTagModal} />
+                    <TagList />
                 </DetailComponent>
             </DetailContainer>
             {memberVisible ? <MemberDropDown setManager={setManager} setMemberVisible={setMemberVisible} /> : null}
-            {tagModalVisible ? <TagModal showTagModal={showTagModal} setTags={setTags} /> : null}
         </>
     );
 };

@@ -26,6 +26,10 @@ interface project {
     };
 }
 
+interface projectTags {
+    name: string;
+}
+
 export const getProject = async (projectId: number) => {
     const response = await client.get<project>(`/projects/${projectId}`);
 
@@ -52,6 +56,12 @@ export const getProjectMembers = async (projectId: number) => {
 
 export const createTag = async (projectId: number, name: string) => {
     const response = await client.post(`/projects/${projectId}/tags`, { name });
+
+    return response;
+};
+
+export const getProjectTags = async (projectId: number) => {
+    const response = await client.get<Array<projectTags>>(`/projects/${projectId}/tags`);
 
     return response;
 };
