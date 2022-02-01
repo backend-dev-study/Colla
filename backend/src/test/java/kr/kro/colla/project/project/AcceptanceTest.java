@@ -14,8 +14,8 @@ import kr.kro.colla.task.tag.domain.repository.TagRepository;
 import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
-import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,9 +49,6 @@ public class AcceptanceTest {
     private UserRepository userRepository;
 
     @Autowired
-    private UserProjectService userProjectService;
-
-    @Autowired
     private UserProjectRepository userProjectRepository;
 
     @Autowired
@@ -78,6 +75,7 @@ public class AcceptanceTest {
                 .avatar("github_content")
                 .build();
         userRepository.save(user);
+
         project = Project.builder()
                 .managerId(user.getId())
                 .name("project name")
@@ -85,7 +83,12 @@ public class AcceptanceTest {
                 .thumbnail("s3_content")
                 .build();
         projectRepository.save(project);
-        userProjectService.joinProject(user, project);
+
+        UserProject userProject = UserProject.builder()
+                .user(user)
+                .project(project)
+                .build();
+        userProjectRepository.save(userProject);
 
         auth = new Auth(jwtProvider);
         accessToken = auth.로그인(user.getId());
