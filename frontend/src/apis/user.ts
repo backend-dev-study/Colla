@@ -1,10 +1,5 @@
+import { UserProfile } from '../types/user';
 import { client } from './common';
-
-interface userProfile {
-    displayName: string;
-    githubId: string;
-    avatar: string;
-}
 
 interface project {
     id: number;
@@ -14,7 +9,7 @@ interface project {
 }
 
 export const getUserProfile = async () => {
-    const response = await client.get<userProfile>(`/users/profile`);
+    const response = await client.get<UserProfile>(`/users/profile`);
 
     return response;
 };
@@ -35,6 +30,12 @@ export const createProject = async (data: FormData) => {
 
 export const getUserProjects = async () => {
     const response = await client.get(`/users/projects`);
+
+    return response;
+};
+
+export const getUserNotices = async () => {
+    const response = await client.get('/users/notices');
 
     return response;
 };
