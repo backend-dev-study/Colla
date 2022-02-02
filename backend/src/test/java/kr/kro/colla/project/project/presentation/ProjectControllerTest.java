@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,9 +72,6 @@ class ProjectControllerTest {
 
     @MockBean
     private UserProjectService userProjectService;
-
-    @MockBean
-    private NoticeService noticeService;
 
     @MockBean
     private StoryService storyService;
@@ -140,14 +139,7 @@ class ProjectControllerTest {
         Long projectId = 123142L;
         String githubId = "binimini";
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
-        User user = User.builder()
-                .name("subin")
-                .githubId(githubId)
-                .avatar("github")
-                .build();
 
-        given(userService.findByGithubId(githubId))
-                .willReturn(user);
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -156,7 +148,7 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk());
-        verify(noticeService, times(1)).createNotice(any(CreateNoticeRequest.class));
+        verify(projectService, times(1)).inviteUserToProject(projectId, loginUser.getId(), githubId);
     }
 
     @Test
@@ -175,7 +167,29 @@ class ProjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value("400"))
                 .andExpect(jsonPath("$.message", "githubId").exists());
-        verify(noticeService, times(0)).createNotice(any(CreateNoticeRequest.class));
+        verify(projectService, times(0)).inviteUserToProject(any(Long.class), any(Long.class), any(String.class));
+    }
+
+    @Test
+    void 프로젝트_초대를_권한_부족으로_실패한다() throws Exception {
+        // given
+        Long projectId = 123142L;
+        String githubId = "random__github__id";
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
+
+        willThrow(new UserNotManagerException())
+                .given(projectService).inviteUserToProject(projectId, loginUser.getId(), githubId);
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectMemberRequest)));
+        // then
+        perform
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("403"))
+                .andExpect(jsonPath("$.message").value(new UserNotManagerException().getMessage()));
+        verify(projectService, times(1)).inviteUserToProject(projectId, loginUser.getId(), githubId);
     }
 
     @Test

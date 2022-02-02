@@ -5,6 +5,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
@@ -158,6 +159,39 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .log();
+    }
+
+    @Test
+    void 사용자_초대를_권한_부족으로_실패한다() {
+        // given
+        User manager = User.builder()
+                .name("zcvzxvxc")
+                .githubId("easdas")
+                .avatar("profile")
+                .build();
+        userRepository.save(manager);
+        Project newManagerProject = Project.builder()
+                .name("new project")
+                .description("login user isn't manager of project")
+                .managerId(manager.getId())
+                .build();
+        projectRepository.save(newManagerProject);
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest("member_github");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/" + newManagerProject.getId() + "/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .body("status", equalTo(HttpStatus.FORBIDDEN.value()))
+                .body("message", equalTo(new UserNotManagerException().getMessage()));
+
     }
 
     @Test
