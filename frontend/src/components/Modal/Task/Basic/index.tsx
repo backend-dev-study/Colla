@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react';
 
 import DownIconSrc from '../../../../../public/assets/images/down.png';
 import { TaskType } from '../../../../types/kanban';
+import { BasicInputType } from '../../../../types/task';
 import { PreTaskDropDown } from '../../../DropDown/PreTask';
 import { StoryDropDown } from '../../../DropDown/Story';
 import { PreTaskList } from '../../../List/PreTaskList';
@@ -11,13 +12,21 @@ import { AddButton, DescriptionArea, DropDown, TaskComponent, TaskContainer, Tit
 
 interface PropType {
     taskList: Array<TaskType>;
+    basicInfoInput: BasicInputType;
 }
 
-export const BasicInfoContainer: FC<PropType> = ({ taskList }) => {
-    const [story, setStory] = useState('');
+export const BasicInfoContainer: FC<PropType> = ({ taskList, basicInfoInput }) => {
+    const {
+        taskInput,
+        handleChangeTitle,
+        handleChangeDescription,
+        handleChangeStory,
+        handleAddPreTask,
+        handleDeletePreTask,
+    } = basicInfoInput;
+    const { title, description, story, preTasks } = taskInput;
     const [storyVisible, setStoryVisible] = useState(false);
     const [storyModalVisible, setStoryModalVisible] = useState(false);
-    const [preTaskList, setPreTaskList] = useState([]);
     const [preTaskVisible, setPreTaskVisible] = useState(false);
 
     const showStoryModal = () => {
@@ -32,20 +41,27 @@ export const BasicInfoContainer: FC<PropType> = ({ taskList }) => {
         setPreTaskVisible((prev) => !prev);
     };
 
-    const deletePreTask = (idx: number) => {
-        setPreTaskList((prev) => prev.filter((el) => el !== idx));
-    };
-
     return (
         <>
             <TaskContainer>
                 <Title>
                     <span>제목</span>
-                    <TitleInput type="text" placeholder="제목을 입력하세요." />
+                    <TitleInput
+                        type="text"
+                        placeholder="제목을 입력하세요."
+                        value={title}
+                        onChange={(e) => handleChangeTitle(e)}
+                    />
                 </Title>
                 <TaskComponent>
                     <span>설명</span>
-                    <DescriptionArea cols={43} rows={8} placeholder="설명을 입력하세요." />
+                    <DescriptionArea
+                        cols={43}
+                        rows={8}
+                        placeholder="설명을 입력하세요."
+                        value={description}
+                        onChange={(e) => handleChangeDescription(e)}
+                    />
                 </TaskComponent>
                 <TaskComponent>
                     <span>스토리</span>
@@ -61,14 +77,14 @@ export const BasicInfoContainer: FC<PropType> = ({ taskList }) => {
                         <DownIcon src={DownIconSrc} />
                     </DropDown>
                 </TaskComponent>
-                <PreTaskList preTaskList={preTaskList} taskList={taskList} deletePreTask={deletePreTask} />
+                <PreTaskList preTaskList={preTasks} taskList={taskList} handleDeletePreTask={handleDeletePreTask} />
             </TaskContainer>
-            {storyModalVisible ? <StoryModal showStoryModal={showStoryModal} selectStory={setStory} /> : null}
-            {storyVisible ? <StoryDropDown setStory={setStory} setStoryVisible={setStoryVisible} /> : null}
+            {storyModalVisible ? <StoryModal showStoryModal={showStoryModal} selectStory={handleChangeStory} /> : null}
+            {storyVisible ? <StoryDropDown setStory={handleChangeStory} setStoryVisible={setStoryVisible} /> : null}
             {preTaskVisible ? (
                 <PreTaskDropDown
                     taskList={taskList}
-                    setPreTaskList={setPreTaskList}
+                    handleChangePreTasks={handleAddPreTask}
                     setPreTaskVisible={setPreTaskVisible}
                 />
             ) : null}

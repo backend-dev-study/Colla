@@ -1,28 +1,25 @@
-import React, { useState } from 'react';
+import React, { FC } from 'react';
 
 import { Container, Weight } from './style';
 
-export const Priority = () => {
-    const [priority, setPriority] = useState(-1);
+interface PropType {
+    priority: number;
+    handleChangePriority: Function;
+}
 
-    const changePriority = (idx: number) => {
-        setPriority(idx);
-    };
-
-    return (
-        <Container>
-            {Array(5)
-                .fill(0)
-                .map((el, i) => i + 1)
-                .map((el, idx) => (
-                    <Weight
-                        key={idx}
-                        className={priority === idx ? 'selected' : ''}
-                        onClick={() => changePriority(idx)}
-                    >
-                        {el}
-                    </Weight>
-                ))}
-        </Container>
-    );
-};
+export const Priority: FC<PropType> = ({ priority, handleChangePriority }) => (
+    <Container>
+        {Array(5)
+            .fill(0)
+            .map((el, i) => i + 1)
+            .map((el, idx) => (
+                <Weight
+                    key={idx}
+                    className={priority === idx ? 'selected' : ''}
+                    onClick={() => handleChangePriority(idx)}
+                >
+                    {el}
+                </Weight>
+            ))}
+    </Container>
+);

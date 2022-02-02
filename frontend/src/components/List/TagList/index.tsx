@@ -6,20 +6,24 @@ import { projectState } from '../../../stores/projectState';
 import { TagModal } from '../../Modal/Tag';
 import { Container, Grid, Tag } from './style';
 
-export const TagList: FC = () => {
+interface PropType {
+    selectedTags: Array<string>;
+    handleSelectTag: Function;
+}
+
+export const TagList: FC<PropType> = ({ selectedTags, handleSelectTag }) => {
     const project = useRecoilValue(projectState);
     const [tags, setTags] = useState<Array<string>>([]);
     const [tagModalVisible, setTagModalVisible] = useState(false);
-    const [selectedTags, setSelectedTags] = useState<Array<number>>([]);
 
     const showTagModal = () => {
         setTagModalVisible((prev) => !prev);
     };
 
-    const selectTag = (idx: number) => {
-        selectedTags.includes(idx)
-            ? setSelectedTags((prev) => prev.filter((el) => el !== idx))
-            : setSelectedTags((prev) => [...prev, idx]);
+    const selectTag = (name: string) => {
+        selectedTags.includes(name)
+            ? handleSelectTag(selectedTags.filter((el) => el !== name))
+            : handleSelectTag([...selectedTags, name]);
     };
 
     useEffect(() => {
@@ -36,13 +40,13 @@ export const TagList: FC = () => {
     return (
         <Container>
             <Grid>
-                {tags.map((data, idx) => (
+                {tags.map((name, idx) => (
                     <Tag
                         key={idx}
-                        className={selectedTags.includes(idx) ? 'selected' : ''}
-                        onClick={() => selectTag(idx)}
+                        className={selectedTags.includes(name) ? 'selected' : ''}
+                        onClick={() => selectTag(name)}
                     >
-                        {data}
+                        {name}
                     </Tag>
                 ))}
                 <Tag onClick={() => showTagModal()}>추가하기</Tag>

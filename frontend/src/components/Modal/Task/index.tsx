@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import useInputTask from '../../../hooks/useInputTask';
 import { TaskType } from '../../../types/kanban';
 import { BasicInfoContainer } from './Basic';
 import { DetailInfoContainer } from './Detail';
@@ -11,15 +12,19 @@ interface PropType {
     hideModal: Function;
 }
 
-export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => (
-    <ModalContainer>
-        <Container>
-            <BasicInfoContainer taskList={taskList} />
-            <DetailInfoContainer status={status} />
-        </Container>
-        <ButtonContainer>
-            <CancelButton onClick={() => hideModal()}>취소</CancelButton>
-            <CompleteButton>완료</CompleteButton>
-        </ButtonContainer>
-    </ModalContainer>
-);
+export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
+    const { basicInfoInput, detailInfoInput, handleCompleteButton } = useInputTask();
+
+    return (
+        <ModalContainer>
+            <Container>
+                <BasicInfoContainer taskList={taskList} basicInfoInput={basicInfoInput} />
+                <DetailInfoContainer status={status} detailInfoInput={detailInfoInput} />
+            </Container>
+            <ButtonContainer>
+                <CancelButton onClick={() => hideModal()}>취소</CancelButton>
+                <CompleteButton onClick={handleCompleteButton}>완료</CompleteButton>
+            </ButtonContainer>
+        </ModalContainer>
+    );
+};

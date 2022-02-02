@@ -1,6 +1,7 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import DownIconSrc from '../../../../../public/assets/images/down.png';
+import { DetailInputType } from '../../../../types/task';
 import { MemberDropDown } from '../../../DropDown/Member';
 import { Priority } from '../../../List/Priority';
 import { TagList } from '../../../List/TagList';
@@ -9,15 +10,23 @@ import { DetailComponent, DetailContainer, MemberList, Status } from './style';
 
 interface PropType {
     status: string;
+    detailInfoInput: DetailInputType;
 }
 
-export const DetailInfoContainer: FC<PropType> = ({ status }) => {
+export const DetailInfoContainer: FC<PropType> = ({ status, detailInfoInput }) => {
+    const { taskInput, handleChangeManagerId, handleChangeStatus, handleChangePriority, handleSelectTag } =
+        detailInfoInput;
+    const { priority, selectedTags } = taskInput;
     const [manager, setManager] = useState('');
     const [memberVisible, setMemberVisible] = useState(false);
 
     const showMemberList = () => {
         setMemberVisible((prev) => !prev);
     };
+
+    useEffect(() => {
+        handleChangeStatus(status);
+    }, []);
 
     return (
         <>
@@ -35,14 +44,20 @@ export const DetailInfoContainer: FC<PropType> = ({ status }) => {
                 </DetailComponent>
                 <DetailComponent>
                     우선순위
-                    <Priority />
+                    <Priority priority={priority} handleChangePriority={handleChangePriority} />
                 </DetailComponent>
                 <DetailComponent>
                     태그
-                    <TagList />
+                    <TagList selectedTags={selectedTags} handleSelectTag={handleSelectTag} />
                 </DetailComponent>
             </DetailContainer>
-            {memberVisible ? <MemberDropDown setManager={setManager} setMemberVisible={setMemberVisible} /> : null}
+            {memberVisible ? (
+                <MemberDropDown
+                    setManager={setManager}
+                    setMemberVisible={setMemberVisible}
+                    handleChangeManagerId={handleChangeManagerId}
+                />
+            ) : null}
         </>
     );
 };

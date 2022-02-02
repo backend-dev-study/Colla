@@ -10,10 +10,10 @@ import { Container, DeleteButton, PreTask } from './style';
 interface PropType {
     preTaskList: Array<number>;
     taskList: Array<TaskType>;
-    deletePreTask: Function;
+    handleDeletePreTask: Function;
 }
 
-export const PreTaskList: FC<PropType> = ({ preTaskList, taskList, deletePreTask }) => (
+export const PreTaskList: FC<PropType> = ({ preTaskList, taskList, handleDeletePreTask }) => (
     <Container>
         {preTaskList.map((taskIdx, idx) => (
             <PreTask key={idx}>
@@ -28,7 +28,7 @@ export const PreTaskList: FC<PropType> = ({ preTaskList, taskList, deletePreTask
                             ))}
                     </div>
                 </Task>
-                <DeleteButton src={DeleteIconSrc} onClick={() => deletePreTask(taskIdx)} />
+                <DeleteButton src={DeleteIconSrc} onClick={() => handleDeletePreTask(taskIdx)} />
             </PreTask>
         ))}
     </Container>
