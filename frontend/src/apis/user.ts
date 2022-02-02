@@ -1,12 +1,6 @@
+import { ProjectType } from '../types/project';
 import { UserProfile } from '../types/user';
 import { client } from './common';
-
-interface project {
-    id: number;
-    name: string;
-    description: string;
-    thumbnail: string;
-}
 
 export const getUserProfile = async () => {
     const response = await client.get<UserProfile>(`/users/profile`);
@@ -21,7 +15,7 @@ export const updateDisplayName = async (displayName: string) => {
 };
 
 export const createProject = async (data: FormData) => {
-    const response = await client.post<project>(`/users/projects`, data, {
+    const response = await client.post<ProjectType>(`/users/projects`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 

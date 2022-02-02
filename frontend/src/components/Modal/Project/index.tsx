@@ -31,12 +31,14 @@ const ProjectModal = () => {
             name: projectName,
             description: projectDescription,
             thumbnail: projectThumbnail,
+            members,
         } = response.data;
         setProjectState({
             id: projectId,
             name: projectName,
             description: projectDescription,
             thumbnail: projectThumbnail,
+            members,
         });
 
         history.push('/kanban', { projectId });
