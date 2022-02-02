@@ -39,7 +39,7 @@ const ProjectModal = () => {
             thumbnail: projectThumbnail,
         });
 
-        history.push('/kanban', response.data);
+        history.push('/kanban', { projectId });
     };
 
     return (
