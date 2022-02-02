@@ -3,3 +3,11 @@ export interface UserProfile {
     avatar: string;
     displayName: string;
 }
+
+export interface NoticeType {
+    id: number;
+    noticeType: string;
+    isChecked: boolean;
+    mentionedURL?: string;
+    projectId?: number;
+}

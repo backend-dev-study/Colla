@@ -1,5 +1,5 @@
 import { ProjectType } from '../types/project';
-import { UserProfile } from '../types/user';
+import { NoticeType, UserProfile } from '../types/user';
 import { client } from './common';
 
 export const getUserProfile = async () => {
@@ -29,7 +29,7 @@ export const getUserProjects = async () => {
 };
 
 export const getUserNotices = async () => {
-    const response = await client.get('/users/notices');
+    const response = await client.get<Array<NoticeType>>('/users/notices');
 
     return response;
 };
