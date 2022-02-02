@@ -24,8 +24,3 @@ client.interceptors.response.use(
     (response) => response,
     (error) => errorHandler(error),
 );
-
-export const isResponseSuccess = (status: number) => {
-    if (status >= 200 && status < 300) return true;
-    return false;
-};

@@ -21,29 +21,25 @@ const ProjectModal = () => {
     const handleDescChange = (event: ChangeEvent<HTMLInputElement>) => setDescription(event.target.value);
 
     const handleSubmit = async () => {
-        try {
-            const formData = thumbnail
-                ? createFormData({ name, description, thumbnail })
-                : createFormData({ name, description });
-            const response = await createProject(formData);
-            const {
-                id: projectId,
-                name: projectName,
-                description: projectDescription,
-                thumbnail: projectThumbnail,
-            } = response.data;
-            setProjectState({
-                id: projectId,
-                name: projectName,
-                description: projectDescription,
-                thumbnail: projectThumbnail,
-            });
+        const formData = thumbnail
+            ? createFormData({ name, description, thumbnail })
+            : createFormData({ name, description });
+        const response = await createProject(formData);
 
-            history.push('/kanban', response.data);
-        } catch (e: any) {
-            // eslint-disable-next-line no-alert
-            window.alert(e.response.data.message);
-        }
+        const {
+            id: projectId,
+            name: projectName,
+            description: projectDescription,
+            thumbnail: projectThumbnail,
+        } = response.data;
+        setProjectState({
+            id: projectId,
+            name: projectName,
+            description: projectDescription,
+            thumbnail: projectThumbnail,
+        });
+
+        history.push('/kanban', response.data);
     };
 
     return (
