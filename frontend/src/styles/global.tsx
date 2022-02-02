@@ -19,6 +19,11 @@ const GlobalStyle = () => (
                 }
             }
 
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+
             @font-face {
                 font-family: 'Euljiro';
                 src: url('/assets/fonts/Euljiro.ttf');
