@@ -31,7 +31,7 @@ export const TagList: FC = () => {
                 setTags([]);
             }
         })();
-    });
+    }, []);
 
     return (
         <Container>
