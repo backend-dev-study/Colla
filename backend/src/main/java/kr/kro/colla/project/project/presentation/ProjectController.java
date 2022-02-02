@@ -29,7 +29,6 @@ public class ProjectController {
 
     private final UserService userService;
     private final StoryService storyService;
-    private final NoticeService noticeService;
     private final ProjectService projectService;
     private final UserProjectService userProjectService;
 
@@ -43,16 +42,8 @@ public class ProjectController {
     @PostMapping("/{projectId}/members")
     public ResponseEntity inviteUser(@Authenticated LoginUser loginUser,
                                        @PathVariable long projectId, @Valid @RequestBody ProjectMemberRequest projectMemberRequest){
-        Project project = projectService.findProjectById(projectId);
-        User manager = userService.findUserById(loginUser.getId());
-        // manager 아닐 경우 예외처리
+        projectService.inviteUserToProject(projectId, loginUser.getId(), projectMemberRequest.getGithubId());
 
-        User user = userService.findByGithubId(projectMemberRequest.getGithubId());
-        CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .receiverId(user.getId())
-                .build();
-        noticeService.createNotice(createNoticeRequest);
         return ResponseEntity.ok().build();
     }
 
