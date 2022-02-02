@@ -1,5 +1,6 @@
 package kr.kro.colla.exception;
 
+import kr.kro.colla.exception.exception.ForbiddenException;
 import kr.kro.colla.exception.exception.NotFoundException;
 import kr.kro.colla.exception.exception.auth.UnauthorizedException;
 import kr.kro.colla.exception.exception.user.FileUploadException;
@@ -7,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
@@ -39,6 +39,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ExceptionHandleResponse> handleNotFoundException (NotFoundException e) {
+        ExceptionHandleResponse response = new ExceptionHandleResponse(e.getStatusCode().value(), e.getMessage());
+        return ResponseEntity.status(e.getStatusCode())
+                .body(response);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ExceptionHandleResponse> handleForbiddenException (ForbiddenException e) {
         ExceptionHandleResponse response = new ExceptionHandleResponse(e.getStatusCode().value(), e.getMessage());
         return ResponseEntity.status(e.getStatusCode())
                 .body(response);
