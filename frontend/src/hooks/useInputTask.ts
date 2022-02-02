@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 
+import { useRecoilValue } from 'recoil';
 import { createTask } from '../apis/task';
+import { projectState } from '../stores/projectState';
 import { TaskInputType } from '../types/task';
 
 const useInputTask = () => {
+    const project = useRecoilValue(projectState);
     const [taskInput, setTaskInput] = useState<TaskInputType>({
         title: '',
         description: '',
@@ -25,6 +28,7 @@ const useInputTask = () => {
             formData.append('priority', JSON.stringify(priority));
             formData.append('status', status);
             formData.append('tags', JSON.stringify(selectedTags));
+            formData.append('projectId', JSON.stringify(project.id));
             formData.append('story', story);
             formData.append('preTasks', JSON.stringify(preTasks));
 
