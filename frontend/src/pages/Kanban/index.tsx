@@ -54,12 +54,13 @@ const Kanban = () => {
     useEffect(() => {
         (async () => {
             const res = await getProject(state.projectId);
-            const { id, name, description, thumbnail, tasks } = res.data;
+            const { id, name, description, thumbnail, tasks, members } = res.data;
             setProjectState({
                 id,
                 name,
                 description,
                 thumbnail,
+                members,
             });
             setTaskList([
                 ...tasks['To Do'].map((task) => ({ ...task, column: 'To Do' })),

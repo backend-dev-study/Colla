@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { GRAY, GREEN } from '../../../styles/color';
-import { Modal } from '../../../styles/common';
+import { Center, Column, Modal } from '../../../styles/common';
 
 export const Wrapper = styled.div`
     position: absolute;
@@ -28,10 +28,45 @@ export const InviteEmailInput = styled.input`
     border-radius: 10px;
     font-size: 20px;
 `;
+
 export const InviteButton = styled.button`
     width: 80px;
     height: 35px;
     border-radius: 10px;
     background: ${GREEN};
     font-size: 20px;
+`;
+
+export const Member = styled.div`
+    display: flex;
+    justify-content: space-around;
+`;
+
+export const MemberInfo = styled.div`
+    width: 300px;
+    height: 70px;
+    justify-content: space-around;
+
+    ${Column}
+`;
+
+export const MemberImage = styled.div``;
+
+export const ImageContainer = styled.div`
+    background: url(${(props: { image: string }) => props.image});
+    background-size: cover;
+    width: 70px;
+    height: 70px;
+    font-size: 20px;
+    border-radius: 100px;
+    border: none;
+
+    ${Center}
+`;
+
+export const MemberList = styled.div`
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 `;

@@ -3,6 +3,7 @@ import { useRecoilValue } from 'recoil';
 
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
+import NoticeIcon from '../Icon/Notice';
 import UserIcon from '../Icon/User';
 import InviteModal from '../Modal/Invite';
 import {
@@ -35,6 +36,7 @@ const Header = () => {
                 </ProjectManagement>
             </LeftNav>
             <RightNav>
+                <NoticeIcon />
                 <UserIcon size="small" />
             </RightNav>
         </Container>
