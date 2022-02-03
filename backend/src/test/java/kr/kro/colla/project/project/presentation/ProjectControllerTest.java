@@ -1,10 +1,7 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import kr.kro.colla.auth.domain.LoginUser;
-import kr.kro.colla.auth.service.AuthService;
+import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -16,18 +13,13 @@ import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
-import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
-import kr.kro.colla.utils.CookieManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -48,50 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProjectController.class)
-class ProjectControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private CookieManager cookieManager;
-
-    @MockBean
-    private AuthService authService;
-
-    @MockBean
-    private ProjectService projectService;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private UserProjectService userProjectService;
-
-    @MockBean
-    private NoticeService noticeService;
-
-    @MockBean
-    private StoryService storyService;
-
-    private String accessToken = "token";
-    private LoginUser loginUser;
-
-    @BeforeEach
-    void setUp() {
-        String accessToken = "token";
-        loginUser = new LoginUser(345234L);
-
-        given(cookieManager.parseCookies(any(Cookie[].class), eq("accessToken")))
-                .willReturn(new Cookie("accessToken", accessToken));
-        given(authService.validateAccessToken(eq(accessToken)))
-                .willReturn(true);
-        given(authService.findUserFromToken(accessToken))
-                .willReturn(loginUser);
-    }
+class ProjectControllerTest extends ControllerTest {
 
     @Test
     void projectId에_해당하는_프로젝트를_조회한다() throws Exception {

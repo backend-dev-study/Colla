@@ -20,7 +20,6 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<Void> createTask(@Valid CreateTaskRequest createTaskRequest) {
-        System.out.println(createTaskRequest);
         Long taskId = taskService.createTask(createTaskRequest);
         URI redirectUrl = URI.create("/api/projects/tasks/" + taskId);
 

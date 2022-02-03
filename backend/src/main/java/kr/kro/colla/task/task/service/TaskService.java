@@ -44,7 +44,10 @@ public class TaskService {
                 .preTasks(createTaskRequest.getPreTasks())
                 .build();
 
-        taskTagService.setTaskTag(task, createTaskRequest.getTags());
+        if (createTaskRequest.getTags() != null) {
+            taskTagService.setTaskTag(task, createTaskRequest.getTags());
+        }
+
         return taskRepository.save(task)
                 .getId();
     }
