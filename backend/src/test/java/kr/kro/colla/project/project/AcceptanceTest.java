@@ -10,10 +10,14 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
+import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.tag.domain.repository.TagRepository;
+import kr.kro.colla.task.task_tag.domain.TaskTag;
+import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
-import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,13 +51,16 @@ public class AcceptanceTest {
     private UserRepository userRepository;
 
     @Autowired
-    private UserProjectService userProjectService;
-
-    @Autowired
     private UserProjectRepository userProjectRepository;
 
     @Autowired
     private StoryRepository storyRepository;
+
+    @Autowired
+    private TagRepository tagRepository;
+
+    @Autowired
+    private TaskTagRepository taskTagRepository;
 
     private Auth auth;
     private User user;
@@ -70,6 +77,7 @@ public class AcceptanceTest {
                 .avatar("github_content")
                 .build();
         userRepository.save(user);
+
         project = Project.builder()
                 .managerId(user.getId())
                 .name("project name")
@@ -77,7 +85,12 @@ public class AcceptanceTest {
                 .thumbnail("s3_content")
                 .build();
         projectRepository.save(project);
-        userProjectService.joinProject(user, project);
+
+        UserProject userProject = UserProject.builder()
+                .user(user)
+                .project(project)
+                .build();
+        userProjectRepository.save(userProject);
 
         auth = new Auth(jwtProvider);
         accessToken = auth.로그인(user.getId());
@@ -85,6 +98,8 @@ public class AcceptanceTest {
 
     @AfterEach
     void rollback(){
+        taskTagRepository.deleteAll();
+        tagRepository.deleteAll();
         storyRepository.deleteAll();
         userProjectRepository.deleteAll();
         userRepository.deleteAll();
@@ -224,7 +239,7 @@ public class AcceptanceTest {
         List<ProjectStoryResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -265,7 +280,7 @@ public class AcceptanceTest {
         List<ProjectMemberResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -282,6 +297,81 @@ public class AcceptanceTest {
         assertThat(response.get(0).getId()).isEqualTo(user.getId());
         assertThat(response.get(0).getName()).isEqualTo(user.getName());
         assertThat(response.get(0).getAvatar()).isEqualTo(user.getAvatar());
+    }
+
+    @Test
+    void 사용자가_프로젝트에서_사용할_새로운_태스크_태그를_생성한다() {
+        // given
+        String tagName = "backend";
+        CreateTagRequest createTagRequest = new CreateTagRequest(tagName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createTagRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("name", equalTo(createTagRequest.getName()));
+    }
+
+    @Test
+    void 사용자는_빈_태스크_태그를_생성할_수_없다() {
+        // given
+        CreateTagRequest createTagRequest = new CreateTagRequest("");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(createTagRequest)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", containsString("공백일 수 없습니다"));
+    }
+
+    @Test
+    void 사용자가_프로젝트에_등록되어_있는_테스크_태그들을_조회한다() {
+        // given
+        Tag tag = new Tag("backend");
+        tagRepository.save(tag);
+
+        TaskTag taskTag = TaskTag.builder()
+                .project(project)
+                .tag(tag)
+                .build();
+        taskTagRepository.save(taskTag);
+
+        List<ProjectTagResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", this.accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + project.getId() + "/tags")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTagResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getName()).isEqualTo(tag.getName());
     }
 
 }

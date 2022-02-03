@@ -9,6 +9,7 @@ import { Member, MemberList } from './style';
 interface PropType {
     setManager: Function;
     setMemberVisible: Function;
+    handleChangeManagerId: Function;
 }
 
 interface MemberType {
@@ -17,12 +18,13 @@ interface MemberType {
     avatar: string;
 }
 
-export const MemberDropDown: FC<PropType> = ({ setManager, setMemberVisible }) => {
+export const MemberDropDown: FC<PropType> = ({ setManager, setMemberVisible, handleChangeManagerId }) => {
     const project = useRecoilValue(projectState);
     const [memberList, setMemberList] = useState<MemberType[]>([]);
 
-    const selectManager = (name: string) => {
+    const selectManager = (id: number, name: string) => {
         setManager(name);
+        handleChangeManagerId(id);
         setMemberVisible();
     };
 
@@ -39,12 +41,15 @@ export const MemberDropDown: FC<PropType> = ({ setManager, setMemberVisible }) =
 
     return (
         <MemberList>
-            {memberList.map((member, idx) => (
-                <Member key={idx} onClick={() => selectManager(member.name)}>
-                    <Avatar src={member.avatar}></Avatar>
-                    <Name>{member.name}</Name>
-                </Member>
-            ))}
+            {memberList.map((member, idx) => {
+                const { id, name, avatar } = member;
+                return (
+                    <Member key={idx} onClick={() => selectManager(id, name)}>
+                        <Avatar src={avatar}></Avatar>
+                        <Name>{name}</Name>
+                    </Member>
+                );
+            })}
         </MemberList>
     );
 };

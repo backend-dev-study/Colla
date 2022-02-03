@@ -7,13 +7,13 @@ import { Priority, Task, TaskList, TaskTitle } from './style';
 
 interface PropType {
     taskList: TaskType[];
-    setPreTaskList: Function;
+    handleChangePreTasks: Function;
     setPreTaskVisible: Function;
 }
 
-export const PreTaskDropDown: FC<PropType> = ({ taskList, setPreTaskList, setPreTaskVisible }) => {
+export const PreTaskDropDown: FC<PropType> = ({ taskList, handleChangePreTasks, setPreTaskVisible }) => {
     const addPreTask = (idx: number) => {
-        setPreTaskList((prev: TaskType[]) => [...prev, idx]);
+        handleChangePreTasks(idx);
         setPreTaskVisible();
     };
 

@@ -7,6 +7,7 @@ import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
+import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
@@ -89,6 +90,20 @@ public class ProjectController {
         List<ProjectMemberResponse> projectMembers = projectService.getProjectMembers(projectId);
 
         return ResponseEntity.ok(projectMembers);
+    }
+
+    @PostMapping("/{projectId}/tags")
+    public ResponseEntity<ProjectTagResponse> createTag(@PathVariable Long projectId, @Valid @RequestBody CreateTagRequest createTagRequest) {
+        Tag tag = projectService.createTag(projectId, createTagRequest);
+
+        return ResponseEntity.ok(new ProjectTagResponse(tag));
+    }
+
+    @GetMapping("/{projectId}/tags")
+    public ResponseEntity<List<ProjectTagResponse>> getProjectTags(@PathVariable Long projectId) {
+        List<ProjectTagResponse> projectTags = projectService.getProjectTags(projectId);
+
+        return ResponseEntity.ok(projectTags);
     }
 
 }
