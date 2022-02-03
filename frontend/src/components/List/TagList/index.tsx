@@ -28,12 +28,8 @@ export const TagList: FC<PropType> = ({ selectedTags, handleSelectTag }) => {
 
     useEffect(() => {
         (async () => {
-            try {
-                const res = await getProjectTags(project.id);
-                setTags(() => res.data.map((tag) => tag.name));
-            } catch (err) {
-                setTags([]);
-            }
+            const res = await getProjectTags(project.id);
+            setTags(() => res.data.map((tag) => tag.name));
         })();
     }, []);
 

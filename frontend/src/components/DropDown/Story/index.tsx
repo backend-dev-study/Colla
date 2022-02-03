@@ -22,12 +22,8 @@ export const StoryDropDown: FC<PropType> = ({ setStory, setStoryVisible }) => {
 
     useEffect(() => {
         (async () => {
-            try {
-                const res = await getProjectStories(project.id);
-                setStoryList(res.data);
-            } catch (err) {
-                setStoryList([]);
-            }
+            const res = await getProjectStories(project.id);
+            setStoryList(res.data);
         })();
     }, []);
 
