@@ -1,24 +1,19 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
-import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
-import kr.kro.colla.user.notice.service.NoticeService;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import kr.kro.colla.utils.CookieManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,7 +190,7 @@ class ProjectControllerTest {
         Long projectId = 123142L;
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
 
-        given(projectService.decideInvitation(projectId, loginUser.getId(), false))
+        given(projectService.handleInvitationDecision(projectId, loginUser.getId(), false))
                 .willReturn(Optional.empty());
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
@@ -205,7 +200,7 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isNoContent());
-        verify(projectService, times(1)).decideInvitation(projectId, loginUser.getId(), false);
+        verify(projectService, times(1)).handleInvitationDecision(projectId, loginUser.getId(), false);
     }
 
     @Test
@@ -220,7 +215,7 @@ class ProjectControllerTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(projectService.decideInvitation(projectId, loginUser.getId(), true))
+        given(projectService.handleInvitationDecision(projectId, loginUser.getId(), true))
                 .willReturn(Optional.of(new ProjectMemberResponse(user)));
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
@@ -234,7 +229,7 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.name").value(user.getName()))
                 .andExpect(jsonPath("$.avatar").value(user.getAvatar()))
                 .andExpect(jsonPath("$.githubId").value(user.getGithubId()));
-        verify(projectService, times(1)).decideInvitation(projectId, loginUser.getId(), true);
+        verify(projectService, times(1)).handleInvitationDecision(projectId, loginUser.getId(), true);
     }
 
     @Test

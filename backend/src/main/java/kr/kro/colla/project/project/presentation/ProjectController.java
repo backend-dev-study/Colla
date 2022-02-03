@@ -2,18 +2,12 @@ package kr.kro.colla.project.project.presentation;
 
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
-import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
-import kr.kro.colla.user.notice.domain.NoticeType;
-import kr.kro.colla.user.notice.service.NoticeService;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
-import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +45,7 @@ public class ProjectController {
     @PostMapping("/{projectId}/members/decision")
     public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
                                            @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
-        Optional<ProjectMemberResponse> result = projectService.decideInvitation(projectId, loginUser.getId(), projectMemberDecision.isAccept());
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginUser.getId(), projectMemberDecision.isAccept());
 
         return result.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(result.get());
 

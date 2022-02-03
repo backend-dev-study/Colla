@@ -18,6 +18,7 @@ import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
+import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -57,6 +58,9 @@ class ProjectServiceTest {
 
     @Mock
     private NoticeService noticeService;
+
+    @Mock
+    private UserProjectService userProjectService;
 
     @InjectMocks
     private ProjectService projectService;
@@ -306,5 +310,57 @@ class ProjectServiceTest {
         assertThatThrownBy(()->{
           projectService.inviteUserToProject(projectId, loginId, githubId);
         }).isInstanceOf(UserNotManagerException.class);
+    }
+
+    @Test
+    void 프로젝트_초대_수락에_성공한다() {
+        // given
+        Long loginId = 2455L, projectId = 23414L;
+        User user = User.builder()
+                .name("name__")
+                .avatar("avatar__")
+                .githubId("github__")
+                .build();
+        ReflectionTestUtils.setField(user, "id", loginId);
+        Project project = Project.builder()
+                .name("project__")
+                .managerId(230492L)
+                .build();
+        ReflectionTestUtils.setField(project, "id", projectId);
+        UserProject userProject = UserProject.builder()
+                        .project(project)
+                        .user(user)
+                        .build();
+
+        given(userService.findUserById(loginId))
+                .willReturn(user);
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        given(userProjectService.joinProject(any(User.class), any(Project.class)))
+                .willReturn(userProject);
+        // when
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginId, true);
+        // then
+        assertThat(result.isPresent()).isEqualTo(true);
+        ProjectMemberResponse response = result.get();
+        assertThat(response.getId()).isEqualTo(user.getId());
+        assertThat(response.getName()).isEqualTo(user.getName());
+        assertThat(response.getGithubId()).isEqualTo(user.getGithubId());
+        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+    }
+
+    @Test
+    void 프로젝트_초대_거절에_성공한다() {
+        // given
+        Long loginId = 2455L, projectId = 23414L;
+        Project project = Project.builder()
+                .build();
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        // when
+        projectService.handleInvitationDecision(projectId, loginId, false);
+        // then
+        verify(userProjectService, times(0)).joinProject(any(), any());
     }
 }

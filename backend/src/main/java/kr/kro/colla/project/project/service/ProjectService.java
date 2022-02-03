@@ -20,7 +20,6 @@ import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -146,7 +145,7 @@ public class ProjectService {
         noticeService.createNotice(createNoticeRequest);
     }
 
-    public Optional<ProjectMemberResponse> decideInvitation(long projectId, long loginUserId, boolean accept) {
+    public Optional<ProjectMemberResponse> handleInvitationDecision(long projectId, long loginUserId, boolean accept) {
         User user = userService.findUserById(loginUserId);
         Project project = findProjectById(projectId);
 
