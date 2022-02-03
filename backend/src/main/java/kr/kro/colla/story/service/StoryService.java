@@ -31,7 +31,6 @@ public class StoryService {
     }
 
     public Story findStoryByTitle(String title) {
-        System.out.println(title);
         return storyRepository.findByTitle(title)
                 .orElseThrow(StoryNotFoundException::new);
     }
