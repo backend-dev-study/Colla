@@ -10,10 +10,14 @@ import { Icon, Invitation, InvitationDecision, Notice, NoticeMessage, Wrapper } 
 const NoticeModal = () => {
     const [notices, setNotices] = useState<Array<NoticeType>>([]);
 
-    const handleNotices = async () => {
+    const updateNotices = async () => {
         const res = await getUserNotices();
-        console.log(res.data);
         setNotices(res.data);
+    };
+
+    const handleClick = async (notice: NoticeType, accept: boolean) => {
+        await decideInvitation(notice.projectId!, notice.id, accept);
+        await updateNotices();
     };
 
     const translateNotice = (notice: NoticeType) => {
@@ -37,12 +41,8 @@ const NoticeModal = () => {
                         <>
                             <div>{message}</div>
                             <Invitation>
-                                <InvitationDecision onClick={() => decideInvitation(notice.projectId!, true)}>
-                                    수락
-                                </InvitationDecision>
-                                <InvitationDecision onClick={() => decideInvitation(notice.projectId!, false)}>
-                                    거절
-                                </InvitationDecision>
+                                <InvitationDecision onClick={() => handleClick(notice, true)}>수락</InvitationDecision>
+                                <InvitationDecision onClick={() => handleClick(notice, false)}>거절</InvitationDecision>
                             </Invitation>
                         </>
                     ) : (
@@ -56,7 +56,7 @@ const NoticeModal = () => {
     };
 
     useEffect(() => {
-        handleNotices();
+        updateNotices();
     }, []);
 
     return <Wrapper>{notices.map((notice) => translateNotice(notice))}</Wrapper>;
