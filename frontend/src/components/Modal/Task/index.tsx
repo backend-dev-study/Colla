@@ -51,29 +51,17 @@ export const TaskModal: FC<PropType> = ({ status, taskList, hideModal }) => {
     const [memberVisible, setMemberVisible] = useState(false);
     const [priority, setPriority] = useState(-1);
 
-    const showStoryModal = () => {
-        setStoryModalVisible((prev) => !prev);
-    };
+    const showStoryModal = () => setStoryModalVisible((prev) => !prev);
 
-    const showStoryList = () => {
-        setStoryVisible((prev) => !prev);
-    };
+    const showStoryList = () => setStoryVisible((prev) => !prev);
 
-    const showPreTaskList = () => {
-        setPreTaskVisible((prev) => !prev);
-    };
+    const showPreTaskList = () => setPreTaskVisible((prev) => !prev);
 
-    const deletePreTask = (idx: number) => {
-        setPreTaskList((prev) => prev.filter((el) => el !== idx));
-    };
+    const deletePreTask = (idx: number) => setPreTaskList((prev) => prev.filter((el) => el !== idx));
 
-    const showMemberList = () => {
-        setMemberVisible((prev) => !prev);
-    };
+    const showMemberList = () => setMemberVisible((prev) => !prev);
 
-    const changePriority = (idx: number) => {
-        setPriority(idx);
-    };
+    const changePriority = (idx: number) => setPriority(idx);
 
     return (
         <ModalContainer>

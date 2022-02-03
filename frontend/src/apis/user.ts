@@ -1,20 +1,9 @@
+import { ProjectType } from '../types/project';
+import { NoticeType, UserProfile } from '../types/user';
 import { client } from './common';
 
-interface userProfile {
-    displayName: string;
-    githubId: string;
-    avatar: string;
-}
-
-interface project {
-    id: number;
-    name: string;
-    description: string;
-    thumbnail: string;
-}
-
 export const getUserProfile = async () => {
-    const response = await client.get<userProfile>(`/users/profile`);
+    const response = await client.get<UserProfile>(`/users/profile`);
 
     return response;
 };
@@ -26,7 +15,7 @@ export const updateDisplayName = async (displayName: string) => {
 };
 
 export const createProject = async (data: FormData) => {
-    const response = await client.post<project>(`/users/projects`, data, {
+    const response = await client.post<ProjectType>(`/users/projects`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 
@@ -35,6 +24,12 @@ export const createProject = async (data: FormData) => {
 
 export const getUserProjects = async () => {
     const response = await client.get(`/users/projects`);
+
+    return response;
+};
+
+export const getUserNotices = async () => {
+    const response = await client.get<Array<NoticeType>>('/users/notices');
 
     return response;
 };

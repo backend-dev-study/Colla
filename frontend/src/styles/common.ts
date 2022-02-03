@@ -11,6 +11,11 @@ export const WidthCenter = css`
     justify-content: center;
 `;
 
+export const WidthAround = css`
+    display: flex;
+    justify-content: space-around;
+`;
+
 export const Column = css`
     display: flex;
     flex-direction: column;
