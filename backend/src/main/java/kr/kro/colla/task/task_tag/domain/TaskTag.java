@@ -20,7 +20,7 @@ public class TaskTag {
     private Long id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name ="project_id")
     private Project project;
 
     @ManyToOne
@@ -31,13 +31,11 @@ public class TaskTag {
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
-    @Builder
     public TaskTag(Project project, Tag tag) {
         this.project = project;
         this.tag = tag;
     }
 
-    @Builder
     public TaskTag(Task task, Tag tag) {
         this.task = task;
         this.tag = tag;

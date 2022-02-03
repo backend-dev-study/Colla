@@ -1,28 +1,48 @@
 package kr.kro.colla.task.task_tag.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.kro.colla.exception.exception.task.tag.InvalidTagFormatException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.tag.service.TagService;
+import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class TaskTagService {
 
+    private final TagService tagService;
     private final TaskTagRepository taskTagRepository;
 
     public void addNewTag(Project project, Tag tag) {
-        TaskTag taskTag = TaskTag.builder()
-                .project(project)
-                .tag(tag)
-                .build();
+        TaskTag taskTag = new TaskTag(project, tag);
 
         taskTagRepository.save(taskTag);
+    }
+
+    public void setTaskTag(Task task, String tags) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<String> tagNames = objectMapper.readValue(tags, new TypeReference<List<String>>() {
+            });
+
+            tagService.findTagsByName(tagNames)
+                    .stream()
+                    .map(tag -> new TaskTag(task, tag))
+                    .forEach(taskTagRepository::save);
+        } catch (JsonProcessingException e) {
+            throw new InvalidTagFormatException();
+        }
     }
 
 }

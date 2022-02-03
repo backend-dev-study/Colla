@@ -8,6 +8,7 @@ import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
@@ -104,6 +105,12 @@ public class ProjectController {
         List<ProjectTagResponse> projectTags = projectService.getProjectTags(projectId);
 
         return ResponseEntity.ok(projectTags);
+    }
+
+    @PostMapping("{projectId}/tasks")
+    public ResponseEntity createTask(CreateTaskRequest createTaskRequest) {
+        System.out.println(createTaskRequest);
+        return null;
     }
 
 }

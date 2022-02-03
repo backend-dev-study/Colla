@@ -1,5 +1,6 @@
 package kr.kro.colla.story.service;
 
+import kr.kro.colla.exception.exception.story.StoryNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -27,6 +28,12 @@ public class StoryService {
                 .build();
 
         return storyRepository.save(story);
+    }
+
+    public Story findStoryByTitle(String title) {
+        System.out.println(title);
+        return storyRepository.findByTitle(title)
+                .orElseThrow(StoryNotFoundException::new);
     }
 
 }
