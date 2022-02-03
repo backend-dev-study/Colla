@@ -12,6 +12,8 @@ import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
+import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
@@ -315,7 +317,7 @@ class ProjectServiceTest {
     @Test
     void 프로젝트_초대_수락에_성공한다() {
         // given
-        Long loginId = 2455L, projectId = 23414L;
+        Long loginId = 2455L, projectId = 23414L, noticeId = 43524L;
         User user = User.builder()
                 .name("name__")
                 .avatar("avatar__")
@@ -331,6 +333,12 @@ class ProjectServiceTest {
                         .project(project)
                         .user(user)
                         .build();
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        ReflectionTestUtils.setField(notice, "id", noticeId);
 
         given(userService.findUserById(loginId))
                 .willReturn(user);
@@ -338,8 +346,10 @@ class ProjectServiceTest {
                 .willReturn(Optional.of(project));
         given(userProjectService.joinProject(any(User.class), any(Project.class)))
                 .willReturn(userProject);
+        given(noticeService.findById(noticeId))
+                .willReturn(notice);
         // when
-        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginId, true);
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(true, noticeId));
         // then
         assertThat(result.isPresent()).isEqualTo(true);
         ProjectMemberResponse response = result.get();
@@ -347,20 +357,33 @@ class ProjectServiceTest {
         assertThat(response.getName()).isEqualTo(user.getName());
         assertThat(response.getGithubId()).isEqualTo(user.getGithubId());
         verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+        assertThat(notice.getIsChecked()).isEqualTo(true);
     }
 
     @Test
     void 프로젝트_초대_거절에_성공한다() {
         // given
-        Long loginId = 2455L, projectId = 23414L;
+        Long loginId = 2455L, projectId = 23414L, noticeId = 74123L;
         Project project = Project.builder()
+                .name("projectName")
+                .managerId(194910L)
                 .build();
+        ReflectionTestUtils.setField(project, "id", projectId);
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        ReflectionTestUtils.setField(notice, "id", noticeId);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
+        given(noticeService.findById(noticeId))
+                .willReturn(notice);
         // when
-        projectService.handleInvitationDecision(projectId, loginId, false);
+        projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(false, noticeId));
         // then
         verify(userProjectService, times(0)).joinProject(any(), any());
+        assertThat(notice.getIsChecked()).isEqualTo(true);
     }
 }

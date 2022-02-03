@@ -187,10 +187,10 @@ class ProjectControllerTest {
     @Test
     void 사용자가_프로젝트_초대를_거절한다() throws Exception {
         // given
-        Long projectId = 123142L;
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
+        Long projectId = 123142L, noticeId = 64232L;
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, noticeId);
 
-        given(projectService.handleInvitationDecision(projectId, loginUser.getId(), false))
+        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
                 .willReturn(Optional.empty());
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
@@ -200,14 +200,14 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isNoContent());
-        verify(projectService, times(1)).handleInvitationDecision(projectId, loginUser.getId(), false);
+        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() throws Exception {
         // given
-        Long projectId = 123142L, userId = loginUser.getId();
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
+        Long projectId = 123142L, userId = loginUser.getId(), noticeId = 63452L;
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true, noticeId);
         User user = User.builder()
                 .name("random user name")
                 .avatar("random user avatar")
@@ -215,7 +215,7 @@ class ProjectControllerTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(projectService.handleInvitationDecision(projectId, loginUser.getId(), true))
+        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
                 .willReturn(Optional.of(new ProjectMemberResponse(user)));
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
@@ -229,7 +229,7 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.name").value(user.getName()))
                 .andExpect(jsonPath("$.avatar").value(user.getAvatar()))
                 .andExpect(jsonPath("$.githubId").value(user.getGithubId()));
-        verify(projectService, times(1)).handleInvitationDecision(projectId, loginUser.getId(), true);
+        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test
