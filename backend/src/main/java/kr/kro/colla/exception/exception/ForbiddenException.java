@@ -4,11 +4,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ForbiddenException extends RuntimeException {
-    private HttpStatus statusCode;
+public class ForbiddenException extends CustomException {
 
-    public ForbiddenException(String message){
-        super(message);
-        this.statusCode = HttpStatus.FORBIDDEN;
-    }
+    public ForbiddenException(String message) { super(HttpStatus.FORBIDDEN, message); }
 }
