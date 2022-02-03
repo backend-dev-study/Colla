@@ -1,28 +1,48 @@
 import React, { ChangeEvent, useState } from 'react';
 
-import { InviteButton, InviteEmailInput, InviteUser, Wrapper } from './style';
-
-const members = [
-    { name: 'asdf', email: 'asdfa@naver.com' },
-    { name: 'were', email: 'zxczxc23@gmail.com' },
-];
+import { useRecoilValue } from 'recoil';
+import { inviteUser } from '../../../apis/project';
+import { projectState } from '../../../stores/projectState';
+import {
+    ImageContainer,
+    InviteButton,
+    InviteEmailInput,
+    InviteUser,
+    Member,
+    MemberImage,
+    MemberInfo,
+    MemberList,
+    Wrapper,
+} from './style';
 
 const InviteModal = () => {
+    const project = useRecoilValue(projectState);
     const [input, setInput] = useState('');
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => setInput(event.target.value);
 
     return (
         <Wrapper>
-            {members.map(({ name, email }) => (
-                <div key={email}>
-                    <div>{name}</div>
-                    <div>{email}</div>
-                </div>
-            ))}
+            <MemberList>
+                {project.members.map(({ displayName, githubId, avatar }) => (
+                    <Member key={githubId}>
+                        <MemberImage>
+                            <ImageContainer image={avatar} />
+                        </MemberImage>
+                        <MemberInfo>
+                            <div>{displayName}</div>
+                            <div>{githubId}</div>
+                        </MemberInfo>
+                    </Member>
+                ))}
+            </MemberList>
             <InviteUser>
-                <InviteEmailInput placeholder="초대할 사용자 이메일" value={input} onChange={handleInputChange} />
-                <InviteButton>초대</InviteButton>
+                <InviteEmailInput
+                    placeholder="초대할 사용자 깃허브 아이디"
+                    value={input}
+                    onChange={handleInputChange}
+                />
+                <InviteButton onClick={() => inviteUser(project.id, input)}>초대</InviteButton>
             </InviteUser>
         </Wrapper>
     );

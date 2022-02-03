@@ -54,7 +54,6 @@ export const LeftNav = styled.div`
 
 export const RightNav = styled.div`
     height: 100%;
-    margin-top: 20px;
 
     ${Center}
 `;

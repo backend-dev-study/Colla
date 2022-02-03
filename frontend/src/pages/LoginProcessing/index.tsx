@@ -3,7 +3,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 
 import { getAccessToken } from '../../apis/auth';
-import { isResponseSuccess } from '../../apis/common';
 import { Container, Notice } from './style';
 
 const LoginProcessing = ({ history, location }: RouteComponentProps) => {
@@ -15,8 +14,8 @@ const LoginProcessing = ({ history, location }: RouteComponentProps) => {
                     throw Error('github auth code does not exist');
                 }
 
-                const result = await getAccessToken(code);
-                isResponseSuccess(result.status) ? history.push('/home') : history.push('/');
+                await getAccessToken(code);
+                history.push('/home');
             } catch (error) {
                 history.push('/');
             }

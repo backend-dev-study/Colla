@@ -14,12 +14,8 @@ const Home = () => {
 
     useEffect(() => {
         (async () => {
-            try {
-                const res = await getUserProjects();
-                setProjects(res.data);
-            } catch (err) {
-                setProjects([]);
-            }
+            const res = await getUserProjects();
+            setProjects(res.data);
         })();
     }, []);
 

@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
 import { projectState } from '../../stores/projectState';
+import { ProjectType } from '../../types/project';
 import {
     ProjectIcon,
     VerticalBar,
@@ -15,30 +16,27 @@ import {
     MenuWrapper,
 } from './style';
 
-interface Project {
-    id: number;
-    name: string;
-    description: string;
-    thumbnail: string;
+interface Props {
+    props: Array<ProjectType | string>;
+    project?: boolean;
 }
 
-interface Props {
-    props: Array<Project | string>;
-    project?: boolean;
+function isProjectType(el: ProjectType | string): el is ProjectType {
+    return (el as ProjectType).name !== undefined;
 }
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
     const setProjectState = useSetRecoilState(projectState);
 
-    // eslint-disable-next-line no-shadow
-    const enterProject = (project: Project) => {
+    const enterProject = (project: ProjectType) => {
         const { id, name, description, thumbnail } = project;
         setProjectState({
             id,
             name,
             description,
             thumbnail,
+            members: [],
         });
         history.push({
             pathname: '/kanban',
@@ -52,12 +50,14 @@ export const SideBar = ({ props, project }: Props) => {
             {project ? (
                 <ProjectContainer>
                     <ProjectWrapper>
-                        {props.map((el, idx) => (
-                            <Project key={idx} onClick={() => enterProject(el as Project)}>
-                                <ProjectIcon src={(el as Project).thumbnail ? (el as Project).thumbnail : EmptySrc} />
-                                <span>{(el as Project).name}</span>
-                            </Project>
-                        ))}
+                        {props.map((el, idx) =>
+                            isProjectType(el) ? (
+                                <Project key={idx} onClick={() => enterProject(el)}>
+                                    <ProjectIcon src={el.thumbnail ? el.thumbnail : EmptySrc} />
+                                    <span>{el.name}</span>
+                                </Project>
+                            ) : null,
+                        )}
                     </ProjectWrapper>
                 </ProjectContainer>
             ) : (

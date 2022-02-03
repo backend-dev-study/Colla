@@ -2,7 +2,6 @@ import React, { ChangeEvent, FC, useState } from 'react';
 
 import edit from '../../../../public/assets/images/edit.svg';
 import { logout } from '../../../apis/auth';
-import { isResponseSuccess } from '../../../apis/common';
 import { updateDisplayName } from '../../../apis/user';
 import {
     Container,
@@ -39,18 +38,14 @@ const UserModal: FC<PropType> = ({ userName, githubId }) => {
     };
 
     const handleCompleteButton = async () => {
-        const res = await updateDisplayName(modifyingName);
-        if (isResponseSuccess(res.status)) {
-            setDisplayName(modifyingName);
-            setShowInputBar(false);
-        }
+        await updateDisplayName(modifyingName);
+        setDisplayName(modifyingName);
+        setShowInputBar(false);
     };
 
     const handleLogoutButton = async () => {
-        const res = await logout();
-        if (isResponseSuccess(res.status)) {
-            window.location.href = '/';
-        }
+        await logout();
+        window.location.href = '/';
     };
 
     return (

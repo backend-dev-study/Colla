@@ -1,10 +1,5 @@
+import { ProjectType } from '../types/project';
 import { client } from './common';
-
-interface member {
-    displayName: string;
-    githubId: string;
-    avatar: string;
-}
 
 interface task {
     id: number;
@@ -14,20 +9,15 @@ interface task {
     priority: number;
 }
 
-interface project {
-    id: number;
+interface ProjectAllType extends ProjectType {
     managerId: number;
-    name: string;
-    description: string;
-    thumbnail: string;
-    members: Array<member>;
     tasks: {
         [key: string]: Array<task>;
     };
 }
 
 export const getProject = async (projectId: number) => {
-    const response = await client.get<project>(`/projects/${projectId}`);
+    const response = await client.get<ProjectAllType>(`/projects/${projectId}`);
 
     return response;
 };
@@ -46,6 +36,18 @@ export const getProjectStories = async (projectId: number) => {
 
 export const getProjectMembers = async (projectId: number) => {
     const response = await client.get(`/projects/${projectId}/members`);
+
+    return response;
+};
+
+export const inviteUser = async (projectId: number, githubId: string) => {
+    const response = await client.post(`/projects/${projectId}/members`, { githubId });
+
+    return response;
+};
+
+export const decideInvitation = async (projectId: number, accept: boolean) => {
+    const response = await client.post(`/projects/${projectId}/members/decision`, { accept });
 
     return response;
 };

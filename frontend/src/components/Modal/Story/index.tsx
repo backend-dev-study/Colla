@@ -20,13 +20,9 @@ export const StoryModal: FC<PropType> = ({ showStoryModal, selectStory }) => {
     };
 
     const handleCompleteButton = async () => {
-        try {
-            const res = await createStory(project.id, story);
-            selectStory(res.data.title);
-            showStoryModal();
-        } catch (err) {
-            showStoryModal();
-        }
+        const res = await createStory(project.id, story);
+        selectStory(res.data.title);
+        showStoryModal();
     };
 
     return (
