@@ -1,16 +1,15 @@
 import styled from '@emotion/styled';
 import { GRAY, GREEN } from '../../../styles/color';
-import { Center, Column, Modal } from '../../../styles/common';
+import { Center, Column, Modal, WidthAround } from '../../../styles/common';
 
 export const Wrapper = styled.div`
     position: absolute;
     justify-content: space-around;
     width: 500px;
-    height: 300px;
     font-size: 20px;
     border-radius: 40px;
     background: ${GRAY};
-    padding: 40px 20px;
+    padding: 20px;
 
     top: 10px;
 
@@ -38,8 +37,10 @@ export const InviteButton = styled.button`
 `;
 
 export const Member = styled.div`
-    display: flex;
-    justify-content: space-around;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    ${WidthAround}
 `;
 
 export const MemberInfo = styled.div`
@@ -66,6 +67,8 @@ export const ImageContainer = styled.div`
 
 export const MemberList = styled.div`
     overflow-y: scroll;
+    margin-top: 10px;
+    margin-bottom: 30px;
     &::-webkit-scrollbar {
         display: none;
     }

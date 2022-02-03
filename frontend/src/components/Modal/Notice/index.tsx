@@ -7,24 +7,12 @@ import { getUserNotices } from '../../../apis/user';
 import { NoticeType } from '../../../types/user';
 import { Icon, Invitation, InvitationDecision, Notice, NoticeMessage, Wrapper } from './style';
 
-const dummyNotices = [
-    {
-        id: 12313,
-        noticeType: 'INVITE_USER',
-        isChecked: true,
-    },
-    {
-        id: 15313,
-        noticeType: 'MENTION_USER',
-        isChecked: false,
-        mentionedURL: '/home',
-    },
-];
 const NoticeModal = () => {
-    const [notices, setNotices] = useState<Array<NoticeType>>(dummyNotices);
+    const [notices, setNotices] = useState<Array<NoticeType>>([]);
 
     const handleNotices = async () => {
         const res = await getUserNotices();
+        console.log(res.data);
         setNotices(res.data);
     };
 
@@ -32,7 +20,7 @@ const NoticeModal = () => {
         let message;
         switch (notice.noticeType) {
             case 'INVITE_USER':
-                message = `${notice.projectId} 프로젝트로부터 초대 받았습니다.`;
+                message = `${notice.projectName} 프로젝트로부터 초대 받았습니다.`;
                 break;
             case 'MENTION_USER':
                 message = `${notice.mentionedURL}에서 언급되었습니다.`;
