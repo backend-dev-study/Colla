@@ -34,10 +34,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.servlet.http.Cookie;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -198,6 +195,8 @@ class ProjectControllerTest {
         Long projectId = 123142L;
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
 
+        given(projectService.decideInvitation(projectId, loginUser.getId(), false))
+                .willReturn(Optional.empty());
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -206,35 +205,23 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isNoContent());
-        verify(userProjectService, times(0)).joinProject(any(User.class), any(Project.class));
+        verify(projectService, times(1)).decideInvitation(projectId, loginUser.getId(), false);
     }
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() throws Exception {
         // given
         Long projectId = 123142L, userId = loginUser.getId();
-        String userName = "subin", userAvatar = "github_contents", userGithubId = "binimini";
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
         User user = User.builder()
-                .name(userName)
-                .avatar(userAvatar)
-                .githubId(userGithubId)
+                .name("random user name")
+                .avatar("random user avatar")
+                .githubId("random github id")
                 .build();
         ReflectionTestUtils.setField(user, "id", userId);
-        Project project = Project.builder()
-                .name("project_name")
-                .build();
-        UserProject userProject = UserProject.builder()
-                .user(user)
-                .project(project)
-                .build();
 
-        given(userService.findUserById(any()))
-                .willReturn(user);
-        given(projectService.findProjectById(projectId))
-                .willReturn(project);
-        given(userProjectService.joinProject(any(User.class), any(Project.class)))
-                .willReturn(userProject);
+        given(projectService.decideInvitation(projectId, loginUser.getId(), true))
+                .willReturn(Optional.of(new ProjectMemberResponse(user)));
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -243,11 +230,11 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.name").value(userName))
-                .andExpect(jsonPath("$.avatar").value(userAvatar))
-                .andExpect(jsonPath("$.githubId").value(userGithubId));
-        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+                .andExpect(jsonPath("$.id").value(user.getId()))
+                .andExpect(jsonPath("$.name").value(user.getName()))
+                .andExpect(jsonPath("$.avatar").value(user.getAvatar()))
+                .andExpect(jsonPath("$.githubId").value(user.getGithubId()));
+        verify(projectService, times(1)).decideInvitation(projectId, loginUser.getId(), true);
     }
 
     @Test

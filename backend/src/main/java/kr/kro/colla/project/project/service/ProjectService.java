@@ -18,13 +18,16 @@ import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
+import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class ProjectService {
     private final TagService tagService;
     private final TaskTagService taskTagService;
     private final UserService userService;
+    private final UserProjectService userProjectService;
     private final NoticeService noticeService;
     private final ProjectRepository projectRepository;
     private final ProjectProfileStorage projectProfileStorage;
@@ -120,12 +124,12 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public Project findProjectById(Long projectId){
+    public Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    public void inviteUserToProject(Long projectId, Long loginUserId, String memberGithubId){
+    public void inviteUserToProject(Long projectId, Long loginUserId, String memberGithubId) {
         Project project  = findProjectById(projectId);
         if (project.getManagerId()!=loginUserId){
             throw new UserNotManagerException();
@@ -142,4 +146,14 @@ public class ProjectService {
         noticeService.createNotice(createNoticeRequest);
     }
 
+    public Optional<ProjectMemberResponse> decideInvitation(long projectId, long loginUserId, boolean accept) {
+        User user = userService.findUserById(loginUserId);
+        Project project = findProjectById(projectId);
+
+        if (accept) {
+            UserProject userProject = userProjectService.joinProject(user, project);
+            return Optional.of(new ProjectMemberResponse(userProject.getUser()));
+        }
+        return Optional.empty();
+    }
 }

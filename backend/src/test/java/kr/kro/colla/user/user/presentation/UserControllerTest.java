@@ -273,7 +273,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[*].mentionedURL").value(containsInAnyOrder(notice1.getMentionedURL(), notice2.getMentionedURL(), notice3.getMentionedURL())))
                 .andExpect(jsonPath("$[*].isChecked").value(containsInAnyOrder(false, false, false)))
                 .andExpect(jsonPath("$[*].projectName").value(containsInAnyOrder(notice1.getProjectName(), notice2.getProjectName(), notice3.getProjectName())))
-                .andExpect(jsonPath("$[*].projectId").value(containsInAnyOrder(notice1.getProjectId().intValue(), notice2.getProjectId().intValue(), notice3.getProjectId().intValue())))
+                .andExpect(jsonPath("$[*].projectId").value(containsInAnyOrder(notice1.getProjectId().intValue(), notice2.getProjectId(), notice3.getProjectId().intValue())))
                 .andExpect(jsonPath("$.length()").value(3));
     }
 }

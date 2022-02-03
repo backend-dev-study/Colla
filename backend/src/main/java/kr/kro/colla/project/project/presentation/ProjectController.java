@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -50,15 +51,9 @@ public class ProjectController {
     @PostMapping("/{projectId}/members/decision")
     public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
                                            @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
-        User user = userService.findUserById(loginUser.getId());
-        // user 알림 체크 및 읽음 처리
-        Project project = projectService.findProjectById(projectId);
+        Optional<ProjectMemberResponse> result = projectService.decideInvitation(projectId, loginUser.getId(), projectMemberDecision.isAccept());
 
-        if (projectMemberDecision.isAccept()){
-            UserProject userProject = userProjectService.joinProject(user, project);
-            return ResponseEntity.ok(new ProjectMemberResponse(userProject.getUser()));
-        }
-        return ResponseEntity.noContent().build();
+        return result.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(result.get());
 
     }
 
