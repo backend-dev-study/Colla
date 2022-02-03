@@ -33,8 +33,7 @@ public class TaskTagService {
     public void setTaskTag(Task task, String tags) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            List<String> tagNames = objectMapper.readValue(tags, new TypeReference<List<String>>() {
-            });
+            List<String> tagNames = objectMapper.readValue(tags, new TypeReference<List<String>>() {});
 
             tagService.findTagsByName(tagNames)
                     .stream()

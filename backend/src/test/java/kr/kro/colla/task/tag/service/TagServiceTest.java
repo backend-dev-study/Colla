@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +61,27 @@ class TagServiceTest {
         verify(tagRepository, times(1)).findByName(any(String.class));
         verify(tagRepository, never()).save(any(Tag.class));
         assertThat(result.getName()).isEqualTo(tag.getName());
+    }
+
+    @Test
+    void 태그_목록에_포함된_태그들을_조회한다() {
+        // given
+        List<String> tagNames = List.of("backend", "refactoring");
+        List<Tag> tags = List.of(
+                new Tag("backend"),
+                new Tag("refactoring")
+        );
+
+        given(tagRepository.findByNameIn(tagNames))
+                .willReturn(tags);
+
+        // when
+        List<Tag> result = tagService.findTagsByName(tagNames);
+
+        // then
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).extracting("name")
+                .contains("backend", "refactoring");
     }
 
 }
