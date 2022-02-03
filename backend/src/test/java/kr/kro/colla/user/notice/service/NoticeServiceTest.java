@@ -42,8 +42,6 @@ public class NoticeServiceTest {
     @InjectMocks
     private NoticeService noticeService;
 
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     void 알림_생성에_성공한다() {
         // given

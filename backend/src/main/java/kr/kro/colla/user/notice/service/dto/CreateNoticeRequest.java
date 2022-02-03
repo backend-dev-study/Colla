@@ -18,6 +18,8 @@ public class CreateNoticeRequest {
 
     private Long projectId;
 
+    private String projectName;
+
     @NotNull
     private Long receiverId;
 }

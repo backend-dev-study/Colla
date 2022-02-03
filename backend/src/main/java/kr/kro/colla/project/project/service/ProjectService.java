@@ -132,8 +132,11 @@ public class ProjectService {
         }
 
         User user = userService.findByGithubId(memberGithubId);
+
         CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.INVITE_USER)
+                .projectId(projectId)
+                .projectName(project.getName())
                 .receiverId(user.getId())
                 .build();
         noticeService.createNotice(createNoticeRequest);

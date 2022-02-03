@@ -22,30 +22,16 @@ import javax.transaction.Transactional;
 public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final UserService userService;
-    private final ProjectService projectService;
 
     public Notice createNotice(CreateNoticeRequest createNoticeRequest) {
         User user = userService.findUserById(createNoticeRequest.getReceiverId());
 
-        Notice notice;
-        switch (createNoticeRequest.getNoticeType()){
-            case INVITE_USER:
-                Project project = projectService.findProjectById(createNoticeRequest.getProjectId());
-                notice = Notice.builder()
-                        .noticeType(NoticeType.INVITE_USER)
-                        .projectId(project.getId())
-                        .projectName(project.getName())
-                        .build();
-                break;
-            case MENTION_USER:
-                notice = Notice.builder()
-                        .noticeType(NoticeType.MENTION_USER)
-                        .mentionedURL(createNoticeRequest.getMentionedURL())
-                        .build();
-                break;
-            default:
-                throw new NoticeBadRequestException();
-        }
+        Notice notice = Notice.builder()
+                .noticeType(createNoticeRequest.getNoticeType())
+                .mentionedURL(createNoticeRequest.getMentionedURL())
+                .projectId(createNoticeRequest.getProjectId())
+                .projectName(createNoticeRequest.getProjectName())
+                .build();
 
         Notice result = noticeRepository.save(notice);
         user.addNotice(result);
