@@ -10,6 +10,7 @@ import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
+import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
@@ -145,11 +146,14 @@ public class ProjectService {
         noticeService.createNotice(createNoticeRequest);
     }
 
-    public Optional<ProjectMemberResponse> handleInvitationDecision(long projectId, long loginUserId, boolean accept) {
+    public Optional<ProjectMemberResponse> handleInvitationDecision(long projectId, long loginUserId, ProjectMemberDecision projectMemberDecision) {
         User user = userService.findUserById(loginUserId);
         Project project = findProjectById(projectId);
 
-        if (accept) {
+        Notice notice = noticeService.findById(projectMemberDecision.getNoticeId());
+        notice.check();
+
+        if (projectMemberDecision.isAccept()) {
             UserProject userProject = userProjectService.joinProject(user, project);
             return Optional.of(new ProjectMemberResponse(userProject.getUser()));
         }

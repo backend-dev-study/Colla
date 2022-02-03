@@ -45,7 +45,7 @@ public class ProjectController {
     @PostMapping("/{projectId}/members/decision")
     public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
                                            @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
-        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginUser.getId(), projectMemberDecision.isAccept());
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginUser.getId(), projectMemberDecision);
 
         return result.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(result.get());
 
