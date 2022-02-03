@@ -3,6 +3,7 @@ package kr.kro.colla.project.project.domain;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.user_project.domain.UserProject;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -53,6 +54,9 @@ public class Project {
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<Story> stories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<TaskTag> taskTags = new ArrayList<>();
 
     @Builder
     public Project(Long managerId, String name, String description, String thumbnail){

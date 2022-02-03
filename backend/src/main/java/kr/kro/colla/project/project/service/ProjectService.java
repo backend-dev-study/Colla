@@ -4,10 +4,11 @@ import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
-import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
+import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.tag.service.TagService;
+import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
 
+    private final TagService tagService;
+    private final TaskTagService taskTagService;
     private final ProjectRepository projectRepository;
     private final ProjectProfileStorage projectProfileStorage;
 
@@ -91,6 +94,22 @@ public class ProjectService {
         return findProjectById(projectId).getMembers()
                 .stream()
                 .map(userProject -> new ProjectMemberResponse(userProject.getUser()))
+                .collect(Collectors.toList());
+    }
+
+    public Tag createTag(Long projectId, CreateTagRequest createTagRequest) {
+        Project project = findProjectById(projectId);
+        Tag tag = tagService.createTagIfNotExist(createTagRequest.getName());
+        taskTagService.addNewTag(project, tag);
+
+        return tag;
+    }
+
+    public List<ProjectTagResponse> getProjectTags(Long projectId) {
+        return findProjectById(projectId).getTaskTags()
+                .stream()
+                .map(taskTag -> taskTag.getTag())
+                .map(tag -> new ProjectTagResponse(tag))
                 .collect(Collectors.toList());
     }
 
