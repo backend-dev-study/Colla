@@ -40,8 +40,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -61,12 +60,6 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
-
-    @MockBean
-    private ProjectService projectService;
-
-    @MockBean
-    private UserProjectService userProjectService;
 
     @MockBean
     private CookieManager cookieManager;
@@ -128,9 +121,7 @@ class UserControllerTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", loginUser.getId());
 
-        given(userService.findUserById(loginUser.getId()))
-                .willReturn(user);
-        given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
+        given(userService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
         // when
@@ -147,7 +138,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.managerId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.description").value(desc));
-        verify(projectService, times(1)).createProject(eq(loginUser.getId()), any(CreateProjectRequest.class));
+        verify(userService, times(1)).createProject(eq(loginUser.getId()), any(CreateProjectRequest.class));
     }
 
     @Test
@@ -168,7 +159,7 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("name : must not be blank"));
-        verify(projectService, times(0)).createProject(any(), any());
+        verify(userService, never()).createProject(any(), any());
     }
 
     @Test

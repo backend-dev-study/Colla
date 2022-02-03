@@ -1,15 +1,21 @@
 package kr.kro.colla.user.user.service;
 
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
+import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.exception.exception.user.UserNotFoundException;
+import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
+import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -23,6 +29,12 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    private ProjectService projectService;
+
+    @Mock
+    private UserProjectService userProjectService;
 
     @Mock
     private UserRepository userRepository;
@@ -116,6 +128,45 @@ class UserServiceTest {
         // when, then
         assertThatThrownBy(() -> userService.updateDisplayName(inValidId, newDisplayName))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void 프로젝트_생성에_성공한다() {
+        // given
+        Long id = 1L;
+        MultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
+        User user = User.builder()
+                .name("yeongkee")
+                .githubId("kykapple")
+                .avatar("avatar")
+                .build();
+        CreateProjectRequest createProjectRequest = CreateProjectRequest.builder()
+                .name("project name")
+                .description("project description")
+                .thumbnail(thumbnail)
+                .build();
+        Project project = Project.builder()
+                .managerId(id)
+                .name("project name")
+                .description("project description")
+                .build();
+        ReflectionTestUtils.setField(user, "id", id);
+
+        given(userRepository.findById(id))
+                .willReturn(Optional.of(user));
+        given(projectService.createProject(eq(id), any(CreateProjectRequest.class)))
+                .willReturn(project);
+
+        // when
+        Project result = userService.createProject(id, createProjectRequest);
+
+        // then
+        verify(userRepository, times(1)).findById(id);
+        verify(projectService, times(1)).createProject(eq(id), any(CreateProjectRequest.class));
+        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+        assertThat(result.getName()).isEqualTo(createProjectRequest.getName());
+        assertThat(result.getDescription()).isEqualTo(createProjectRequest.getDescription());
+        assertThat(result.getManagerId()).isEqualTo(user.getId());
     }
 
 }
