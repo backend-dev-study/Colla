@@ -25,10 +25,7 @@ class TaskTagRepositoryTest {
                 .description("project description")
                 .build();
         Tag tag = new Tag("backend");
-        TaskTag taskTag = TaskTag.builder()
-                .project(project)
-                .tag(tag)
-                .build();
+        TaskTag taskTag = new TaskTag(project, tag);
 
         // when
         TaskTag result = taskTagRepository.save(taskTag);

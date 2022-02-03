@@ -348,10 +348,7 @@ public class AcceptanceTest {
         Tag tag = new Tag("backend");
         tagRepository.save(tag);
 
-        TaskTag taskTag = TaskTag.builder()
-                .project(project)
-                .tag(tag)
-                .build();
+        TaskTag taskTag = new TaskTag(project, tag);
         taskTagRepository.save(taskTag);
 
         List<ProjectTagResponse> response = given()
