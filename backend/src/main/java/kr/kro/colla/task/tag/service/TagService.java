@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -19,6 +20,10 @@ public class TagService {
 
         return tagRepository.findByName(tag.getName())
                 .orElseGet(() -> tagRepository.save(tag));
+    }
+
+    public List<Tag> findTagsByName(List<String> tagNames) {
+        return tagRepository.findByNameIn(tagNames);
     }
 
 }

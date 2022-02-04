@@ -245,10 +245,7 @@ class ProjectServiceTest {
                 .description(desc)
                 .build();
         Tag tag = new Tag("backend");
-        TaskTag taskTag = TaskTag.builder()
-                .project(project)
-                .tag(tag)
-                .build();
+        TaskTag taskTag = new TaskTag(project, tag);
         ReflectionTestUtils.setField(project, "taskTags", List.of(taskTag));
         ReflectionTestUtils.setField(taskTag, "tag", tag);
 

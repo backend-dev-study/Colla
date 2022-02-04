@@ -1,4 +1,4 @@
-import { ProjectType } from '../types/project';
+import { ProjectTagType, ProjectType } from '../types/project';
 import { client } from './common';
 
 interface task {
@@ -14,10 +14,6 @@ interface ProjectAllType extends ProjectType {
     tasks: {
         [key: string]: Array<task>;
     };
-}
-
-interface projectTags {
-    name: string;
 }
 
 export const getProject = async (projectId: number) => {
@@ -57,7 +53,7 @@ export const inviteUser = async (projectId: number, githubId: string) => {
 };
 
 export const getProjectTags = async (projectId: number) => {
-    const response = await client.get<Array<projectTags>>(`/projects/${projectId}/tags`);
+    const response = await client.get<Array<ProjectTagType>>(`/projects/${projectId}/tags`);
 
     return response;
 };

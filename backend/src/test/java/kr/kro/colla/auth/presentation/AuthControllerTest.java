@@ -1,13 +1,9 @@
 package kr.kro.colla.auth.presentation;
 
-import kr.kro.colla.auth.service.AuthService;
-import kr.kro.colla.utils.CookieManager;
+import kr.kro.colla.common.ControllerTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseCookie;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -16,16 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
-class AuthControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private CookieManager cookieManager;
-
-    @MockBean
-    private AuthService authService;
+class AuthControllerTest extends ControllerTest {
 
     @Test
     void 로그인_성공_시_Jwt토큰이_반환된다() throws Exception {

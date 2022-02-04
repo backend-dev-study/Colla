@@ -20,23 +20,19 @@ const useInputTask = () => {
     const { title, description, managerId, priority, status, selectedTags, story, preTasks } = taskInput;
 
     const handleCompleteButton = async () => {
-        try {
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('description', description);
-            formData.append('managerId', managerId);
-            formData.append('priority', JSON.stringify(priority));
-            formData.append('status', status);
-            formData.append('tags', JSON.stringify(selectedTags));
-            formData.append('projectId', JSON.stringify(project.id));
-            formData.append('story', story);
-            formData.append('preTasks', JSON.stringify(preTasks));
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('managerId', managerId);
+        formData.append('priority', JSON.stringify(priority));
+        formData.append('status', status);
+        formData.append('tags', JSON.stringify(selectedTags));
+        formData.append('projectId', JSON.stringify(project.id));
+        formData.append('story', story);
+        formData.append('preTasks', JSON.stringify(preTasks));
 
-            await createTask(formData);
-            window.location.replace('/kanban');
-        } catch (err) {
-            // TODO : toast 알림
-        }
+        await createTask(formData);
+        window.location.replace('/kanban');
     };
 
     const handleChangeTitle = (e: React.ChangeEvent) => {

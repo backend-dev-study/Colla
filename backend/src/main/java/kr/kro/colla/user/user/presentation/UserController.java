@@ -3,12 +3,9 @@ package kr.kro.colla.user.user.presentation;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user.user.presentation.dto.*;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +19,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ProjectService projectService;
-    private final UserProjectService userProjectService;
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(@Authenticated LoginUser loginUser) {
@@ -47,9 +42,7 @@ public class UserController {
             @Authenticated LoginUser loginUser,
             @Valid CreateProjectRequest createProjectRequest
     ) {
-        User user = userService.findUserById(loginUser.getId());
-        Project project = projectService.createProject(user.getId(), createProjectRequest);
-        userProjectService.joinProject(user, project);
+        Project project = userService.createProject(loginUser.getId(), createProjectRequest);
 
         return ResponseEntity.ok(new UserProjectResponse(project));
     }

@@ -21,8 +21,7 @@ public class TaskStatus {
     @Column
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "task_status_id")
+    @OneToMany(mappedBy = "taskStatus", fetch = FetchType.EAGER)
     private List<Task> tasks = new ArrayList<>();
 
     public TaskStatus(String name){

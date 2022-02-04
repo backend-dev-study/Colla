@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
@@ -26,6 +28,25 @@ class TagRepositoryTest {
         // then
         assertThat(result.getId()).isNotNull();
         assertThat(result.getName()).isEqualTo(tag.getName());
+    }
+
+    @Test
+    void 태그_목록에_포함된_태그들을_조회한다() {
+        // given
+        List<String> tagNames = List.of("backend", "frontend");
+        tagRepository.saveAll(List.of(
+                new Tag("backend"),
+                new Tag("frontend"),
+                new Tag("refactoring")
+        ));
+
+        // when
+        List<Tag> tags = tagRepository.findByNameIn(tagNames);
+
+        // then
+        assertThat(tags.size()).isEqualTo(2);
+        assertThat(tags).extracting("name")
+                .contains("backend", "frontend");
     }
 
 }
