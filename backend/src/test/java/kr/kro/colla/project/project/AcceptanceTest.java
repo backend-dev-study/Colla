@@ -5,6 +5,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.fixture.Auth;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
@@ -14,6 +15,9 @@ import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.domain.repository.TagRepository;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
+import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
+import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user_project.domain.UserProject;
@@ -58,6 +62,9 @@ public class AcceptanceTest {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private NoticeRepository noticeRepository;
 
     @Autowired
     private TaskTagRepository taskTagRepository;
@@ -161,6 +168,39 @@ public class AcceptanceTest {
     }
 
     @Test
+    void 사용자_초대를_권한_부족으로_실패한다() {
+        // given
+        User manager = User.builder()
+                .name("zcvzxvxc")
+                .githubId("easdas")
+                .avatar("profile")
+                .build();
+        userRepository.save(manager);
+        Project newManagerProject = Project.builder()
+                .name("new project")
+                .description("login user isn't manager of project")
+                .managerId(manager.getId())
+                .build();
+        projectRepository.save(newManagerProject);
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest("member_github");
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberRequest)
+        // when
+        .when()
+                .post("/api/projects/" + newManagerProject.getId() + "/members")
+        // then
+        .then()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .body("status", equalTo(HttpStatus.FORBIDDEN.value()))
+                .body("message", equalTo(new UserNotManagerException().getMessage()));
+
+    }
+
+    @Test
     void 사용자_초대를_githubId_부족으로_실패한다() {
         // given
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
@@ -204,29 +244,6 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트_초대를_수락한다() {
-        // given
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
-        given()
-                .contentType(ContentType.JSON)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", accessToken)
-                .body(projectMemberDecision)
-
-        // when
-        .when()
-                .post("/api/projects/" + project.getId() + "/members/decision")
-
-        // then
-        .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("id", equalTo(user.getId().intValue()))
-                .body("name", equalTo(user.getName()))
-                .body("avatar", equalTo(user.getAvatar()))
-                .body("githubId", equalTo(user.getGithubId()));
-    }
-
-    @Test
     void 사용자가_프로젝트_스토리를_조회한다() {
         // given
         Story story = Story.builder()
@@ -257,9 +274,48 @@ public class AcceptanceTest {
     }
 
     @Test
+    void 사용자가_프로젝트_초대를_수락한다() {
+        // given
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        noticeRepository.save(notice);
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true, notice.getId());
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(projectMemberDecision)
+
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/members/decision")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", equalTo(user.getId().intValue()))
+                .body("name", equalTo(user.getName()))
+                .body("avatar", equalTo(user.getAvatar()))
+                .body("githubId", equalTo(user.getGithubId()));
+        Notice checkedNotice = noticeRepository.findById(notice.getId()).get();
+        assertThat(checkedNotice.getIsChecked()).isEqualTo(true);
+    }
+
+    @Test
     void 사용자가_프로젝트_초대를_거절한다() {
         // given
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        noticeRepository.save(notice);
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, notice.getId());
+
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -272,6 +328,8 @@ public class AcceptanceTest {
         // then
         .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+        Notice checkedNotice = noticeRepository.findById(notice.getId()).get();
+        assertThat(checkedNotice.getIsChecked()).isEqualTo(true);
     }
 
     @Test

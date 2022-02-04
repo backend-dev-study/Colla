@@ -245,6 +245,8 @@ public class AcceptanceTest {
                 .build();
         CreateNoticeRequest createNoticeRequest2 = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.INVITE_USER)
+                .projectName("test project name")
+                .projectId(2342421L)
                 .receiverId(user.getId())
                 .build();
 
@@ -276,6 +278,8 @@ public class AcceptanceTest {
                     assertThat(response.get(i).getNoticeType()).isEqualTo(notices.get(i).getNoticeType());
                     assertThat(response.get(i).getIsChecked()).isEqualTo(notices.get(i).getIsChecked());
                     assertThat(response.get(i).getMentionedURL()).isEqualTo(notices.get(i).getMentionedURL());
+                    assertThat(response.get(i).getProjectId()).isEqualTo(notices.get(i).getProjectId());
+                    assertThat(response.get(i).getProjectName()).isEqualTo(notices.get(i).getProjectName());
                 });
 
     }

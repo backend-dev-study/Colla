@@ -1,5 +1,7 @@
 package kr.kro.colla.exception.exception.auth;
 
+import kr.kro.colla.exception.exception.UnauthorizedException;
+
 public class TokenNotFoundException extends UnauthorizedException {
 
     public TokenNotFoundException() {

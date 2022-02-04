@@ -7,32 +7,24 @@ import { getUserNotices } from '../../../apis/user';
 import { NoticeType } from '../../../types/user';
 import { Icon, Invitation, InvitationDecision, Notice, NoticeMessage, Wrapper } from './style';
 
-const dummyNotices = [
-    {
-        id: 12313,
-        noticeType: 'INVITE_USER',
-        isChecked: true,
-    },
-    {
-        id: 15313,
-        noticeType: 'MENTION_USER',
-        isChecked: false,
-        mentionedURL: '/home',
-    },
-];
 const NoticeModal = () => {
-    const [notices, setNotices] = useState<Array<NoticeType>>(dummyNotices);
+    const [notices, setNotices] = useState<Array<NoticeType>>([]);
 
-    const handleNotices = async () => {
+    const updateNotices = async () => {
         const res = await getUserNotices();
         setNotices(res.data);
+    };
+
+    const handleClick = async (notice: NoticeType, accept: boolean) => {
+        await decideInvitation(notice.projectId!, notice.id, accept);
+        await updateNotices();
     };
 
     const translateNotice = (notice: NoticeType) => {
         let message;
         switch (notice.noticeType) {
             case 'INVITE_USER':
-                message = `${notice.projectId} 프로젝트로부터 초대 받았습니다.`;
+                message = `${notice.projectName} 프로젝트로부터 초대 받았습니다.`;
                 break;
             case 'MENTION_USER':
                 message = `${notice.mentionedURL}에서 언급되었습니다.`;
@@ -49,12 +41,8 @@ const NoticeModal = () => {
                         <>
                             <div>{message}</div>
                             <Invitation>
-                                <InvitationDecision onClick={() => decideInvitation(notice.projectId!, true)}>
-                                    수락
-                                </InvitationDecision>
-                                <InvitationDecision onClick={() => decideInvitation(notice.projectId!, false)}>
-                                    거절
-                                </InvitationDecision>
+                                <InvitationDecision onClick={() => handleClick(notice, true)}>수락</InvitationDecision>
+                                <InvitationDecision onClick={() => handleClick(notice, false)}>거절</InvitationDecision>
                             </Invitation>
                         </>
                     ) : (
@@ -68,7 +56,7 @@ const NoticeModal = () => {
     };
 
     useEffect(() => {
-        handleNotices();
+        updateNotices();
     }, []);
 
     return <Wrapper>{notices.map((notice) => translateNotice(notice))}</Wrapper>;

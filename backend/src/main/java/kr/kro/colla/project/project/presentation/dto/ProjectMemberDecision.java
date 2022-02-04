@@ -12,4 +12,7 @@ import javax.validation.constraints.NotNull;
 public class ProjectMemberDecision {
     @NotNull
     private boolean accept;
+
+    @NotNull
+    private Long noticeId;
 }

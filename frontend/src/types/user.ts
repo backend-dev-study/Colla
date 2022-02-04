@@ -10,4 +10,5 @@ export interface NoticeType {
     isChecked: boolean;
     mentionedURL?: string;
     projectId?: number;
+    projectName?: string;
 }
