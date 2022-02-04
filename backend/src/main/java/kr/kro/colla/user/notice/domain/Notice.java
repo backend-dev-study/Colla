@@ -21,18 +21,26 @@ public class Notice {
     @Enumerated(EnumType.ORDINAL)
     private NoticeType noticeType;
 
-    @Column
-    private String mentionedURL;
-
     @NotNull
     @Column
     private Boolean isChecked;
 
+    @Column
+    private String mentionedURL;
+
+    @Column
+    private Long projectId;
+
+    @Column
+    private String projectName;
+
     @Builder
-    public Notice(NoticeType noticeType, String mentionedURL){
+    public Notice(NoticeType noticeType, String mentionedURL, Long projectId, String projectName){
         this.isChecked = false;
         this.noticeType = noticeType;
         this.mentionedURL = mentionedURL;
+        this.projectId = projectId;
+        this.projectName = projectName;
     }
 
     public void check() { this.isChecked = true; }

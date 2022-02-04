@@ -2,7 +2,6 @@ package kr.kro.colla.project.project.presentation;
 
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
-import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.domain.Story;
@@ -14,7 +13,6 @@ import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +29,6 @@ public class ProjectController {
 
     private final UserService userService;
     private final StoryService storyService;
-    private final NoticeService noticeService;
     private final ProjectService projectService;
     private final UserProjectService userProjectService;
 
@@ -44,31 +42,17 @@ public class ProjectController {
     @PostMapping("/{projectId}/members")
     public ResponseEntity inviteUser(@Authenticated LoginUser loginUser,
                                        @PathVariable long projectId, @Valid @RequestBody ProjectMemberRequest projectMemberRequest){
-        Project project = projectService.findProjectById(projectId);
-        User manager = userService.findUserById(loginUser.getId());
-        // manager 아닐 경우 예외처리
+        projectService.inviteUserToProject(projectId, loginUser.getId(), projectMemberRequest.getGithubId());
 
-        User user = userService.findByGithubId(projectMemberRequest.getGithubId());
-        CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .receiverId(user.getId())
-                .build();
-        noticeService.createNotice(createNoticeRequest);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{projectId}/members/decision")
     public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
                                            @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
-        User user = userService.findUserById(loginUser.getId());
-        // user 알림 체크 및 읽음 처리
-        Project project = projectService.findProjectById(projectId);
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginUser.getId(), projectMemberDecision);
 
-        if (projectMemberDecision.isAccept()){
-            UserProject userProject = userProjectService.joinProject(user, project);
-            return ResponseEntity.ok(new ProjectMemberResponse(userProject.getUser()));
-        }
-        return ResponseEntity.noContent().build();
+        return result.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(result.get());
 
     }
 
@@ -105,12 +89,6 @@ public class ProjectController {
         List<ProjectTagResponse> projectTags = projectService.getProjectTags(projectId);
 
         return ResponseEntity.ok(projectTags);
-    }
-
-    @PostMapping("{projectId}/tasks")
-    public ResponseEntity createTask(CreateTaskRequest createTaskRequest) {
-        System.out.println(createTaskRequest);
-        return null;
     }
 
 }

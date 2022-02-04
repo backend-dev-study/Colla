@@ -1,6 +1,7 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
@@ -9,10 +10,16 @@ import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
+import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
+import kr.kro.colla.user.notice.service.NoticeService;
+import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
+import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
+import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +27,7 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -29,6 +37,9 @@ public class ProjectService {
 
     private final TagService tagService;
     private final TaskTagService taskTagService;
+    private final UserService userService;
+    private final UserProjectService userProjectService;
+    private final NoticeService noticeService;
     private final ProjectRepository projectRepository;
     private final ProjectProfileStorage projectProfileStorage;
 
@@ -113,9 +124,39 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public Project findProjectById(Long projectId){
+    public Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
+    public void inviteUserToProject(Long projectId, Long loginUserId, String memberGithubId) {
+        Project project  = findProjectById(projectId);
+        if (project.getManagerId()!=loginUserId){
+            throw new UserNotManagerException();
+        }
+
+        User user = userService.findByGithubId(memberGithubId);
+
+        CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(projectId)
+                .projectName(project.getName())
+                .receiverId(user.getId())
+                .build();
+        noticeService.createNotice(createNoticeRequest);
+    }
+
+    public Optional<ProjectMemberResponse> handleInvitationDecision(long projectId, long loginUserId, ProjectMemberDecision projectMemberDecision) {
+        User user = userService.findUserById(loginUserId);
+        Project project = findProjectById(projectId);
+
+        Notice notice = noticeService.findById(projectMemberDecision.getNoticeId());
+        notice.check();
+
+        if (projectMemberDecision.isAccept()) {
+            UserProject userProject = userProjectService.joinProject(user, project);
+            return Optional.of(new ProjectMemberResponse(userProject.getUser()));
+        }
+        return Optional.empty();
+    }
 }

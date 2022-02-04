@@ -1,6 +1,7 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.common.fixture.FileProvider;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
@@ -11,9 +12,15 @@ import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
+import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
+import kr.kro.colla.user.notice.service.NoticeService;
+import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
+import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
+import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -46,6 +54,15 @@ class ProjectServiceTest {
 
     @Mock
     private TaskTagService taskTagService;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private NoticeService noticeService;
+
+    @Mock
+    private UserProjectService userProjectService;
 
     @InjectMocks
     private ProjectService projectService;
@@ -244,4 +261,126 @@ class ProjectServiceTest {
         assertThat(projectTagResponse.getName()).isEqualTo(tag.getName());
     }
 
+    @Test
+    void 프로젝트_멤버_초대에_성공한다(){
+        // given
+        Long loginId = 987234L, projectId = 84234L;
+        String githubId = "random_github_id";
+        User user = User.builder()
+                .name("subin")
+                .avatar("github_url")
+                .githubId(githubId)
+                .build();
+        Project project = Project.builder()
+                .name("random_project_name")
+                .managerId(loginId)
+                .build();
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        given(userService.findByGithubId(githubId))
+                .willReturn(user);
+        // when
+        projectService.inviteUserToProject(projectId, loginId, githubId);
+
+        // then
+        verify(userService, times(1)).findByGithubId(githubId);
+        verify(noticeService, times(1)).createNotice(any(CreateNoticeRequest.class));
+
+    }
+
+    @Test
+    void 프로젝트_초대에_매니저_권한이_아니여서_실패한다(){
+        Long loginId = 987234L, projectId = 84234L, managerId=234234L;
+        String githubId = "random_github_id";
+        User user = User.builder()
+                .name("subin")
+                .avatar("github_url")
+                .githubId(githubId)
+                .build();
+        Project project = Project.builder()
+                .name("random_project_name")
+                .managerId(managerId)
+                .build();
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        // when
+        assertThatThrownBy(()->{
+          projectService.inviteUserToProject(projectId, loginId, githubId);
+        }).isInstanceOf(UserNotManagerException.class);
+    }
+
+    @Test
+    void 프로젝트_초대_수락에_성공한다() {
+        // given
+        Long loginId = 2455L, projectId = 23414L, noticeId = 43524L;
+        User user = User.builder()
+                .name("name__")
+                .avatar("avatar__")
+                .githubId("github__")
+                .build();
+        ReflectionTestUtils.setField(user, "id", loginId);
+        Project project = Project.builder()
+                .name("project__")
+                .managerId(230492L)
+                .build();
+        ReflectionTestUtils.setField(project, "id", projectId);
+        UserProject userProject = UserProject.builder()
+                        .project(project)
+                        .user(user)
+                        .build();
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        ReflectionTestUtils.setField(notice, "id", noticeId);
+
+        given(userService.findUserById(loginId))
+                .willReturn(user);
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        given(userProjectService.joinProject(any(User.class), any(Project.class)))
+                .willReturn(userProject);
+        given(noticeService.findById(noticeId))
+                .willReturn(notice);
+        // when
+        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(true, noticeId));
+        // then
+        assertThat(result.isPresent()).isEqualTo(true);
+        ProjectMemberResponse response = result.get();
+        assertThat(response.getId()).isEqualTo(user.getId());
+        assertThat(response.getName()).isEqualTo(user.getName());
+        assertThat(response.getGithubId()).isEqualTo(user.getGithubId());
+        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+        assertThat(notice.getIsChecked()).isEqualTo(true);
+    }
+
+    @Test
+    void 프로젝트_초대_거절에_성공한다() {
+        // given
+        Long loginId = 2455L, projectId = 23414L, noticeId = 74123L;
+        Project project = Project.builder()
+                .name("projectName")
+                .managerId(194910L)
+                .build();
+        ReflectionTestUtils.setField(project, "id", projectId);
+        Notice notice = Notice.builder()
+                .noticeType(NoticeType.INVITE_USER)
+                .projectId(project.getId())
+                .projectName(project.getName())
+                .build();
+        ReflectionTestUtils.setField(notice, "id", noticeId);
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        given(noticeService.findById(noticeId))
+                .willReturn(notice);
+        // when
+        projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(false, noticeId));
+        // then
+        verify(userProjectService, times(0)).joinProject(any(), any());
+        assertThat(notice.getIsChecked()).isEqualTo(true);
+    }
 }

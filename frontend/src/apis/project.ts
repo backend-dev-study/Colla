@@ -58,8 +58,8 @@ export const getProjectTags = async (projectId: number) => {
     return response;
 };
 
-export const decideInvitation = async (projectId: number, accept: boolean) => {
-    const response = await client.post(`/projects/${projectId}/members/decision`, { accept });
+export const decideInvitation = async (projectId: number, noticeId: number, accept: boolean) => {
+    const response = await client.post(`/projects/${projectId}/members/decision`, { accept, noticeId });
 
     return response;
 };

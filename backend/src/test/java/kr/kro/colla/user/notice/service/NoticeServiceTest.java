@@ -1,6 +1,7 @@
 package kr.kro.colla.user.notice.service;
 
 
+import kr.kro.colla.exception.exception.notice.NoticeNotFoundException;
 import kr.kro.colla.exception.exception.user.UserNotFoundException;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.notice.domain.NoticeType;
@@ -23,6 +24,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -42,15 +44,15 @@ public class NoticeServiceTest {
     @InjectMocks
     private NoticeService noticeService;
 
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
     @Test
     void 알림_생성에_성공한다() {
         // given
-        String mentionURL = "mention";
-        Long id = 123L, userId = 324L;
+        String mentionURL = "mention_url", projectName = "project_to_invite";
+        Long id = 123L, userId = 324L, projectId = 3456L;
         Notice notice = Notice.builder()
                 .noticeType(NoticeType.INVITE_USER)
+                .projectName(projectName)
+                .projectId(projectId)
                 .mentionedURL(mentionURL)
                 .build();
         User user = User.builder()
@@ -62,8 +64,10 @@ public class NoticeServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
         CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
                 .noticeType(NoticeType.INVITE_USER)
-                .mentionedURL(mentionURL)
                 .receiverId(userId)
+                .projectName(projectName)
+                .projectId(projectId)
+                .mentionedURL(mentionURL)
                 .build();
 
         given(userService.findUserById(userId))
@@ -79,8 +83,47 @@ public class NoticeServiceTest {
         assertThat(result.getIsChecked()).isEqualTo(false);
         assertThat(result.getNoticeType()).isEqualTo(NoticeType.INVITE_USER);
         assertThat(result.getMentionedURL()).isEqualTo(mentionURL);
+        assertThat(result.getProjectId()).isEqualTo(projectId);
+        assertThat(result.getProjectName()).isEqualTo(projectName);
         assertThat(user.getNotices().size()).isEqualTo(1);
         verify(noticeRepository, times(1)).save(any(Notice.class));
     }
 
+    @Test
+    void 알림_조회에_성공한다() {
+        // given
+        Long noticeId = 76253L;
+        String mention = "path/asdfasf/mention/zxcvvv";
+        Notice notice = Notice.builder()
+                        .noticeType(NoticeType.MENTION_USER)
+                        .mentionedURL(mention)
+                        .build();
+        ReflectionTestUtils.setField(notice, "id", noticeId);
+
+        given(noticeRepository.findById(noticeId))
+                .willReturn(Optional.of(notice));
+        // when
+        Notice result = noticeService.findById(noticeId);
+
+        // then
+        assertThat(result.getId()).isEqualTo(notice.getId());
+        assertThat(result.getNoticeType()).isEqualTo(notice.getNoticeType());
+        assertThat(result.getMentionedURL()).isEqualTo(notice.getMentionedURL());
+        assertThat(result.getProjectId()).isEqualTo(notice.getProjectId());
+        verify(noticeRepository, times(1)).findById(noticeId);
+    }
+
+    @Test
+    void 존재하지_않는_알림_조회시_예외가_발생한다() {
+        // given
+        Long notFoundNoticeId = 122345L;
+
+        given(noticeRepository.findById(notFoundNoticeId))
+                .willThrow(NoticeNotFoundException.class);
+        // when
+        assertThatThrownBy(() -> {
+            noticeService.findById(notFoundNoticeId);
+        }).isInstanceOf(NoticeNotFoundException.class);
+
+    }
 }

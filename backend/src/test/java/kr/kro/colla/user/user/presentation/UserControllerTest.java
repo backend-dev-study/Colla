@@ -186,10 +186,12 @@ class UserControllerTest extends ControllerTest {
     @Test
     void 사용자의_알림을_조회한다() throws Exception {
         // given
-        String mention = "mentioned_url";
-        Long noticeId1 = 62453L, noticeId2 = 7532L, noticeId3 = 54543L;
+        String mention = "mentioned_url", projectName1 = "random_1_project", projectName2 = "random_2_project";
+        Long noticeId1 = 62453L, noticeId2 = 7532L, noticeId3 = 54543L, projectId1 = 23465L, projectId2 = 134144L;
         Notice notice1 = Notice.builder()
                 .noticeType(NoticeType.INVITE_USER)
+                .projectName(projectName1)
+                .projectId(projectId1)
                 .build();
         ReflectionTestUtils.setField(notice1,"id", noticeId1);
         Notice notice2 = Notice.builder()
@@ -199,6 +201,8 @@ class UserControllerTest extends ControllerTest {
         ReflectionTestUtils.setField(notice2,"id", noticeId2);
         Notice notice3 = Notice.builder()
                 .noticeType(NoticeType.INVITE_USER)
+                .projectName(projectName2)
+                .projectId(projectId2)
                 .build();
         ReflectionTestUtils.setField(notice3,"id", noticeId3);
 
@@ -212,13 +216,14 @@ class UserControllerTest extends ControllerTest {
 
         // then
         MvcResult result = perform.andReturn();
-        System.out.println(result.getResponse().getContentAsString());
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[*].id").value(containsInAnyOrder(noticeId1.intValue(), noticeId2.intValue(), noticeId3.intValue())))
                 .andExpect(jsonPath("$[*].noticeType").value(containsInAnyOrder(notice1.getNoticeType().name(), notice2.getNoticeType().name(), notice3.getNoticeType().name())))
                 .andExpect(jsonPath("$[*].mentionedURL").value(containsInAnyOrder(notice1.getMentionedURL(), notice2.getMentionedURL(), notice3.getMentionedURL())))
                 .andExpect(jsonPath("$[*].isChecked").value(containsInAnyOrder(false, false, false)))
+                .andExpect(jsonPath("$[*].projectName").value(containsInAnyOrder(notice1.getProjectName(), notice2.getProjectName(), notice3.getProjectName())))
+                .andExpect(jsonPath("$[*].projectId").value(containsInAnyOrder(notice1.getProjectId().intValue(), notice2.getProjectId(), notice3.getProjectId().intValue())))
                 .andExpect(jsonPath("$.length()").value(3));
     }
 }
