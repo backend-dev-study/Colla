@@ -16,10 +16,16 @@ public class UserNoticeResponse {
 
     private Boolean isChecked;
 
+    private Long projectId;
+
+    private String projectName;
+
     public UserNoticeResponse(Notice notice){
         this.id = notice.getId();
         this.noticeType = notice.getNoticeType();
         this.mentionedURL = notice.getMentionedURL();
         this.isChecked = notice.getIsChecked();
+        this.projectId = notice.getProjectId();
+        this.projectName = notice.getProjectName();
     }
 }

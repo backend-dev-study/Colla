@@ -1,23 +1,19 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
-import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
-import kr.kro.colla.user.notice.service.NoticeService;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user.user.service.UserService;
-import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import kr.kro.colla.utils.CookieManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,15 +29,13 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.servlet.http.Cookie;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,9 +64,6 @@ class ProjectControllerTest {
 
     @MockBean
     private UserProjectService userProjectService;
-
-    @MockBean
-    private NoticeService noticeService;
 
     @MockBean
     private StoryService storyService;
@@ -140,14 +131,7 @@ class ProjectControllerTest {
         Long projectId = 123142L;
         String githubId = "binimini";
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
-        User user = User.builder()
-                .name("subin")
-                .githubId(githubId)
-                .avatar("github")
-                .build();
 
-        given(userService.findByGithubId(githubId))
-                .willReturn(user);
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -156,7 +140,7 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk());
-        verify(noticeService, times(1)).createNotice(any(CreateNoticeRequest.class));
+        verify(projectService, times(1)).inviteUserToProject(projectId, loginUser.getId(), githubId);
     }
 
     @Test
@@ -175,15 +159,39 @@ class ProjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value("400"))
                 .andExpect(jsonPath("$.message", "githubId").exists());
-        verify(noticeService, times(0)).createNotice(any(CreateNoticeRequest.class));
+        verify(projectService, times(0)).inviteUserToProject(any(Long.class), any(Long.class), any(String.class));
+    }
+
+    @Test
+    void 프로젝트_초대를_권한_부족으로_실패한다() throws Exception {
+        // given
+        Long projectId = 123142L;
+        String githubId = "random__github__id";
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(githubId);
+
+        willThrow(new UserNotManagerException())
+                .given(projectService).inviteUserToProject(projectId, loginUser.getId(), githubId);
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectMemberRequest)));
+        // then
+        perform
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("403"))
+                .andExpect(jsonPath("$.message").value(new UserNotManagerException().getMessage()));
+        verify(projectService, times(1)).inviteUserToProject(projectId, loginUser.getId(), githubId);
     }
 
     @Test
     void 사용자가_프로젝트_초대를_거절한다() throws Exception {
         // given
-        Long projectId = 123142L;
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false);
+        Long projectId = 123142L, noticeId = 64232L;
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, noticeId);
 
+        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
+                .willReturn(Optional.empty());
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -192,35 +200,23 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isNoContent());
-        verify(userProjectService, times(0)).joinProject(any(User.class), any(Project.class));
+        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() throws Exception {
         // given
-        Long projectId = 123142L, userId = loginUser.getId();
-        String userName = "subin", userAvatar = "github_contents", userGithubId = "binimini";
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true);
+        Long projectId = 123142L, userId = loginUser.getId(), noticeId = 63452L;
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true, noticeId);
         User user = User.builder()
-                .name(userName)
-                .avatar(userAvatar)
-                .githubId(userGithubId)
+                .name("random user name")
+                .avatar("random user avatar")
+                .githubId("random github id")
                 .build();
         ReflectionTestUtils.setField(user, "id", userId);
-        Project project = Project.builder()
-                .name("project_name")
-                .build();
-        UserProject userProject = UserProject.builder()
-                .user(user)
-                .project(project)
-                .build();
 
-        given(userService.findUserById(any()))
-                .willReturn(user);
-        given(projectService.findProjectById(projectId))
-                .willReturn(project);
-        given(userProjectService.joinProject(any(User.class), any(Project.class)))
-                .willReturn(userProject);
+        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
+                .willReturn(Optional.of(new ProjectMemberResponse(user)));
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
@@ -229,11 +225,11 @@ class ProjectControllerTest {
         // then
         perform
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
-                .andExpect(jsonPath("$.name").value(userName))
-                .andExpect(jsonPath("$.avatar").value(userAvatar))
-                .andExpect(jsonPath("$.githubId").value(userGithubId));
-        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
+                .andExpect(jsonPath("$.id").value(user.getId()))
+                .andExpect(jsonPath("$.name").value(user.getName()))
+                .andExpect(jsonPath("$.avatar").value(user.getAvatar()))
+                .andExpect(jsonPath("$.githubId").value(user.getGithubId()));
+        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test

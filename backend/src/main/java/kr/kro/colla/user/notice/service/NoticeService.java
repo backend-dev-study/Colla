@@ -1,7 +1,11 @@
 package kr.kro.colla.user.notice.service;
 
+import kr.kro.colla.exception.exception.notice.NoticeBadRequestException;
 import kr.kro.colla.exception.exception.notice.NoticeNotFoundException;
+import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
 import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
@@ -25,6 +29,8 @@ public class NoticeService {
         Notice notice = Notice.builder()
                 .noticeType(createNoticeRequest.getNoticeType())
                 .mentionedURL(createNoticeRequest.getMentionedURL())
+                .projectId(createNoticeRequest.getProjectId())
+                .projectName(createNoticeRequest.getProjectName())
                 .build();
 
         Notice result = noticeRepository.save(notice);
