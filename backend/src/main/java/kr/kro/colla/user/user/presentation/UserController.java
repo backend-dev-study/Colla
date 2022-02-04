@@ -3,6 +3,7 @@ package kr.kro.colla.user.user.presentation;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.*;
 import kr.kro.colla.user.user.service.UserService;
@@ -19,6 +20,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final ProjectService projectService;
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(@Authenticated LoginUser loginUser) {
@@ -42,7 +44,7 @@ public class UserController {
             @Authenticated LoginUser loginUser,
             @Valid CreateProjectRequest createProjectRequest
     ) {
-        Project project = userService.createProject(loginUser.getId(), createProjectRequest);
+        Project project = projectService.createProject(loginUser.getId(), createProjectRequest);
 
         return ResponseEntity.ok(new UserProjectResponse(project));
     }

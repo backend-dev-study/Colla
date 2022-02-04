@@ -12,10 +12,7 @@ import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
-import kr.kro.colla.user.notice.domain.Notice;
-import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.service.NoticeService;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.service.UserService;
@@ -34,11 +31,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -80,6 +75,10 @@ class ProjectServiceTest {
                 .description(desc)
                 .thumbnail(thumbnail1)
                 .build();
+        User user = User.builder()
+                .name("user name")
+                .githubId("github_id")
+                .build();
         Project project = Project.builder()
                 .managerId(managerId)
                 .name(name)
@@ -89,6 +88,8 @@ class ProjectServiceTest {
         ReflectionTestUtils.setField(project, "id", id);
         ReflectionTestUtils.setField(project, "taskStatuses", List.of("To do", "In progress", "Done"));
 
+        given(userService.findUserById(managerId))
+                .willReturn(user);
         given(projectProfileStorage.upload(any(MultipartFile.class)))
                 .willReturn(FileProvider.extractImageUrl(thumbnail1));
         given(projectRepository.save(any(Project.class)))
@@ -104,7 +105,8 @@ class ProjectServiceTest {
         assertThat(result.getDescription()).isEqualTo(desc);
         assertThat(result.getThumbnail()).isEqualTo(FileProvider.extractImageUrl(thumbnail1));
         assertThat(result.getTaskStatuses().size()).isEqualTo(3);
-
+        verify(userService, times(1)).findUserById(id);
+        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
     }
 
     @Test
@@ -278,15 +280,12 @@ class ProjectServiceTest {
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(userService.findByGithubId(githubId))
-                .willReturn(user);
+
         // when
         projectService.inviteUserToProject(projectId, loginId, githubId);
 
         // then
-        verify(userService, times(1)).findByGithubId(githubId);
-        verify(noticeService, times(1)).createNotice(any(CreateNoticeRequest.class));
-
+        verify(noticeService, times(1)).createNotice(any(Project.class), anyString());
     }
 
     @Test
@@ -326,35 +325,22 @@ class ProjectServiceTest {
                 .managerId(230492L)
                 .build();
         ReflectionTestUtils.setField(project, "id", projectId);
-        UserProject userProject = UserProject.builder()
-                        .project(project)
-                        .user(user)
-                        .build();
-        Notice notice = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectId(project.getId())
-                .projectName(project.getName())
-                .build();
-        ReflectionTestUtils.setField(notice, "id", noticeId);
+        ProjectMemberResponse projectMemberResponse = new ProjectMemberResponse(user);
 
-        given(userService.findUserById(loginId))
-                .willReturn(user);
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(userProjectService.joinProject(any(User.class), any(Project.class)))
-                .willReturn(userProject);
-        given(noticeService.findById(noticeId))
-                .willReturn(notice);
+        given(noticeService.decideInvitation(anyLong(), any(Project.class), any(ProjectMemberDecision.class)))
+                .willReturn(projectMemberResponse);
+
         // when
-        Optional<ProjectMemberResponse> result = projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(true, noticeId));
+        ProjectMemberResponse result = projectService.decideInvitation(projectId, loginId, new ProjectMemberDecision(true, noticeId));
+
         // then
-        assertThat(result.isPresent()).isEqualTo(true);
-        ProjectMemberResponse response = result.get();
-        assertThat(response.getId()).isEqualTo(user.getId());
-        assertThat(response.getName()).isEqualTo(user.getName());
-        assertThat(response.getGithubId()).isEqualTo(user.getGithubId());
-        verify(userProjectService, times(1)).joinProject(any(User.class), any(Project.class));
-        assertThat(notice.getIsChecked()).isEqualTo(true);
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(user.getId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
+        verify(noticeService, times(1)).decideInvitation(anyLong(), any(Project.class), any(ProjectMemberDecision.class));
     }
 
     @Test
@@ -366,21 +352,16 @@ class ProjectServiceTest {
                 .managerId(194910L)
                 .build();
         ReflectionTestUtils.setField(project, "id", projectId);
-        Notice notice = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectId(project.getId())
-                .projectName(project.getName())
-                .build();
-        ReflectionTestUtils.setField(notice, "id", noticeId);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(noticeService.findById(noticeId))
-                .willReturn(notice);
+        given(noticeService.decideInvitation(eq(loginId), any(Project.class), any(ProjectMemberDecision.class)))
+                .willReturn(null);
+
         // when
-        projectService.handleInvitationDecision(projectId, loginId, new ProjectMemberDecision(false, noticeId));
+        projectService.decideInvitation(projectId, loginId, new ProjectMemberDecision(false, noticeId));
+
         // then
-        verify(userProjectService, times(0)).joinProject(any(), any());
-        assertThat(notice.getIsChecked()).isEqualTo(true);
+        verify(userProjectService, never()).joinProject(any(User.class), any(Project.class));
     }
 }
