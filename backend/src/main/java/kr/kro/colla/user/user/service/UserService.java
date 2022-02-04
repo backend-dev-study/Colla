@@ -2,11 +2,14 @@ package kr.kro.colla.user.user.service;
 
 import kr.kro.colla.auth.infrastructure.dto.GithubUserProfileResponse;
 import kr.kro.colla.exception.exception.user.UserNotFoundException;
-import kr.kro.colla.user.notice.domain.Notice;
+import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
+import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
+import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
+    private final ProjectService projectService;
+    private final UserProjectService userProjectService;
     private final UserRepository userRepository;
 
     public String updateDisplayName(Long id, String displayName) {
@@ -42,8 +47,19 @@ public class UserService {
                 );
     }
 
+    public Project createProject(Long id, CreateProjectRequest createProjectRequest) {
+        User user = findUserById(id);
+        Project project = projectService.createProject(user.getId(), createProjectRequest);
+        userProjectService.joinProject(user, project);
+
+        return project;
+    }
+
     public List<UserNoticeResponse> getUserNotices(Long id){
-        return findUserById(id).getNotices().stream().map(notice-> new UserNoticeResponse(notice)).collect(Collectors.toList());
+        return findUserById(id).getNotices()
+                .stream()
+                .map(UserNoticeResponse::new)
+                .collect(Collectors.toList());
     }
 
     public List<UserProjectResponse> getUserProjects(Long id) {

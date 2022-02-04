@@ -1,5 +1,6 @@
 package kr.kro.colla.story.service;
 
+import kr.kro.colla.exception.exception.story.StoryNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
 import kr.kro.colla.project.project.service.ProjectService;
@@ -12,7 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -60,6 +64,38 @@ class StoryServiceTest {
         assertThat(result.getTitle()).isEqualTo(story.getTitle());
         assertThat(result.getPreStories()).isEqualTo("[]");
         assertThat(result.getProject().getId()).isEqualTo(1L);
+    }
+
+    @Test
+    void 스토리를_제목으로_조회한다() {
+        // given
+        String title = "user can login with github";
+        Story story = Story.builder()
+                .title(title)
+                .build();
+
+        given(storyRepository.findByTitle(title))
+                .willReturn(Optional.of(story));
+
+        // when
+        Story result = storyService.findStoryByTitle(title);
+
+        // then
+        assertThat(result.getTitle()).isEqualTo(title);
+        verify(storyRepository, times(1)).findByTitle(any(String.class));
+    }
+
+    @Test
+    void 존재하지_않는_스토리_제목으로_조회_시_예외가_발생한다() {
+        // given
+        String title = "invalid title";
+
+        given(storyRepository.findByTitle(title))
+                .willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> storyService.findStoryByTitle(title))
+                .isInstanceOf(StoryNotFoundException.class);
     }
 
 }

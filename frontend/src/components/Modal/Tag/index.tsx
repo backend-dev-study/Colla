@@ -20,13 +20,9 @@ export const TagModal: FC<PropType> = ({ showTagModal, setTags }) => {
     };
 
     const handleCompleteButton = async () => {
-        try {
-            const res = await createTag(project.id, tag);
-            setTags((prev: Array<string>) => [...prev, res.data.name]);
-            showTagModal();
-        } catch (err) {
-            showTagModal();
-        }
+        const res = await createTag(project.id, tag);
+        setTags((prev: Array<string>) => [...prev, res.data.name]);
+        showTagModal();
     };
 
     return (

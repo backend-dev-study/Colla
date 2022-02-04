@@ -2,6 +2,7 @@ package kr.kro.colla.task.task_tag.domain.repository;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,33 @@ class TaskTagRepositoryTest {
                 .description("project description")
                 .build();
         Tag tag = new Tag("backend");
-        TaskTag taskTag = TaskTag.builder()
-                .project(project)
-                .tag(tag)
-                .build();
+        TaskTag taskTag = new TaskTag(project, tag);
 
         // when
         TaskTag result = taskTagRepository.save(taskTag);
 
         // then
         assertThat(result.getProject()).isNotNull();
+        assertThat(result.getTag()).isNotNull();
+    }
+
+    @Test
+    void 태스크에_태그를_지정한다() {
+        // given
+        Task task = Task.builder()
+                .title("task title")
+                .description("task description")
+                .priority(3)
+                .build();
+        Tag tag = new Tag("refactoring");
+        TaskTag taskTag = new TaskTag(task, tag);
+
+        // when
+        TaskTag result = taskTagRepository.save(taskTag);
+
+        // then
+        assertThat(result.getProject()).isNull();
+        assertThat(result.getTask()).isNotNull();
         assertThat(result.getTag()).isNotNull();
     }
 

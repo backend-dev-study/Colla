@@ -32,9 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,12 +55,16 @@ public class AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private UserProjectRepository userProjectRepository;
+
     @Autowired
     private NoticeRepository noticeRepository;
+
     @Autowired
     private NoticeService noticeService;
 

@@ -27,6 +27,7 @@ class UserProjectServiceTest {
 
     @Test
     void 프로젝트의_사용자_추가에_성공한다(){
+        // given
         User user = User.builder()
                 .githubId("binimini")
                 .name("subin")
@@ -39,8 +40,9 @@ class UserProjectServiceTest {
                 .user(user)
                 .project(project).build();
         ReflectionTestUtils.setField(userProject, "id", 234L);
-        // given
-        given(userProjectRepository.save(any(UserProject.class))).willReturn(userProject);
+
+        given(userProjectRepository.save(any(UserProject.class)))
+                .willReturn(userProject);
 
         // when
         UserProject result = userProjectService.joinProject(user, project);
