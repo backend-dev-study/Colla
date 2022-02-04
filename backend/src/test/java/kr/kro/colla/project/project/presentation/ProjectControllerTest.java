@@ -2,25 +2,15 @@ package kr.kro.colla.project.project.presentation;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.common.ControllerTest;
-import kr.kro.colla.project.project.domain.Project;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import kr.kro.colla.auth.domain.LoginUser;
-import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
-import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.story.domain.Story;
-import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
-import kr.kro.colla.user_project.domain.UserProject;
-import kr.kro.colla.user_project.service.UserProjectService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
@@ -149,17 +139,19 @@ class ProjectControllerTest extends ControllerTest {
         Long projectId = 123142L, noticeId = 64232L;
         ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, noticeId);
 
-        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
-                .willReturn(Optional.empty());
+        given(projectService.decideInvitation(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
+                .willReturn(null);
+
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
+
         // then
         perform
-                .andExpect(status().isNoContent());
-        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
+                .andExpect(status().isOk());
+        verify(projectService, times(1)).decideInvitation(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test
@@ -174,13 +166,15 @@ class ProjectControllerTest extends ControllerTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        given(projectService.handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
-                .willReturn(Optional.of(new ProjectMemberResponse(user)));
+        given(projectService.decideInvitation(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class)))
+                .willReturn(new ProjectMemberResponse(user));
+
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/members/decision")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectMemberDecision)));
+
         // then
         perform
                 .andExpect(status().isOk())
@@ -188,7 +182,7 @@ class ProjectControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.name").value(user.getName()))
                 .andExpect(jsonPath("$.avatar").value(user.getAvatar()))
                 .andExpect(jsonPath("$.githubId").value(user.getGithubId()));
-        verify(projectService, times(1)).handleInvitationDecision(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
+        verify(projectService, times(1)).decideInvitation(eq(projectId), eq(loginUser.getId()), any(ProjectMemberDecision.class));
     }
 
     @Test
@@ -312,7 +306,7 @@ class ProjectControllerTest extends ControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/tags")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content));
 
@@ -330,7 +324,7 @@ class ProjectControllerTest extends ControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/tags")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content));
 
@@ -359,7 +353,7 @@ class ProjectControllerTest extends ControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tags")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then

@@ -80,7 +80,7 @@ class UserControllerTest extends ControllerTest {
                 .build();
         ReflectionTestUtils.setField(user, "id", loginUser.getId());
 
-        given(userService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
+        given(projectService.createProject(eq(loginUser.getId()), any(CreateProjectRequest.class)))
                 .willReturn(project);
 
         // when
@@ -97,7 +97,7 @@ class UserControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.managerId").value(loginUser.getId()))
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.description").value(desc));
-        verify(userService, times(1)).createProject(eq(loginUser.getId()), any(CreateProjectRequest.class));
+        verify(projectService, times(1)).createProject(eq(loginUser.getId()), any(CreateProjectRequest.class));
     }
 
     @Test
@@ -118,7 +118,7 @@ class UserControllerTest extends ControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("name : must not be blank"));
-        verify(userService, never()).createProject(any(), any());
+        verify(projectService, never()).createProject(any(), any());
     }
 
     @Test

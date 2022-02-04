@@ -10,10 +10,8 @@ import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.user.notice.domain.Notice;
-import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
 import kr.kro.colla.user.notice.service.NoticeService;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 
@@ -240,21 +238,16 @@ public class AcceptanceTest {
     @Test
     void 사용자는_사용자의_알림들을_조회할_수_있다(){
         // given
-        CreateNoticeRequest createNoticeRequest1 = CreateNoticeRequest.builder()
-                .noticeType(NoticeType.MENTION_USER)
-                .mentionedURL("test/url/for/mention")
-                .receiverId(user.getId())
+        Project project = Project.builder()
+                .name("project name")
+                .description("project description")
+                .managerId(this.user.getId())
                 .build();
-        CreateNoticeRequest createNoticeRequest2 = CreateNoticeRequest.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectName("test project name")
-                .projectId(2342421L)
-                .receiverId(user.getId())
-                .build();
+        projectRepository.save(project);
 
         List<Notice> notices = List.of(
-                noticeService.createNotice(createNoticeRequest1),
-                noticeService.createNotice(createNoticeRequest2)
+                noticeService.createNotice(project, user.getGithubId()),
+                noticeService.createNotice(project, user.getGithubId())
         );
 
         List<Notice> response = given()

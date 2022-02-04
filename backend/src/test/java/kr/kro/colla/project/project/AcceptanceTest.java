@@ -327,7 +327,7 @@ public class AcceptanceTest {
 
         // then
         .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
+                .statusCode(HttpStatus.OK.value());
         Notice checkedNotice = noticeRepository.findById(notice.getId()).get();
         assertThat(checkedNotice.getIsChecked()).isEqualTo(true);
     }

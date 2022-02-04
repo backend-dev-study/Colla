@@ -2,15 +2,12 @@ package kr.kro.colla.user.notice.service;
 
 
 import kr.kro.colla.exception.exception.notice.NoticeNotFoundException;
-import kr.kro.colla.exception.exception.user.UserNotFoundException;
+import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
-import kr.kro.colla.user.notice.service.dto.CreateNoticeRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
-import org.assertj.core.util.Arrays;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,14 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Path;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -60,23 +50,22 @@ public class NoticeServiceTest {
                 .githubId("binimini")
                 .avatar("github_content")
                 .build();
+        Project project = Project.builder()
+                .name("project name")
+                .managerId(5L)
+                .build();
         ReflectionTestUtils.setField(notice, "id", id);
         ReflectionTestUtils.setField(user, "id", userId);
-        CreateNoticeRequest createNoticeRequest = CreateNoticeRequest.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .receiverId(userId)
-                .projectName(projectName)
-                .projectId(projectId)
-                .mentionedURL(mentionURL)
-                .build();
+        ReflectionTestUtils.setField(project, "id", 1L);
 
-        given(userService.findUserById(userId))
+
+        given(userService.findByGithubId(user.getGithubId()))
                 .willReturn(user);
         given(noticeRepository.save(any(Notice.class)))
                 .willReturn(notice);
 
         // when
-        Notice result = noticeService.createNotice(createNoticeRequest);
+        Notice result = noticeService.createNotice(project, user.getGithubId());
 
         // then
         assertThat(result.getId()).isEqualTo(id);
