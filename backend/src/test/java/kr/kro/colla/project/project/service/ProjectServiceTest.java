@@ -7,6 +7,7 @@ import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
@@ -58,6 +59,9 @@ class ProjectServiceTest {
 
     @Mock
     private UserProjectService userProjectService;
+
+    @Mock
+    private TaskStatusService taskStatusService;
 
     @InjectMocks
     private ProjectService projectService;
@@ -363,5 +367,57 @@ class ProjectServiceTest {
 
         // then
         verify(userProjectService, never()).joinProject(any(User.class), any(Project.class));
+    }
+
+    @Test
+    void 프로젝트_상태값_추가에_성공한다() {
+        // given
+        List<String> statuses = List.of("new status name for test1", "new status name for test2");
+        Project project = Project.builder()
+                .name("new_project_name_for_testing!!")
+                .managerId(293482L)
+                .build();
+        Long projectId = 683482L;
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+
+        // when
+        statuses.forEach(name -> {
+            TaskStatus taskStatus = projectService.createTaskStatus(projectId, name);
+            assertThat(taskStatus.getName()).isEqualTo(name);
+        });
+
+        // then
+        assertThat(project.getTaskStatuses().size()).isEqualTo(2);
+        verify(projectRepository, times(statuses.size())).findById(projectId);
+
+    }
+
+    @Test
+    void 프로젝트_상태값_삭제에_성공한다() {
+        // given
+        String nameToDelete = "im doing this task!", nameToRemain = "it remains";
+        Long projectId = 683482L;
+        Project project = Project.builder()
+                .name("new_project_name_for_testing!!")
+                .managerId(293482L)
+                .build();
+        TaskStatus taskStatus1 = new TaskStatus(nameToDelete);
+        TaskStatus taskStatus2 = new TaskStatus(nameToRemain);
+        project.addStatus(taskStatus1);
+        project.addStatus(taskStatus2);
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+        given(taskStatusService.findTaskStatusByName(nameToDelete))
+                .willReturn(taskStatus1);
+
+        // when
+        projectService.deleteTaskStatus(projectId, nameToDelete);
+
+        // then
+        assertThat(project.getTaskStatuses().size()).isEqualTo(1);
+        assertThat(project.getTaskStatuses().get(0).getName()).isEqualTo(nameToRemain);
     }
 }
