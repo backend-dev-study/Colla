@@ -88,4 +88,11 @@ public class ProjectController {
 
         return ResponseEntity.ok(new ProjectTaskStatusResponse(taskStatus));
     }
+
+    @DeleteMapping("/{projectId}/statuses")
+    public ResponseEntity deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
+        projectService.deleteTaskStatus(projectId, deleteRequest.getStatusName());
+
+        return ResponseEntity.ok().build();
+    }
 }
