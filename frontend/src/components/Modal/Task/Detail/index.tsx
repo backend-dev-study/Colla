@@ -16,7 +16,7 @@ interface PropType {
 export const DetailInfoContainer: FC<PropType> = ({ status, detailInfoInput }) => {
     const { taskInput, handleChangeManagerId, handleChangeStatus, handleChangePriority, handleSelectTag } =
         detailInfoInput;
-    const { priority, selectedTags } = taskInput;
+    const { managerId, priority, selectedTags } = taskInput;
     const [manager, setManager] = useState('');
     const [memberVisible, setMemberVisible] = useState(false);
 
@@ -27,6 +27,12 @@ export const DetailInfoContainer: FC<PropType> = ({ status, detailInfoInput }) =
     useEffect(() => {
         handleChangeStatus(status);
     }, []);
+
+    useEffect(() => {
+        if (!parseInt(managerId, 10)) {
+            setManager(managerId);
+        }
+    }, [managerId]);
 
     return (
         <>

@@ -9,10 +9,13 @@ interface PropType {
     task: TaskType;
     changeColumn: Function;
     moveHandler: Function;
+    showTask: Function;
 }
 
-const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
+const Task: FC<PropType> = ({ task, changeColumn, moveHandler, showTask }) => {
     const { id, title, managerName, avatar, priority, index } = task;
+    const ref = useRef<HTMLDivElement>(null);
+
     const [{ isDragging }, drag] = useDrag({
         type: 'task_type',
         item: { id, index, name: 'task', type: 'task_type' },
@@ -26,8 +29,6 @@ const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
             }
         },
     });
-
-    const ref = useRef<HTMLDivElement>(null);
 
     const [, drop] = useDrop({
         accept: 'task_type',
@@ -65,7 +66,7 @@ const Task: FC<PropType> = ({ task, changeColumn, moveHandler }) => {
     const opacity = isDragging ? 0.4 : 1;
 
     return (
-        <Wrapper ref={ref} style={{ opacity }}>
+        <Wrapper ref={ref} style={{ opacity }} onClick={(event) => showTask(event, id)}>
             <Title>
                 <TaskTitle>{title}</TaskTitle>
                 <Priority>

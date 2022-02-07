@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { createTask } from '../apis/task';
 import { projectState } from '../stores/projectState';
-import { TaskInputType } from '../types/task';
+import { TaskInputType, TaskResponseType } from '../types/task';
 
 const useInputTask = () => {
     const project = useRecoilValue(projectState);
@@ -71,6 +71,33 @@ const useInputTask = () => {
         setTaskInput({ ...taskInput, selectedTags: newSelectedTags });
     };
 
+    const setSelectedTask = (task: TaskResponseType) => {
+        const { title, description, story, preTasks, manager, status, priority, tags } = task;
+        setTaskInput({
+            title,
+            description,
+            story,
+            preTasks: JSON.parse(preTasks),
+            managerId: manager,
+            status,
+            priority,
+            selectedTags: tags,
+        });
+    };
+
+    const clearInputTask = () => {
+        setTaskInput({
+            title: '',
+            description: '',
+            managerId: '',
+            priority: 5,
+            status: '',
+            selectedTags: [],
+            story: '',
+            preTasks: [],
+        });
+    };
+
     return {
         basicInfoInput: {
             taskInput,
@@ -88,6 +115,8 @@ const useInputTask = () => {
             handleSelectTag,
         },
         handleCompleteButton,
+        setSelectedTask,
+        clearInputTask,
     };
 };
 
