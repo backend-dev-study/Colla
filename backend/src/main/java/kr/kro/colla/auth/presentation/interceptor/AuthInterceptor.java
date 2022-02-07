@@ -25,17 +25,17 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         Cookie[] cookies = request.getCookies();
-        Cookie accessToken = this.cookieManager.parseCookies(cookies, "accessToken");
+        Cookie accessToken = cookieManager.parseCookies(cookies, "accessToken");
 
         if(accessToken == null) {
             throw new TokenNotFoundException();
         }
 
-        boolean isValid = this.authService.validateAccessToken(accessToken.getValue());
+        boolean isValid = authService.validateAccessToken(accessToken.getValue());
 
         if(!isValid) {
-            String newAccessToken = this.authService.validateRefreshToken(accessToken.getValue());
-            ResponseCookie cookie = this.cookieManager.createCookie("accessToken", newAccessToken);
+            String newAccessToken = authService.validateRefreshToken(accessToken.getValue());
+            ResponseCookie cookie = cookieManager.createCookie("accessToken", newAccessToken);
 
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
             accessToken.setValue(newAccessToken);

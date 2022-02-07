@@ -21,7 +21,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public String updateDisplayName(Long id, String displayName) {
-        User user = this.userRepository.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         user.changeDisplayName(displayName);
 
@@ -29,9 +29,9 @@ public class UserService {
     }
 
     public User createOrUpdateUser(GithubUserProfileResponse userProfile) {
-        return this.userRepository.findByGithubId(userProfile.getGithubId())
+        return userRepository.findByGithubId(userProfile.getGithubId())
                 .map(user -> user.changeProfile(userProfile))
-                .orElseGet(() -> this.userRepository.save(
+                .orElseGet(() -> userRepository.save(
                                 User.builder()
                                         .name(userProfile.getName())
                                         .githubId(userProfile.getGithubId())

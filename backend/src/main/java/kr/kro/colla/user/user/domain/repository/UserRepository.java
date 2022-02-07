@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    public Optional<User> findByGithubId(String githubId);
+    Optional<User> findByGithubId(String githubId);
 }

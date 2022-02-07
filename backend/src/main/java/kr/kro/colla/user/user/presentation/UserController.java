@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(@Authenticated LoginUser loginUser) {
-        User user = this.userService.findUserById(loginUser.getId());
+        User user = userService.findUserById(loginUser.getId());
 
         return ResponseEntity.ok(new UserProfileResponse(user));
     }
@@ -34,7 +34,7 @@ public class UserController {
             @Authenticated LoginUser loginUser,
             @RequestBody UpdateUserNameRequest updateUserNameRequest
     ) {
-        String updatedName = this.userService.updateDisplayName(loginUser.getId(), updateUserNameRequest.getName());
+        String updatedName = userService.updateDisplayName(loginUser.getId(), updateUserNameRequest.getName());
 
         return ResponseEntity.ok(new UpdateUserNameResponse(updatedName));
     }

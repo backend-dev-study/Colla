@@ -6,6 +6,7 @@ import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.history.domain.History;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @EntityListeners(EntityListeners.class)
 @Entity
