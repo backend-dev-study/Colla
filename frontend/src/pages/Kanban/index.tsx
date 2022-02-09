@@ -19,9 +19,9 @@ const Kanban = () => {
     const history = useHistory();
     const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
+    const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
     const setProjectState = useSetRecoilState(projectState);
 
-    const statuses = ['To Do', 'In Progress', 'Done'];
     const menu = ['로드맵', '백로그', '대시보드', '지도'];
 
     if (!state.projectId) {
@@ -66,10 +66,12 @@ const Kanban = () => {
             const addColumnToTasks = (taskStatus: string): TaskType[] => [
                 ...tasks[taskStatus].map((task) => ({ ...task, column: taskStatus })),
             ];
+
             let newTaskList: TaskType[] = [];
             Object.keys(tasks).forEach((taskStatus: string) => {
                 newTaskList = [...newTaskList, ...addColumnToTasks(taskStatus)];
             });
+            setTaskStatuses(Object.keys(tasks));
             setTaskList(newTaskList);
         })();
     }, []);
@@ -80,7 +82,7 @@ const Kanban = () => {
             <SideBar props={menu} />
             <Container>
                 <Wrapper>
-                    {statuses.map((value) => (
+                    {taskStatuses.map((value) => (
                         <KanbanCol
                             key={value}
                             status={value}
