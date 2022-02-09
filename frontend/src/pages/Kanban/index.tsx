@@ -62,11 +62,15 @@ const Kanban = () => {
                 thumbnail,
                 members,
             });
-            setTaskList([
-                ...tasks['To Do'].map((task) => ({ ...task, column: 'To Do' })),
-                ...tasks['In Progress'].map((task) => ({ ...task, column: 'In Progress' })),
-                ...tasks['Done'].map((task) => ({ ...task, column: 'Done' })),
-            ]);
+
+            const addColumnToTasks = (taskStatus: string): TaskType[] => [
+                ...tasks[taskStatus].map((task) => ({ ...task, column: taskStatus })),
+            ];
+            let newTaskList: TaskType[] = [];
+            Object.keys(tasks).forEach((taskStatus: string) => {
+                newTaskList = [...newTaskList, ...addColumnToTasks(taskStatus)];
+            });
+            setTaskList(newTaskList);
         })();
     }, []);
 
