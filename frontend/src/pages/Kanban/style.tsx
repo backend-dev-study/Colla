@@ -18,7 +18,7 @@ export const Wrapper = styled.div`
     padding-bottom: 10px;
 `;
 
-export const KanbanAdditional = styled.div`
+export const KanbanStatusAddButton = styled.button`
     width: 300px;
     height: 50px;
     border-radius: 10px;
@@ -33,7 +33,7 @@ export const KanbanAdditional = styled.div`
     ${Center}
 `;
 
-export const KanbanAddButton = styled.img`
+export const KanbanAddImage = styled.img`
     width: 40px;
     height: 40px;
 `;

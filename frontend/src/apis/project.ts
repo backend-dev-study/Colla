@@ -50,13 +50,13 @@ export const decideInvitation = async (projectId: number, noticeId: number, acce
 };
 
 export const createTaskStatus = async (projectId: number, name: String) => {
-    const response = await client.post(`/project/${projectId}/statuses`, { name });
+    const response = await client.post(`/projects/${projectId}/statuses`, { name });
 
     return response;
 };
 
 export const deleteTaskStatus = async (projectId: number, name: String) => {
-    const response = await client.delete(`/project/${projectId}/statuses`, { data: { name } });
+    const response = await client.delete(`/projects/${projectId}/statuses`, { data: { name } });
 
     return response;
 };
