@@ -1,5 +1,6 @@
 package kr.kro.colla.task.task.service;
 
+import kr.kro.colla.exception.exception.task.TaskNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
@@ -9,17 +10,22 @@ import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
+import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class TaskService {
 
+    private final UserService userService;
     private final StoryService storyService;
     private final ProjectService projectService;
     private final TaskTagService taskTagService;
@@ -50,6 +56,33 @@ public class TaskService {
 
         return taskRepository.save(task)
                 .getId();
+    }
+
+    public ProjectTaskResponse getTask(Long taskId) {
+        Task task = findTaskById(taskId);
+        User user = task.getManagerId() != null
+                ? userService.findUserById(task.getManagerId())
+                : null;
+
+        return ProjectTaskResponse.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .story(task.getStory() != null ? task.getStory().getTitle() : null)
+                .preTasks(task.getPreTasks())
+                .manager(user != null ? user.getName() : null)
+                .status(task.getTaskStatus().getName())
+                .priority(task.getPriority())
+                .tags(task.getTaskTags()
+                        .stream()
+                        .map(taskTag -> taskTag.getTag().getName())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public Task findTaskById(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(TaskNotFoundException::new);
     }
 
 }

@@ -11,6 +11,7 @@ export const Wrapper = styled.div`
     border-radius: 10px;
     margin: 10px 10px;
     padding: 15px;
+    cursor: pointer;
 `;
 
 export const Title = styled.div`
