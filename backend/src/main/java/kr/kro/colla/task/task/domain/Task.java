@@ -5,6 +5,7 @@ import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.history.domain.History;
 import kr.kro.colla.story.domain.Story;
+import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,6 +17,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -64,7 +67,12 @@ public class Task {
     @JoinColumn(name = "task_id")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "task",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.PERSIST,
+            orphanRemoval = true
+    )
     private List<TaskTag> taskTags = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -81,6 +89,44 @@ public class Task {
         this.taskStatus = taskStatus;
         this.story = story;
         this.preTasks = preTasks;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Task task = (Task) o;
+        return Objects.equals(id, task.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public void updateContents(UpdateTaskRequest updateTaskRequest) {
+        if (updateTaskRequest.getManagerId().matches("[0-9]+")) {
+            this.managerId = Long.parseLong(updateTaskRequest.getManagerId());
+        }
+        this.title = updateTaskRequest.getTitle();
+        this.description = updateTaskRequest.getDescription();
+        this.priority = updateTaskRequest.getPriority();
+        this.preTasks = updateTaskRequest.getPreTasks();
+    }
+
+    public void updateStory(Story story) {
+        this.story = story;
+    }
+
+    public void updateTags(List<TaskTag> updateTaskTags) {
+        this.taskTags.removeIf(taskTag -> !updateTaskTags.contains(taskTag));
+        this.taskTags.addAll(updateTaskTags.stream()
+                .filter(taskTag -> !this.taskTags.contains(taskTag))
+                .collect(Collectors.toList()));
     }
 
 }
