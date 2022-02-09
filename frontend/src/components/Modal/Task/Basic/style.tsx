@@ -1,4 +1,6 @@
 import styled from '@emotion/styled';
+
+import { WHITE } from '../../../../styles/color';
 import { LiftUp } from '../../../../styles/common';
 
 export const TaskContainer = styled.div`
@@ -50,9 +52,6 @@ export const DeleteButton = styled.img`
 
 export const DescriptionArea = styled.textarea`
     font-size: 15px;
-    border: none;
-    resize: none;
-    outline: none;
     border-radius: 10px;
     padding: 10px 0 0 10px;
 `;
@@ -64,7 +63,7 @@ export const DropDown = styled.div`
     min-height: 30px;
     border-radius: 10px;
     padding: 5px 0 5px 10px;
-    background-color: #fff;
+    background-color: ${WHITE};
     cursor: pointer;
 `;
 

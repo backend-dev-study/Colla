@@ -23,9 +23,6 @@ export const StoryArea = styled.textarea`
     height: 80px;
     font-size: 15px;
     border-radius: 10px;
-    border: none;
-    resize: none;
-    outline: none;
     margin: 10px 0 0 20px;
     padding: 10px 0 0 10px;
 `;

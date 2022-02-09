@@ -1,5 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
+
+import { RED, WHITE } from '../../../styles/color';
 import { LiftUp } from '../../../styles/common';
 
 export const ModalContainer = styled.div`
@@ -9,7 +11,7 @@ export const ModalContainer = styled.div`
     min-height: 430px;
     margin-top: 70px;
     border-radius: 20px;
-    background-color: #f1f1f1;
+    background-color: ${WHITE};
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.1);
 `;
 
@@ -43,7 +45,7 @@ const Button = css`
 
 export const CancelButton = styled.div`
     margin-left: 40px;
-    color: #ff0000;
+    color: ${RED};
 
     ${Button}
 `;

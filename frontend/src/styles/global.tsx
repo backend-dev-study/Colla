@@ -21,6 +21,13 @@ const GlobalStyle = () => (
                 font-size: inherit;
             }
 
+            textarea {
+                border: none;
+                resize: none;
+                outline: none;
+                font-size: inherit;
+            }
+
             a {
                 text-decoration: none;
                 color: inherit;
