@@ -63,3 +63,15 @@ export const decideInvitation = async (projectId: number, noticeId: number, acce
 
     return response;
 };
+
+export const createStatus = async (projectId: number, name: String) => {
+    const response = await client.post(`/project/${projectId}/statuses`, { name });
+
+    return response;
+};
+
+export const deleteStatus = async (projectId: number, name: String) => {
+    const response = await client.delete(`/project/${projectId}/statuses`, { data: { name } });
+
+    return response;
+};

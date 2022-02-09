@@ -91,7 +91,7 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}/statuses")
     public ResponseEntity deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
-        projectService.deleteTaskStatus(projectId, deleteRequest.getStatusName());
+        projectService.deleteTaskStatus(projectId, deleteRequest.getName());
 
         return ResponseEntity.ok().build();
     }
