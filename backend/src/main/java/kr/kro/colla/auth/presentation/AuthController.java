@@ -22,8 +22,8 @@ public class AuthController {
 
     @GetMapping("/login")
     public ResponseEntity githubLogin(@RequestParam String code) {
-        String accessToken = this.authService.githubLogin(code);
-        ResponseCookie cookie = this.cookieManager.createCookie("accessToken", accessToken);
+        String accessToken = authService.githubLogin(code);
+        ResponseCookie cookie = cookieManager.createCookie("accessToken", accessToken);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -32,8 +32,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity logout(@Authenticated LoginUser loginUser, HttpServletResponse response) {
-        this.cookieManager.expireCookie(response, "accessToken");
-        this.authService.removeRefreshToken(loginUser.getId());
+        cookieManager.expireCookie(response, "accessToken");
+        authService.removeRefreshToken(loginUser.getId());
 
         return ResponseEntity.noContent()
                 .build();

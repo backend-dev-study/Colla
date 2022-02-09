@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { useDrop } from 'react-dnd';
 
 import PlusIconSrc from '../../../public/assets/images/plus-circle.svg';
+import useInputTask from '../../hooks/useInputTask';
 import useModal from '../../hooks/useModal';
 import { ItemType, TaskType } from '../../types/kanban';
 import { TaskModal } from '../Modal/Task';
@@ -17,6 +18,8 @@ interface PropType {
 }
 
 const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTaskHandler }) => {
+    const { clearInputTask } = useInputTask();
+    const [taskId, setTaskId] = useState<number | null>(null);
     const { Modal, setModal } = useModal();
     const [, drop] = useDrop({
         accept: 'task_type',
@@ -32,22 +35,39 @@ const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTa
         },
     });
 
+    const showCreateTaskModal = (event: React.MouseEvent) => {
+        clearInputTask();
+        setTaskId(null);
+        setModal(event);
+    };
+
+    const showTask = (event: React.MouseEvent, selectedId: number) => {
+        setTaskId(selectedId);
+        setModal(event);
+    };
+
     return (
         <>
             <Wrapper>
                 <KanbanStatus>{status}</KanbanStatus>
                 <KanbanIssue ref={drop}>
                     {tasks.map((task) => (
-                        <Task key={task.id} task={task} changeColumn={changeColumn} moveHandler={moveTaskHandler} />
+                        <Task
+                            key={task.id}
+                            task={task}
+                            changeColumn={changeColumn}
+                            moveHandler={moveTaskHandler}
+                            showTask={showTask}
+                        />
                     ))}
-                    <AddTaskButton onClick={setModal}>
+                    <AddTaskButton onClick={(event) => showCreateTaskModal(event)}>
                         <PlusIcon src={PlusIconSrc} />
                         새로 만들기
                     </AddTaskButton>
                 </KanbanIssue>
             </Wrapper>
             <Modal>
-                <TaskModal status={status} taskList={taskList} hideModal={setModal} />
+                <TaskModal taskId={taskId} status={status} taskList={taskList} hideModal={setModal} />
             </Modal>
         </>
     );

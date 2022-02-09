@@ -25,3 +25,14 @@ export interface DetailInputType {
     handleChangePriority: Function;
     handleSelectTag: Function;
 }
+
+export interface TaskResponseType {
+    title: string;
+    description: string;
+    manager: string;
+    priority: number;
+    status: string;
+    tags: Array<string>;
+    story: string;
+    preTasks: string;
+}

@@ -24,39 +24,39 @@ public class AuthService {
     private final RedisManager redisManager;
 
     public String githubLogin(String code) {
-        String oAuthAccessToken = this.githubOAuthManager.getOAuthAccessToken(code);
-        GithubUserProfileResponse userProfile = this.githubOAuthManager.getUserProfile(oAuthAccessToken);
+        String oAuthAccessToken = githubOAuthManager.getOAuthAccessToken(code);
+        GithubUserProfileResponse userProfile = githubOAuthManager.getUserProfile(oAuthAccessToken);
 
-        User user = this.userService.createOrUpdateUser(userProfile);
-        CreateTokenResponse createTokenResponse = this.jwtProvider.createTokens(user.getId());
-        this.redisManager.saveRefreshToken(user.getId(), createTokenResponse.getRefreshToken());
+        User user = userService.createOrUpdateUser(userProfile);
+        CreateTokenResponse createTokenResponse = jwtProvider.createTokens(user.getId());
+        redisManager.saveRefreshToken(user.getId(), createTokenResponse.getRefreshToken());
 
         return createTokenResponse.getAccessToken();
     }
 
     public boolean validateAccessToken(String accessToken) {
-        return this.jwtProvider.validateToken(accessToken);
+        return jwtProvider.validateToken(accessToken);
     }
 
     public String validateRefreshToken(String accessToken) {
-        Long id = this.jwtProvider.findIdFromToken(accessToken);
-        String refreshToken = this.redisManager.findValue(id.toString());
-        boolean isValid = this.jwtProvider.validateToken(refreshToken);
+        Long id = jwtProvider.findIdFromToken(accessToken);
+        String refreshToken = redisManager.findValue(id.toString());
+        boolean isValid = jwtProvider.validateToken(refreshToken);
 
         if(!isValid) {
             throw new InvalidTokenException();
         }
 
-        return this.jwtProvider.createAccessToken(id);
+        return jwtProvider.createAccessToken(id);
     }
 
     public LoginUser findUserFromToken(String token) {
-        Long id = this.jwtProvider.findIdFromToken(token);
+        Long id = jwtProvider.findIdFromToken(token);
         return new LoginUser(id);
     }
 
     public void removeRefreshToken(Long id) {
-        this.redisManager.removeRefreshToken(id);
+        redisManager.removeRefreshToken(id);
     }
 
 }

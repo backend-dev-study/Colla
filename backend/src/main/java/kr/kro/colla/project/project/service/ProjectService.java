@@ -134,9 +134,8 @@ public class ProjectService {
 
     public ProjectMemberResponse decideInvitation(Long projectId, Long loginUserId, ProjectMemberDecision projectMemberDecision) {
         Project project = findProjectById(projectId);
-        ProjectMemberResponse projectMemberResponse = noticeService.decideInvitation(loginUserId, project, projectMemberDecision);
 
-        return projectMemberResponse;
+        return noticeService.decideInvitation(loginUserId, project, projectMemberDecision);
     }
 
     public Project findProjectById(Long projectId) {

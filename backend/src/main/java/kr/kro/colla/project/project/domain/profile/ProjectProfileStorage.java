@@ -4,5 +4,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ProjectProfileStorage {
 
-    public String upload(MultipartFile file);
+    String upload(MultipartFile file);
 }

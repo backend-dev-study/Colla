@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface StoryRepository extends JpaRepository<Story, Long> {
 
-    public Optional<Story> findByTitle(String title);
+    Optional<Story> findByTitle(String title);
 
 }

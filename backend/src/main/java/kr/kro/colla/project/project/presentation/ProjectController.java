@@ -23,7 +23,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<ProjectResponse> getProject(@PathVariable long projectId) {
+    public ResponseEntity<ProjectResponse> getProject(@PathVariable Long projectId) {
         ProjectResponse projectResponse = projectService.getProject(projectId);
 
         return ResponseEntity.ok(projectResponse);
@@ -31,7 +31,7 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/members")
     public ResponseEntity inviteUser(@Authenticated LoginUser loginUser,
-                                       @PathVariable long projectId, @Valid @RequestBody ProjectMemberRequest projectMemberRequest){
+                                       @PathVariable Long projectId, @Valid @RequestBody ProjectMemberRequest projectMemberRequest){
         projectService.inviteUserToProject(projectId, loginUser.getId(), projectMemberRequest.getGithubId());
 
         return ResponseEntity.ok().build();
@@ -39,7 +39,7 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/members/decision")
     public ResponseEntity decideInvitation(@Authenticated LoginUser loginUser,
-                                           @PathVariable long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
+                                           @PathVariable Long projectId, @Valid @RequestBody ProjectMemberDecision projectMemberDecision){
         ProjectMemberResponse projectMemberResponse = projectService.decideInvitation(projectId, loginUser.getId(), projectMemberDecision);
 
         return ResponseEntity.ok(projectMemberResponse);
