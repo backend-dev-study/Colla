@@ -12,15 +12,15 @@ interface PropType {
 }
 
 export const PreTaskDropDown: FC<PropType> = ({ taskList, handleChangePreTasks, setPreTaskVisible }) => {
-    const addPreTask = (idx: number) => {
-        handleChangePreTasks(idx);
+    const addPreTask = (id: number) => {
+        handleChangePreTasks(id);
         setPreTaskVisible();
     };
 
     return (
         <TaskList>
             {taskList.map((task, idx) => (
-                <Task key={idx} onClick={() => addPreTask(idx)}>
+                <Task key={idx} onClick={() => addPreTask(task.id)}>
                     <TaskTitle>{task.title}</TaskTitle>
                     <Priority>
                         {Array(task.priority)

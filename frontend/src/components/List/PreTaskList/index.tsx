@@ -15,21 +15,23 @@ interface PropType {
 
 export const PreTaskList: FC<PropType> = ({ preTaskList, taskList, handleDeletePreTask }) => (
     <Container>
-        {preTaskList.map((taskIdx, idx) => (
-            <PreTask key={idx}>
-                <Task>
-                    <TaskTitle>{taskList[taskIdx].title}</TaskTitle>
-                    <div>
-                        {Array(taskList[taskIdx].priority)
-                            .fill(0)
-                            .map((el, i) => i + 1)
-                            .map((el) => (
-                                <Star key={el} src={StarImgSrc} />
-                            ))}
-                    </div>
-                </Task>
-                <DeleteButton src={DeleteIconSrc} onClick={() => handleDeletePreTask(taskIdx)} />
-            </PreTask>
-        ))}
+        {taskList
+            .filter((task) => preTaskList.includes(task.id))
+            .map(({ id, title, priority }, idx) => (
+                <PreTask key={idx}>
+                    <Task>
+                        <TaskTitle>{title}</TaskTitle>
+                        <div>
+                            {Array(priority)
+                                .fill(0)
+                                .map((el, i) => i + 1)
+                                .map((el) => (
+                                    <Star key={el} src={StarImgSrc} />
+                                ))}
+                        </div>
+                    </Task>
+                    <DeleteButton src={DeleteIconSrc} onClick={() => handleDeletePreTask(id)} />
+                </PreTask>
+            ))}
     </Container>
 );
