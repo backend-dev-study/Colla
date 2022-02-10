@@ -4,6 +4,7 @@ import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.presentation.argument_resolver.Authenticated;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.ProjectService;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
@@ -81,4 +82,17 @@ public class ProjectController {
         return ResponseEntity.ok(projectTags);
     }
 
+    @PostMapping("/{projectId}/statuses")
+    public ResponseEntity<ProjectTaskStatusResponse> createTaskStatus(@PathVariable Long projectId, @Valid @RequestBody CreateTaskStatusRequest createRequest) {
+        TaskStatus taskStatus = projectService.createTaskStatus(projectId, createRequest.getName());
+
+        return ResponseEntity.ok(new ProjectTaskStatusResponse(taskStatus));
+    }
+
+    @DeleteMapping("/{projectId}/statuses")
+    public ResponseEntity deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
+        projectService.deleteTaskStatus(projectId, deleteRequest.getName());
+
+        return ResponseEntity.ok().build();
+    }
 }

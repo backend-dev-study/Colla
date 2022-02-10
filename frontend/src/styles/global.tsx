@@ -10,6 +10,7 @@ const GlobalStyle = () => (
                     opacity: 50%;
                     cursor: pointer;
                 }
+                font-size: inherit;
             }
 
             input {
@@ -17,6 +18,14 @@ const GlobalStyle = () => (
                 &:focus {
                     outline: none;
                 }
+                font-size: inherit;
+            }
+
+            textarea {
+                border: none;
+                resize: none;
+                outline: none;
+                font-size: inherit;
             }
 
             a {

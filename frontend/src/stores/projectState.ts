@@ -1,4 +1,4 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'recoil';
 import { ProjectType } from '../types/project';
 
 export const projectState = atom<ProjectType>({
@@ -9,13 +9,5 @@ export const projectState = atom<ProjectType>({
         description: '',
         thumbnail: '',
         members: [],
-    },
-});
-
-export const projectMemberState = selector({
-    key: 'projectMember',
-    get: ({ get }) => {
-        const project = get(projectState);
-        return project.members;
     },
 });

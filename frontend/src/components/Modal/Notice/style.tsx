@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
-import { GREEN, LIGHT_GREEN } from '../../../styles/color';
-import { Column, Modal, WidthAround } from '../../../styles/common';
+import { GREEN, LIGHT_GREEN, WHITE } from '../../../styles/color';
+import { Column, Modal, WidthAround, WidthCenter } from '../../../styles/common';
 
 export const Wrapper = styled.div`
     position: absolute;
@@ -15,6 +15,11 @@ export const Wrapper = styled.div`
     ${Modal}
 `;
 
+export const NoNotice = styled.div`
+    font-size: 18px;
+
+    ${WidthCenter}
+`;
 export const Notice = styled.div`
     height: 80px;
     padding: 10px;
@@ -22,7 +27,7 @@ export const Notice = styled.div`
     margin-bottom: 12px;
     border-radius: 10px;
     font-size: 18px;
-    background: ${(props: { check: boolean }) => (props.check ? LIGHT_GREEN : 'white')};
+    background: ${(props: { check: boolean }) => (props.check ? LIGHT_GREEN : WHITE)};
     pointer-events: ${(props: { check: boolean }) => (props.check ? 'none' : 'auto')};
 
     ${WidthAround}

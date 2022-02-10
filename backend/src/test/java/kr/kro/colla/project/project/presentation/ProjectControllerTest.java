@@ -1,10 +1,12 @@
 package kr.kro.colla.project.project.presentation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.user.user.domain.User;
@@ -369,4 +371,48 @@ class ProjectControllerTest extends ControllerTest {
                 .contains("backend", "frontend", "refactoring");
     }
 
+    @Test
+    void 프로젝트의_테스크_상태_추가에_성공한다() throws Exception {
+        // given
+        Long projectId = 72434L, taskStatusId = 35829L;
+        String statusName = "새로 생성할 테스크 상태값";
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest(statusName);
+        TaskStatus taskStatus = new TaskStatus(statusName);
+        ReflectionTestUtils.setField(taskStatus, "id", taskStatusId);
+
+        given(projectService.createTaskStatus(projectId, statusName))
+                .willReturn(taskStatus);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(taskStatus.getId().intValue()))
+                .andExpect(jsonPath("$.name").value(taskStatus.getName()));
+        verify(projectService, times(1)).createTaskStatus(projectId, statusName);
+    }
+
+    @Test
+    void 프로젝트의_테스크_상태_삭제에_성공한다() throws Exception {
+        // given
+        Long projectId = 72434L;
+        String statusName = "삭제할 테스크 상태값";
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        // then
+        perform
+                .andExpect(status().isOk());
+        verify(projectService, times(1)).deleteTaskStatus(projectId, statusName);
+    }
 }

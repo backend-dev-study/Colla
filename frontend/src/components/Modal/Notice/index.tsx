@@ -5,7 +5,7 @@ import noticeIconImg from '../../../../public/assets/images/notification_outline
 import { decideInvitation } from '../../../apis/project';
 import { getUserNotices } from '../../../apis/user';
 import { NoticeType } from '../../../types/user';
-import { Icon, Invitation, InvitationDecision, Notice, NoticeMessage, Wrapper } from './style';
+import { Icon, Invitation, InvitationDecision, NoNotice, Notice, NoticeMessage, Wrapper } from './style';
 
 const NoticeModal = () => {
     const [notices, setNotices] = useState<Array<NoticeType>>([]);
@@ -59,7 +59,15 @@ const NoticeModal = () => {
         updateNotices();
     }, []);
 
-    return <Wrapper>{notices.map((notice) => translateNotice(notice))}</Wrapper>;
+    return (
+        <Wrapper>
+            {notices.length === 0 ? (
+                <NoNotice>알림이 없습니다</NoNotice>
+            ) : (
+                notices.map((notice) => translateNotice(notice))
+            )}
+        </Wrapper>
+    );
 };
 
 export default NoticeModal;
