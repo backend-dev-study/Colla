@@ -12,14 +12,16 @@ public class ProjectProvider {
     private ProjectRepository projectRepository;
 
     public Project 를_생성한다(Long managerId) {
-        Project project = Project.builder()
+        return projectRepository.save(createProject(managerId));
+    }
+
+    public static Project createProject(Long managerId) {
+        return Project.builder()
                 .managerId(managerId)
-                .name("project name")
-                .description("project description")
+                .name("collaboration")
+                .description("collaboration tool")
                 .thumbnail("s3_content")
                 .build();
-
-        return projectRepository.save(project);
     }
 
 }

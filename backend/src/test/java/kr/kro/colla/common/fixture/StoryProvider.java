@@ -12,14 +12,16 @@ public class StoryProvider {
     @Autowired
     private StoryRepository storyRepository;
 
-    public Story 를_생성한다(Project project) {
-        Story story = Story.builder()
-                .title("story title")
+    public Story 를_생성한다(Project project, String title) {
+        return storyRepository.save(createStory(project, title));
+    }
+
+    public static Story createStory(Project project, String title) {
+        return Story.builder()
+                .title(title)
                 .preStories("[]")
                 .project(project)
                 .build();
-
-        return storyRepository.save(story);
     }
 
 }

@@ -3,6 +3,7 @@ package kr.kro.colla.task.task;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
+import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.story.domain.Story;
@@ -45,12 +46,16 @@ public class AcceptanceTest {
     @Autowired
     private TaskProvider task;
 
+    @Autowired
+    private DatabaseCleaner databaseCleaner;
+
     private Auth auth;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
         auth = new Auth(jwtProvider);
+        databaseCleaner.execute();
     }
 
     @Test
@@ -64,6 +69,7 @@ public class AcceptanceTest {
         formData.put("title", "task title");
         formData.put("priority", "3");
         formData.put("status", "To Do");
+        formData.put("tags", "[]");
         formData.put("projectId", createdProject.getId().toString());
 
         given()
@@ -112,7 +118,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_회원가입을_한다();
         String accessToken = auth.로그인(registeredUser.getId());
         Project createdProject = project.를_생성한다(registeredUser.getId());
-        Story createdStory = story.를_생성한다(createdProject);
+        Story createdStory = story.를_생성한다(createdProject, "story title");
         Task createdTask = task.를_생성한다(registeredUser.getId(), createdProject, createdStory);
 
         given()
@@ -156,6 +162,38 @@ public class AcceptanceTest {
                 .body("title", equalTo(createdTask.getTitle()))
                 .body("manager", nullValue())
                 .body("story", nullValue());
+    }
+
+    @Test
+    void 사용자가_태스크의_내용을_수정한다() {
+        // given
+        User registeredUser = user.가_회원가입을_한다();
+        String accessToken = auth.로그인(registeredUser.getId());
+        Project createdProject = project.를_생성한다(registeredUser.getId());
+        Story createdStory = story.를_생성한다(createdProject, "story title");
+        Task createdTask = task.를_생성한다(registeredUser.getId(), createdProject, createdStory);
+
+        Map<String, String> formData = new HashMap<>();
+        formData.put("title", "new title");
+        formData.put("managerId", registeredUser.getName());
+        formData.put("description", "new description");
+        formData.put("story", createdStory.getTitle());
+        formData.put("priority", "3");
+        formData.put("projectId", createdProject.getId().toString());
+        formData.put("tags", "[\"backend\"]");
+
+        given()
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(formData)
+
+        // when
+        .when()
+                .put("/api/projects/tasks/" + createdTask.getId())
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
     }
 
 }

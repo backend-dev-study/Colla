@@ -12,13 +12,15 @@ public class UserProvider {
     private UserRepository userRepository;
 
     public User 가_회원가입을_한다() {
-        User user = User.builder()
+        return userRepository.save(createUser());
+    }
+
+    public static User createUser() {
+        return User.builder()
                 .name("yeongkee")
                 .githubId("kykapple")
                 .avatar("s3_content")
                 .build();
-
-        return userRepository.save(user);
     }
 
 }

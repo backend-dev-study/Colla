@@ -29,4 +29,17 @@ public class TaskProvider {
         return taskRepository.save(task);
     }
 
+    public static Task createTask(Long managerId, Project project, Story story) {
+        return Task.builder()
+                .title("task title")
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(new TaskStatus("To Do"))
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
 }
