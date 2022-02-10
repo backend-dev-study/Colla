@@ -37,7 +37,7 @@ public class TaskService {
 
     public Long createTask(CreateTaskRequest createTaskRequest) {
         Project project = projectService.findProjectById(createTaskRequest.getProjectId());
-        Story story = createTaskRequest.getStory() != null
+        Story story = !createTaskRequest.getStory().isBlank()
                 ? storyService.findStoryByTitle(createTaskRequest.getStory())
                 : null;
         TaskStatus taskStatus = taskStatusService.findTaskStatusByName(createTaskRequest.getStatus());

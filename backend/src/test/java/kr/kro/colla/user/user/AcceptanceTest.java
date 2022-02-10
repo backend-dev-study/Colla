@@ -82,7 +82,7 @@ public class AcceptanceTest {
                 .build();
         userRepository.save(user);
 
-        accessToken = auth.로그인(user.getId());
+        accessToken = auth.토큰을_발급한다(user.getId());
     }
 
     @AfterEach
