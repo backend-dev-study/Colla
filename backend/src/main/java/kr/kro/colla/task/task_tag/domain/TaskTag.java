@@ -4,11 +4,11 @@ import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -41,4 +41,20 @@ public class TaskTag {
         this.tag = tag;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TaskTag taskTag = (TaskTag) o;
+        return Objects.equals(task, taskTag.task) && Objects.equals(tag, taskTag.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(task, tag);
+    }
 }

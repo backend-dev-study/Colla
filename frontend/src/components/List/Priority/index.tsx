@@ -15,8 +15,8 @@ export const Priority: FC<PropType> = ({ priority, handleChangePriority }) => (
             .map((el, idx) => (
                 <Weight
                     key={idx}
-                    className={priority === idx ? 'selected' : ''}
-                    onClick={() => handleChangePriority(idx)}
+                    className={priority === el ? 'selected' : ''}
+                    onClick={() => handleChangePriority(el)}
                 >
                     {el}
                 </Weight>
