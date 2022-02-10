@@ -4,17 +4,20 @@ import { GREEN } from '../../styles/color';
 
 export const VerticalBar = styled.div`
     position: fixed;
-    height: 85vh;
+    height: 75vh;
     margin: -10px 0 0 30px;
     border: 2px solid ${GREEN};
     background-color: ${GREEN};
+    z-index: 3;
 `;
 
 export const ProjectContainer = styled.div`
     position: absolute;
-    height: 770px;
     overflow-y: scroll;
     padding-top: 10px;
+    width: 200px;
+    height: 75vh;
+    z-index: 2;
 
     ::-webkit-scrollbar {
         display: none;
@@ -52,7 +55,7 @@ export const Project = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin: 0 0 15px 50px;
+    margin: 30px 30px 15px 50px;
 
     ${SideBarComponent}
 `;
@@ -68,21 +71,21 @@ export const ProjectIcon = styled.img`
 
 export const MenuContainer = styled.div`
     position: fixed;
-    height: 770px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: 200px;
+    height: 75vh;
+    z-index: 2;
 `;
 
 export const MenuWrapper = styled.div`
-    height: 400px;
-
     ${Wrapper}
 `;
 
 export const Menu = styled.div`
     font-size: 20px;
-    margin: 0 0 15px 50px;
+    margin: 30px 30px 15px 50px;
 
     ${SideBarComponent}
 `;

@@ -4,13 +4,14 @@ import { Center } from '../../styles/common';
 
 export const Container = styled.div`
     flex-direction: column;
-
+    overflow-x: hidden;
+    width: 100vw;
+    align-items: center;
     ${Center}
 `;
 
 export const Wrapper = styled.div`
     display: flex;
-    justify-content: center;
     align-items: start;
     width: 1300px;
     overflow-x: scroll;

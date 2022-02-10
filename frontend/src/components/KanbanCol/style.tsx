@@ -11,6 +11,7 @@ export const Wrapper = styled.div`
 `;
 
 export const KanbanStatus = styled.div`
+    position: relative;
     align-items: center;
     width: 300px;
     height: 50px;
@@ -50,4 +51,17 @@ export const PlusIcon = styled.img`
     width: 50px;
     height: 24px;
     margin-left: -15px;
+`;
+
+export const DeleteStatusButton = styled.button`
+    position: absolute;
+    right: 0px;
+    border-radius: 10px;
+`;
+
+export const DeleteIcon = styled.img`
+    display: flex;
+    align-items: center;
+    width: 50px;
+    height: 24px;
 `;

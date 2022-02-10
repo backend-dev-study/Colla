@@ -1,13 +1,14 @@
 import React, { FC, useState } from 'react';
 import { useDrop } from 'react-dnd';
 
-import PlusIconSrc from '../../../public/assets/images/plus-circle.svg';
+import deleteIconImg from '../../../public/assets/images/close-circle.svg';
+import plusIconImg from '../../../public/assets/images/plus-circle.svg';
 import useInputTask from '../../hooks/useInputTask';
 import useModal from '../../hooks/useModal';
 import { ItemType, TaskType } from '../../types/kanban';
 import { TaskModal } from '../Modal/Task';
 import Task from '../Task';
-import { Wrapper, KanbanStatus, KanbanIssue, AddTaskButton, PlusIcon } from './style';
+import { Wrapper, KanbanStatus, KanbanIssue, AddTaskButton, PlusIcon, DeleteStatusButton, DeleteIcon } from './style';
 
 interface PropType {
     status: string;
@@ -49,7 +50,12 @@ const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTa
     return (
         <>
             <Wrapper>
-                <KanbanStatus>{status}</KanbanStatus>
+                <KanbanStatus>
+                    {status}
+                    <DeleteStatusButton>
+                        <DeleteIcon src={deleteIconImg} />
+                    </DeleteStatusButton>
+                </KanbanStatus>
                 <KanbanIssue ref={drop}>
                     {tasks.map((task) => (
                         <Task
@@ -61,7 +67,7 @@ const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTa
                         />
                     ))}
                     <AddTaskButton onClick={(event) => showCreateTaskModal(event)}>
-                        <PlusIcon src={PlusIconSrc} />
+                        <PlusIcon src={plusIconImg} />
                         새로 만들기
                     </AddTaskButton>
                 </KanbanIssue>
