@@ -7,6 +7,8 @@ import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
@@ -37,6 +39,7 @@ public class ProjectService {
     private final UserProjectService userProjectService;
     private final ProjectRepository projectRepository;
     private final ProjectProfileStorage projectProfileStorage;
+    private final TaskStatusService taskStatusService;
 
     public Project createProject(Long managerId, CreateProjectRequest createProjectRequest) {
         User user = userService.findUserById(managerId);
@@ -141,5 +144,18 @@ public class ProjectService {
     public Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
+    }
+
+    public TaskStatus createTaskStatus(Long projectId, String name) {
+        Project project = findProjectById(projectId);
+        TaskStatus taskStatus = new TaskStatus(name);
+        project.addStatus(taskStatus);
+        return taskStatus;
+    }
+
+    public void deleteTaskStatus(Long projectId, String statusName) {
+        Project project = findProjectById(projectId);
+        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
+        project.getTaskStatuses().remove(taskStatus);
     }
 }

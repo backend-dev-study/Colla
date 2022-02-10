@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-
 import { useSetRecoilState } from 'recoil';
+
 import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
+import TaskStatusModal from '../../components/Modal/TaskStatus';
 import { SideBar } from '../../components/SideBar';
+import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
-import { Wrapper, KanbanAddButton, KanbanAdditional, Container } from './style';
+import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './style';
 
 interface stateType {
     projectId: number;
 }
+const menu = ['로드맵', '백로그', '대시보드', '지도'];
 
 const Kanban = () => {
     const history = useHistory();
     const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
+    const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
     const setProjectState = useSetRecoilState(projectState);
-
-    const statuses = ['To Do', 'In Progress', 'Done'];
-    const menu = ['로드맵', '백로그', '대시보드', '지도'];
+    const { Modal, setModal } = useModal();
 
     if (!state.projectId) {
         history.push('/home');
@@ -62,11 +64,17 @@ const Kanban = () => {
                 thumbnail,
                 members,
             });
-            setTaskList([
-                ...tasks['To Do'].map((task) => ({ ...task, column: 'To Do' })),
-                ...tasks['In Progress'].map((task) => ({ ...task, column: 'In Progress' })),
-                ...tasks['Done'].map((task) => ({ ...task, column: 'Done' })),
-            ]);
+
+            const addColumnToTasks = (taskStatus: string): TaskType[] => [
+                ...tasks[taskStatus].map((task) => ({ ...task, column: taskStatus })),
+            ];
+
+            let newTaskList: TaskType[] = [];
+            Object.keys(tasks).forEach((taskStatus: string) => {
+                newTaskList = [...newTaskList, ...addColumnToTasks(taskStatus)];
+            });
+            setTaskStatuses(Object.keys(tasks));
+            setTaskList(newTaskList);
         })();
     }, []);
 
@@ -76,7 +84,7 @@ const Kanban = () => {
             <SideBar props={menu} />
             <Container>
                 <Wrapper>
-                    {statuses.map((value) => (
+                    {taskStatuses.map((value) => (
                         <KanbanCol
                             key={value}
                             status={value}
@@ -88,9 +96,12 @@ const Kanban = () => {
                             moveTaskHandler={moveTaskHandler}
                         />
                     ))}
-                    <KanbanAdditional>
-                        <KanbanAddButton src={PlusIcon} />
-                    </KanbanAdditional>
+                    <KanbanStatusAddButton onClick={setModal}>
+                        <KanbanAddImage src={PlusIcon} />
+                    </KanbanStatusAddButton>
+                    <Modal>
+                        <TaskStatusModal />
+                    </Modal>
                 </Wrapper>
             </Container>
         </>

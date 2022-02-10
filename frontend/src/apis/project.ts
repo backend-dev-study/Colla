@@ -1,20 +1,5 @@
-import { ProjectTagType, ProjectType } from '../types/project';
+import { ProjectTagType, ProjectAllType } from '../types/project';
 import { client } from './common';
-
-interface task {
-    id: number;
-    title: string;
-    managerName: string;
-    avatar: string;
-    priority: number;
-}
-
-interface ProjectAllType extends ProjectType {
-    managerId: number;
-    tasks: {
-        [key: string]: Array<task>;
-    };
-}
 
 export const getProject = async (projectId: number) => {
     const response = await client.get<ProjectAllType>(`/projects/${projectId}`);
@@ -60,6 +45,18 @@ export const getProjectTags = async (projectId: number) => {
 
 export const decideInvitation = async (projectId: number, noticeId: number, accept: boolean) => {
     const response = await client.post(`/projects/${projectId}/members/decision`, { accept, noticeId });
+
+    return response;
+};
+
+export const createTaskStatus = async (projectId: number, name: String) => {
+    const response = await client.post(`/projects/${projectId}/statuses`, { name });
+
+    return response;
+};
+
+export const deleteTaskStatus = async (projectId: number, name: String) => {
+    const response = await client.delete(`/projects/${projectId}/statuses`, { data: { name } });
 
     return response;
 };

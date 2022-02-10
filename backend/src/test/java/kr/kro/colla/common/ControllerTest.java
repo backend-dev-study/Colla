@@ -24,37 +24,37 @@ import static org.mockito.BDDMockito.given;
 public abstract class ControllerTest {
 
     @Autowired
-    public MockMvc mockMvc;
+    protected MockMvc mockMvc;
 
     @Autowired
-    public ObjectMapper objectMapper;
+    protected ObjectMapper objectMapper;
 
     @MockBean
-    public CookieManager cookieManager;
+    protected CookieManager cookieManager;
 
     @MockBean
-    public AuthService authService;
+    protected AuthService authService;
 
     @MockBean
-    public UserService userService;
+    protected UserService userService;
 
     @MockBean
-    public ProjectService projectService;
+    protected ProjectService projectService;
 
     @MockBean
-    public UserProjectService userProjectService;
+    protected UserProjectService userProjectService;
 
     @MockBean
-    public TaskService taskService;
+    protected TaskService taskService;
 
     @MockBean
-    public StoryService storyService;
+    protected StoryService storyService;
 
     @MockBean
-    public NoticeService noticeService;
+    protected NoticeService noticeService;
 
-    public String accessToken = "token";
-    public LoginUser loginUser;
+    protected String accessToken = "token";
+    protected LoginUser loginUser;
 
     @BeforeEach
     void setUp() {

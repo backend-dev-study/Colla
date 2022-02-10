@@ -9,6 +9,9 @@ import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
+import kr.kro.colla.project.project.service.ProjectService;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.task.tag.domain.Tag;
@@ -49,6 +52,9 @@ public class AcceptanceTest {
     private JwtProvider jwtProvider;
 
     @Autowired
+    private ProjectService projectService;
+
+    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
@@ -68,6 +74,9 @@ public class AcceptanceTest {
 
     @Autowired
     private TaskTagRepository taskTagRepository;
+
+    @Autowired
+    private TaskStatusRepository taskStatusRepository;
 
     private Auth auth;
     private User user;
@@ -111,6 +120,7 @@ public class AcceptanceTest {
         userProjectRepository.deleteAll();
         userRepository.deleteAll();
         projectRepository.deleteAll();
+        taskStatusRepository.deleteAll();
     }
 
     @Test
@@ -412,7 +422,7 @@ public class AcceptanceTest {
         List<ProjectTagResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -429,4 +439,55 @@ public class AcceptanceTest {
         assertThat(response.get(0).getName()).isEqualTo(tag.getName());
     }
 
+    @Test
+    void 사용자가_프로젝트의_테스크_상태값을_추가할_수_있다() {
+        // given
+        String statusName = "MY_TASK_STATUS_NAME_TO_CREATE";
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest(statusName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .post("/api/projects/" + project.getId() + "/statuses")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("id", notNullValue())
+                .body("name", equalTo(statusName));
+        assertThat(taskStatusRepository.findByName(statusName).isPresent());
+    }
+
+    @Test
+    void 사용자가_프로젝트_테스크_상태값을_삭제할_수_있다() {
+        // given
+        String statusName = "MY_STATUS_TO_DELETE";
+        List<String> statuses = List.of("NEW_TO_DO_LIST", "NEW_DONE_LIST", statusName);
+        statuses.forEach(name -> {
+            TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus(name));
+            project.addStatus(taskStatus);
+        });
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .delete("/api/projects/" + project.getId() + "/statuses")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+
+        assertThat(taskStatusRepository.findByName(statusName).isEmpty());
+        statuses
+                .stream()
+                .filter(name -> name==statusName)
+                .forEach(name -> assertThat(taskStatusRepository.findByName(name).isPresent()));
+    }
 }
