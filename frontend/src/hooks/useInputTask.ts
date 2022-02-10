@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useRecoilValue } from 'recoil';
-import { createTask } from '../apis/task';
+import { createTask, updateTask } from '../apis/task';
 import { projectState } from '../stores/projectState';
 import { TaskInputType, TaskResponseType } from '../types/task';
 
@@ -19,7 +19,7 @@ const useInputTask = () => {
     });
     const { title, description, managerId, priority, status, selectedTags, story, preTasks } = taskInput;
 
-    const handleCompleteButton = async () => {
+    const handleCompleteButton = async (taskId: number | null) => {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
@@ -31,7 +31,7 @@ const useInputTask = () => {
         formData.append('story', story);
         formData.append('preTasks', JSON.stringify(preTasks));
 
-        await createTask(formData);
+        taskId ? await updateTask(taskId!, formData) : await createTask(formData);
         window.location.replace('/kanban');
     };
 
@@ -47,12 +47,12 @@ const useInputTask = () => {
         setTaskInput({ ...taskInput, story: newStory });
     };
 
-    const handleAddPreTask = (idx: number) => {
-        setTaskInput({ ...taskInput, preTasks: [...preTasks, idx] });
+    const handleAddPreTask = (taskId: number) => {
+        setTaskInput({ ...taskInput, preTasks: [...preTasks, taskId] });
     };
 
-    const handleDeletePreTask = (idx: number) => {
-        setTaskInput({ ...taskInput, preTasks: preTasks.filter((el) => el !== idx) });
+    const handleDeletePreTask = (taskId: number) => {
+        setTaskInput({ ...taskInput, preTasks: preTasks.filter((el) => el !== taskId) });
     };
 
     const handleChangeManagerId = (id: string) => {

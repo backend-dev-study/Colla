@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -23,6 +24,7 @@ public class TaskTagService {
 
     private final TagService tagService;
     private final TaskTagRepository taskTagRepository;
+    private final ObjectMapper objectMapper;
 
     public void addNewTag(Project project, Tag tag) {
         TaskTag taskTag = new TaskTag(project, tag);
@@ -32,13 +34,25 @@ public class TaskTagService {
 
     public void setTaskTag(Task task, String tags) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             List<String> tagNames = objectMapper.readValue(tags, new TypeReference<List<String>>() {});
 
             tagService.findTagsByName(tagNames)
                     .stream()
                     .map(tag -> new TaskTag(task, tag))
                     .forEach(taskTagRepository::save);
+        } catch (JsonProcessingException e) {
+            throw new InvalidTagFormatException();
+        }
+    }
+
+    public List<TaskTag> translateTaskTags(Task task, String tags) {
+        try {
+            List<String> tagNames = objectMapper.readValue(tags, new TypeReference<List<String>>() {});
+
+            return tagService.findTagsByName(tagNames)
+                    .stream()
+                    .map(tag -> new TaskTag(task, tag))
+                    .collect(Collectors.toList());
         } catch (JsonProcessingException e) {
             throw new InvalidTagFormatException();
         }
