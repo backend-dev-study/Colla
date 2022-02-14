@@ -53,4 +53,17 @@ public class TaskProvider {
                 .build();
     }
 
+    public static Task createTaskForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus) {
+        return Task.builder()
+                .title("task title")
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(taskStatus)
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
 }
