@@ -1,10 +1,13 @@
 import React, { FC, useState } from 'react';
 import { useDrop } from 'react-dnd';
+import { useRecoilValue } from 'recoil';
 
 import deleteIconImg from '../../../public/assets/images/close-circle.svg';
 import plusIconImg from '../../../public/assets/images/plus-circle.svg';
+import { deleteTaskStatus } from '../../apis/project';
 import useInputTask from '../../hooks/useInputTask';
 import useModal from '../../hooks/useModal';
+import { projectState } from '../../stores/projectState';
 import { ItemType, TaskType } from '../../types/kanban';
 import { TaskModal } from '../Modal/Task';
 import Task from '../Task';
@@ -19,6 +22,7 @@ interface PropType {
 }
 
 const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTaskHandler }) => {
+    const project = useRecoilValue(projectState);
     const { clearInputTask } = useInputTask();
     const [taskId, setTaskId] = useState<number | null>(null);
     const { Modal, setModal } = useModal();
@@ -47,12 +51,17 @@ const KanbanCol: FC<PropType> = ({ status, taskList, tasks, changeColumn, moveTa
         setModal(event);
     };
 
+    const handleDeleteButton = async () => {
+        await deleteTaskStatus(project.id, status);
+        window.location.replace('/kanban');
+    };
+
     return (
         <>
             <Wrapper>
                 <KanbanStatus>
                     {status}
-                    <DeleteStatusButton>
+                    <DeleteStatusButton onClick={handleDeleteButton}>
                         <DeleteIcon src={deleteIconImg} />
                     </DeleteStatusButton>
                 </KanbanStatus>
