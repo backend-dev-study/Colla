@@ -156,7 +156,7 @@ public class ProjectService {
     public void deleteTaskStatus(Long projectId, String statusName) {
         Project project = findProjectById(projectId);
         TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
-        project.getTaskStatuses().remove(taskStatus);
+        project.removeStatus(taskStatus);
     }
 
     public List<ProjectTaskStatusResponse> getTaskStatuses(Long projectId) {

@@ -75,4 +75,6 @@ public class Project {
     public void addStatus(TaskStatus taskStatus){
         this.taskStatuses.add(taskStatus);
     }
+
+    public void removeStatus(TaskStatus taskStatus) { this.taskStatuses.remove(taskStatus); }
 }
