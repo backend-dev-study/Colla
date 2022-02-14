@@ -158,4 +158,13 @@ public class ProjectService {
         TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
         project.getTaskStatuses().remove(taskStatus);
     }
+
+    public List<ProjectTaskStatusResponse> getTaskStatuses(Long projectId) {
+        Project project = findProjectById(projectId);
+
+        return project.getTaskStatuses()
+                .stream()
+                .map(ProjectTaskStatusResponse::new)
+                .collect(Collectors.toList());
+    }
 }

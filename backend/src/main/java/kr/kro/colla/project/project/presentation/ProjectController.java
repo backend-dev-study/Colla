@@ -8,6 +8,7 @@ import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.task.domain.Task;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -90,9 +91,16 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}/statuses")
-    public ResponseEntity deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
+    public ResponseEntity<Void> deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
         projectService.deleteTaskStatus(projectId, deleteRequest.getName());
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{projectId}/statuses")
+    public ResponseEntity<List<ProjectTaskStatusResponse>> getTaskStatuses(@PathVariable Long projectId) {
+        List<ProjectTaskStatusResponse> projectTaskStatuses = projectService.getTaskStatuses(projectId);
+
+        return ResponseEntity.ok(projectTaskStatuses);
     }
 }
