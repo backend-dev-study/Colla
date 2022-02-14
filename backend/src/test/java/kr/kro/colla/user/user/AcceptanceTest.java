@@ -5,21 +5,14 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
-import kr.kro.colla.common.fixture.Auth;
-import kr.kro.colla.common.fixture.FileProvider;
-import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.domain.repository.ProjectRepository;
+import kr.kro.colla.common.database.DatabaseCleaner;
+import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.user.notice.domain.Notice;
-import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
-import kr.kro.colla.user.notice.service.NoticeService;
+import kr.kro.colla.user.notice.domain.NoticeType;
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user.user.domain.repository.UserRepository;
 
 import kr.kro.colla.user.user.presentation.dto.UpdateUserNameRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
-import kr.kro.colla.user_project.domain.UserProject;
-import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +27,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,49 +44,32 @@ public class AcceptanceTest {
     private JwtProvider jwtProvider;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserProvider user;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private ProjectProvider project;
 
     @Autowired
-    private UserProjectRepository userProjectRepository;
+    private NoticeProvider notice;
 
     @Autowired
-    private NoticeRepository noticeRepository;
-
-    @Autowired
-    private NoticeService noticeService;
+    private DatabaseCleaner databaseCleaner;
 
     private Auth auth;
-    private User user;
-    private String accessToken;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
         auth = new Auth(jwtProvider);
-
-        user = User.builder()
-                .githubId("binimini")
-                .name("subin")
-                .avatar("github_content")
-                .build();
-        userRepository.save(user);
-
-        accessToken = auth.토큰을_발급한다(user.getId());
+        databaseCleaner.execute();
     }
 
-    @AfterEach
-    void rollback() {
-        userProjectRepository.deleteAll();
-        projectRepository.deleteAll();
-        noticeRepository.deleteAll();
-        userRepository.deleteAll();
-    }
     @Test
-    void 로그인한_사용자의_프로필을_조회한다() {
+    void 사용자가_자신의_프로필을_조회한다() {
         // given
+        User registeredUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
@@ -104,14 +79,17 @@ public class AcceptanceTest {
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("displayName", equalTo(user.getName()))
-                .body("githubId", equalTo(user.getGithubId()))
-                .body("avatar", equalTo(user.getAvatar()));
+                .body("displayName", equalTo(registeredUser.getName()))
+                .body("githubId", equalTo(registeredUser.getGithubId()))
+                .body("avatar", equalTo(registeredUser.getAvatar()));
     }
 
     @Test
-    void 사용자_프로젝트_생성_성공_후_반환한다() throws IOException {
+    void 사용자가_프로젝트를_생성한다() throws IOException {
         // given
+        User registeredUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+
         String name = "project name", desc = "project description";
         MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Map<String, Object> requestBody = new HashMap<>();
@@ -134,14 +112,17 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("managerId", equalTo(user.getId().intValue()))
+                .body("managerId", equalTo(registeredUser.getId().intValue()))
                 .body("name", equalTo(name))
                 .body("description", equalTo(desc));
     }
 
     @Test
-    void 사용자_프로젝트_생성_시_요청이_잘못돼_에러를_반환한다() throws Exception {
+    void 사용자가_프로젝트_생성_정보를_누락할_시_프로젝트_생성에_실패한다() throws Exception {
         // given
+        User registeredUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+
         String name = "프로젝트 이름", desc = "프로젝트 설명";
         MockMultipartFile thumbnail = FileProvider.getTestMultipartFile("thumbnail.png");
         Map<String, Object> requestBody = new HashMap<>();
@@ -170,6 +151,9 @@ public class AcceptanceTest {
     @Test
     void 사용자는_이름을_변경할_수_있다() {
         // given
+        User registeredUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+
         String newDisplayName = "new-name";
         UpdateUserNameRequest updateUserNameRequest = new UpdateUserNameRequest(newDisplayName);
 
@@ -190,33 +174,15 @@ public class AcceptanceTest {
     @Test
     void 사용자는_자신이_참여중인_프로젝트_목록을_조회할_수_있다() {
         // given
-        Project project1 = Project.builder()
-                .managerId(user.getId())
-                .name("project1")
-                .description("project1 description")
-                .build();
-        Project project2 = Project.builder()
-                .managerId(user.getId())
-                .name("project2")
-                .description("project2 description")
-                .build();
-        UserProject userProject1 = UserProject.builder()
-                .user(user)
-                .project(project1)
-                .build();
-        UserProject userProject2 = UserProject.builder()
-                .user(user)
-                .project(project2)
-                .build();
-        projectRepository.save(project1);
-        projectRepository.save(project2);
-        userProjectRepository.save(userProject1);
-        userProjectRepository.save(userProject2);
+        User registeredUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject1 = project.를_생성한다(accessToken);
+        UserProjectResponse createdProject2 = project.를_생성한다(accessToken);
 
         List<UserProjectResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", this.accessToken)
+                .cookie("accessToken", accessToken)
 
         // when
         .when()
@@ -228,32 +194,28 @@ public class AcceptanceTest {
                 .extract()
                 .body()
                 .as(new TypeRef<List<UserProjectResponse>>() {});
+
         assertThat(response.size()).isEqualTo(2);
-        assertThat(response.get(0).getName()).isEqualTo(project1.getName());
-        assertThat(response.get(1).getDescription()).isEqualTo(project2.getDescription());
-        assertThat(response.get(0).getManagerId()).isEqualTo(user.getId());
-        assertThat(response.get(1).getManagerId()).isEqualTo(user.getId());
+        assertThat(response.get(0).getName()).isEqualTo(createdProject1.getName());
+        assertThat(response.get(1).getDescription()).isEqualTo(createdProject2.getDescription());
+        assertThat(response.get(0).getManagerId()).isEqualTo(registeredUser.getId());
+        assertThat(response.get(1).getManagerId()).isEqualTo(registeredUser.getId());
     }
 
     @Test
-    void 사용자는_사용자의_알림들을_조회할_수_있다(){
+    void 사용자는_자신의_알림들을_조회할_수_있다(){
         // given
-        Project project = Project.builder()
-                .name("project name")
-                .description("project description")
-                .managerId(this.user.getId())
-                .build();
-        projectRepository.save(project);
-
-        List<Notice> notices = List.of(
-                noticeService.createNotice(project, user.getGithubId()),
-                noticeService.createNotice(project, user.getGithubId())
-        );
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        notice.를_생성한다(accessToken, createdProject.getId(), registeredUser.getGithubId());
+        notice.를_생성한다(accessToken, createdProject.getId(), registeredUser.getGithubId());
 
         List<Notice> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
+
         // when
         .when()
                 .get("/api/users/notices")
@@ -266,16 +228,11 @@ public class AcceptanceTest {
                 .as(new TypeRef<List<Notice>>() {});
 
         assertThat(response.size()).isEqualTo(2);
-        IntStream
-                .range(0, response.size())
-                .forEach(i->{
-                    assertThat(response.get(i).getId()).isEqualTo(notices.get(i).getId());
-                    assertThat(response.get(i).getNoticeType()).isEqualTo(notices.get(i).getNoticeType());
-                    assertThat(response.get(i).getIsChecked()).isEqualTo(notices.get(i).getIsChecked());
-                    assertThat(response.get(i).getMentionedURL()).isEqualTo(notices.get(i).getMentionedURL());
-                    assertThat(response.get(i).getProjectId()).isEqualTo(notices.get(i).getProjectId());
-                    assertThat(response.get(i).getProjectName()).isEqualTo(notices.get(i).getProjectName());
-                });
-
+        response.forEach(notice -> {
+            assertThat(notice.getId()).isNotNull();
+            assertThat(notice.getNoticeType()).isEqualTo(NoticeType.INVITE_USER);
+            assertThat(notice.getProjectId()).isEqualTo(createdProject.getId());
+            assertThat(notice.getProjectName()).isEqualTo(createdProject.getName());
+        });
     }
 }
