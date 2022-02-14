@@ -14,36 +14,27 @@ import static io.restassured.RestAssured.given;
 @Component
 public class CommentProvider {
 
-    public CreateCommentResponse 를_등록한다(String accessToken) {
-        CreateCommentRequest createCommentRequest = new CreateCommentRequest(1L, null, "comment contents");
+    public CreateCommentResponse 를_등록한다(String accessToken, Long superCommendId) {
+        CreateCommentRequest createCommentRequest = new CreateCommentRequest(superCommendId, "comment contents");
 
         return given()
                 .contentType(ContentType.JSON)
                 .cookie("accessToken", accessToken)
                 .body(createCommentRequest)
         .when()
-                .post("/api/task/comments")
+                .post("/api/tasks/" + 1L + "/comments")
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .as(CreateCommentResponse.class);
     }
 
-    public static Comment createComment1(User user, Task task, Comment superComment) {
+    public static Comment createComment(User user, Task task, Comment superComment, String contents) {
         return Comment.builder()
                 .user(user)
                 .task(task)
                 .superComment(superComment)
-                .contents("first comment contents")
-                .build();
-    }
-
-    public static Comment createComment2(User user, Task task, Comment superComment) {
-        return Comment.builder()
-                .user(user)
-                .task(task)
-                .superComment(superComment)
-                .contents("second comment contents")
+                .contents(contents)
                 .build();
     }
 

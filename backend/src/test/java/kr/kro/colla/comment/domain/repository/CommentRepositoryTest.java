@@ -66,8 +66,8 @@ class CommentRepositoryTest {
         Project project = projectRepository.save(ProjectProvider.createProject(user.getId()));
         Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0)));
         commentRepository.saveAll(List.of(
-                CommentProvider.createComment1(user, task, null),
-                CommentProvider.createComment2(user, task, null)
+                CommentProvider.createComment(user, task, null, "first comment contents"),
+                CommentProvider.createComment(user, task, null, "second comment contents")
         ));
 
         // when

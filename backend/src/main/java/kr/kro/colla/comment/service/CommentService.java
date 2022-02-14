@@ -27,9 +27,9 @@ public class CommentService {
     private final TaskService taskService;
     private final CommentRepository commentRepository;
 
-    public CreateCommentResponse saveComment(Long userId, CreateCommentRequest createCommentRequest) {
+    public CreateCommentResponse saveComment(Long userId, Long taskId, CreateCommentRequest createCommentRequest) {
         User user = userService.findUserById(userId);
-        Task task = taskService.findTaskById(createCommentRequest.getTaskId());
+        Task task = taskService.findTaskById(taskId);
         Comment superComment = createCommentRequest.getSuperCommentId() != null
                 ? findCommentById(createCommentRequest.getSuperCommentId())
                 : null;

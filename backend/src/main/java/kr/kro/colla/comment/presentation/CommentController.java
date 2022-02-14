@@ -14,21 +14,21 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RequiredArgsConstructor
-@RequestMapping("/task/comments")
 @RestController
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<CreateCommentResponse> saveComment(@Authenticated LoginUser loginUser, @Valid @RequestBody CreateCommentRequest createCommentRequest) {
-        CreateCommentResponse createCommentResponse = commentService.saveComment(loginUser.getId(), createCommentRequest);
+    @PostMapping("/tasks/{taskId}/comments")
+    public ResponseEntity<CreateCommentResponse> saveComment(@Authenticated LoginUser loginUser, @PathVariable Long taskId,
+                                                             @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+        CreateCommentResponse createCommentResponse = commentService.saveComment(loginUser.getId(), taskId, createCommentRequest);
 
         return ResponseEntity.ok(createCommentResponse);
     }
 
-    @GetMapping
-    public ResponseEntity<Map<Long, TaskCommentResponse>> getAllComments(@RequestBody Long taskId) {
+    @GetMapping("/tasks/{taskId}/comments")
+    public ResponseEntity<Map<Long, TaskCommentResponse>> getAllComments(@PathVariable Long taskId) {
         Map<Long, TaskCommentResponse> allComments = commentService.getAllComments(taskId);
 
         return ResponseEntity.ok(allComments);

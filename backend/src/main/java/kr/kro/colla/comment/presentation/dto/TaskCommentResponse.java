@@ -2,10 +2,12 @@ package kr.kro.colla.comment.presentation.dto;
 
 import kr.kro.colla.comment.domain.Comment;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
 @Getter
 public class TaskCommentResponse {
 
