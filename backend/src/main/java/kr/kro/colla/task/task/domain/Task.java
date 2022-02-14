@@ -60,8 +60,7 @@ public class Task {
     @JoinColumn(name = "story_id")
     private Story story;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(
