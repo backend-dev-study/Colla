@@ -26,6 +26,8 @@ export const Shadow = css`
 `;
 
 export const Modal = css`
+    z-index: 1;
+
     ${Column}
     ${Shadow}
 `;
