@@ -1,6 +1,5 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
@@ -24,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -400,6 +399,23 @@ class ProjectControllerTest extends ControllerTest {
     }
 
     @Test
+    void 상태의_이름이_없다면_프로젝트의_테스크_상태_추가에_실패한다() throws Exception {
+        // given
+        Long projectId = 72434L;
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest();
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("name : must not be null"));
+        verify(projectService, times(0)).createTaskStatus(eq(projectId), anyString());
+    }
+
+    @Test
     void 프로젝트의_테스크_상태_삭제에_성공한다() throws Exception {
         // given
         Long projectId = 72434L;
@@ -414,8 +430,25 @@ class ProjectControllerTest extends ControllerTest {
 
         // then
         perform
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         verify(taskService, times(1)).deleteTaskStatus(projectId, statusName, statusNameToChange);
+    }
+
+    @Test
+    void 상태의_이름이_없다면_프로젝트의_테스크_상태_삭제에_실패한다() throws Exception {
+        // given
+        Long projectId = 72434L;
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest();
+        // when
+        ResultActions perform = mockMvc.perform(delete("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", anyOf(is("from : must not be null"), is("to : must not be null"))));
+        verify(taskService, times(0)).deleteTaskStatus(eq(projectId), anyString(), anyString());
     }
 
     @Test

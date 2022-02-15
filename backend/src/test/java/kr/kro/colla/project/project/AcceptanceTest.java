@@ -448,7 +448,7 @@ public class AcceptanceTest {
                 .delete("/api/projects/" + createdProject.getId() + "/statuses")
         // then
         .then()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(HttpStatus.NO_CONTENT.value());
     }
 
     @Test

@@ -203,4 +203,32 @@ class TaskServiceTest {
                 .containsExactly("backend", "refactoring", "bug fix");
     }
 
+    @Test
+    void 삭제될_테스크_상태값은_하위_테스크들이_변경된_후_삭제된다() {
+        // given
+        Long projectId = 134214L;
+        String beforeStr = "IM_BEFORE_STATUS", afterStr = "IM_AFTER_STATUS";
+        TaskStatus before = new TaskStatus(beforeStr);
+        TaskStatus after = new TaskStatus(afterStr);
+
+        Project project = ProjectProvider.createProject(987987L);
+        project.addStatus(before);
+        project.addStatus(after);
+
+        given(taskStatusService.findTaskStatusByName(beforeStr))
+                .willReturn(before);
+        given(taskStatusService.findTaskStatusByName(afterStr))
+                .willReturn(after);
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+
+        // when
+        taskService.deleteTaskStatus(projectId, beforeStr, afterStr);
+
+        // then
+        assertThat(project.getTaskStatuses().size()).isEqualTo(1);
+        assertThat(project.getTaskStatuses().get(0).getName()).isEqualTo(afterStr);
+        verify(taskStatusService, times(2)).findTaskStatusByName(anyString());
+        verify(taskRepository, times(1)).bulkUpdateTaskStatusToAnother(any(TaskStatus.class), any(TaskStatus.class));
+    }
 }
