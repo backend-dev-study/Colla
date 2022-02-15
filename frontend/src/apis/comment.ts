@@ -12,3 +12,9 @@ export const getAllComments = async (taskId: number) => {
 
     return response;
 };
+
+export const modifyComment = async (taskId: number, commentId: number, contents: string) => {
+    const response = await client.put(`tasks/${taskId}/comments/${commentId}`, { contents });
+
+    return response;
+};

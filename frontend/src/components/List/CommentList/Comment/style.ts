@@ -1,4 +1,6 @@
 import styled from '@emotion/styled';
+import { WHITE } from '../../../../styles/color';
+import { LiftUp } from '../../../../styles/common';
 
 interface Props {
     image?: string;
@@ -29,6 +31,36 @@ export const Contents = styled.div`
 
     span:last-child {
         font-size: 14px;
+    }
+`;
+
+export const ContentsInputContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    min-width: 420px;
+
+    div {
+        width: 40px;
+        margin: 10px 0 0 10px;
+        cursor: pointer;
+
+        ${LiftUp}
+    }
+`;
+
+export const ContentsInput = styled.input`
+    background-color: transparent;
+    margin-bottom: 5px;
+    width: 390px;
+    height: 20px;
+
+    &.modifying {
+        height: 40px;
+        background-color: ${WHITE};
+        border: none;
+        border-radius: 10px;
+        padding-left: 10px;
+        font-size: 15px;
     }
 `;
 

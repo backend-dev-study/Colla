@@ -1,27 +1,59 @@
-import React, { FC } from 'react';
+import React, { ChangeEvent, FC, useState } from 'react';
+import { modifyComment } from '../../../../apis/comment';
 import { useUserState } from '../../../../stores/userState';
 import { CommentType } from '../../../../types/comment';
-import { ButtonContainer, Container, Contents, Writer } from './style';
+import { ButtonContainer, Container, Contents, ContentsInput, ContentsInputContainer, Writer } from './style';
 
 interface PropType {
+    taskId: number;
     comment: CommentType;
     onClickInputSubComment: Function;
 }
 
-export const Comment: FC<PropType> = ({ comment, onClickInputSubComment }) => {
+export const Comment: FC<PropType> = ({ taskId, comment, onClickInputSubComment }) => {
     const profile = useUserState();
     const { id, writer, contents } = comment;
+
+    const [currentContents, setCurrentContents] = useState<string>(contents);
+    const [modifyingContents, setModifyingContents] = useState<string>(contents);
+    const [modifyCommentInput, setModifyCommentInput] = useState<boolean>(false);
+
+    const handleModifyContents = (event: ChangeEvent) => {
+        setModifyingContents((event.target as HTMLInputElement).value);
+    };
+
+    const handleModifyComment = () => {
+        setModifyingContents(currentContents);
+        setModifyCommentInput((prev) => !prev);
+    };
+
+    const handleModifyButton = async () => {
+        const res = await modifyComment(taskId, comment.id, modifyingContents);
+        setCurrentContents(res.data);
+    };
 
     return (
         <Container>
             <Writer image={writer.avatar} />
             <Contents>
                 <span>{writer.displayName}</span>
-                <span>{contents}</span>
+                <ContentsInputContainer>
+                    <ContentsInput
+                        className={modifyCommentInput ? 'modifying' : ''}
+                        value={modifyingContents}
+                        onChange={handleModifyContents}
+                    />
+                    {modifyCommentInput ? (
+                        <>
+                            <div onClick={handleModifyButton}>완료</div>
+                            <div onClick={handleModifyComment}>취소</div>
+                        </>
+                    ) : null}
+                </ContentsInputContainer>
                 <ButtonContainer>
                     {writer.githubId === profile.contents.githubId ? (
                         <>
-                            <div>수정</div>
+                            <div onClick={handleModifyComment}>수정</div>
                             <div>삭제</div>
                         </>
                     ) : (
