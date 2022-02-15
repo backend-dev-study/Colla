@@ -32,11 +32,11 @@ public class Tag {
             return false;
         }
         Tag tag = (Tag) o;
-        return Objects.equals(id, tag.id);
+        return Objects.equals(name, tag.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(name);
     }
 }

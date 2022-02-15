@@ -39,9 +39,6 @@ public class Task {
     @Column
     private String description;
 
-    @Column
-    private String images;
-
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -63,8 +60,7 @@ public class Task {
     @JoinColumn(name = "story_id")
     private Story story;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(
@@ -106,6 +102,10 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void addTags(List<TaskTag> tags) {
+        taskTags.addAll(tags);
     }
 
     public void updateContents(UpdateTaskRequest updateTaskRequest) {

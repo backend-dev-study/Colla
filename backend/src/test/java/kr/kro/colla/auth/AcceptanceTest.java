@@ -98,7 +98,7 @@ public class AcceptanceTest {
     void 로그아웃_시_Jwt토큰을_삭제한다() {
         // given
         Long id = 1L;
-        String accessToken = auth.로그인(id);
+        String accessToken = auth.토큰을_발급한다(id);
 
         ExtractableResponse<Response> response = RestAssured
                 .given()
