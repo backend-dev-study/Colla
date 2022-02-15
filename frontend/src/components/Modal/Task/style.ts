@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 
-import { RED, WHITE } from '../../../styles/color';
+import { LIGHT_GRAY, RED } from '../../../styles/color';
 import { LiftUp } from '../../../styles/common';
 
 export const ModalContainer = styled.div`
@@ -11,7 +11,7 @@ export const ModalContainer = styled.div`
     min-height: 430px;
     margin-top: 70px;
     border-radius: 20px;
-    background-color: ${WHITE};
+    background-color: ${LIGHT_GRAY};
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.1);
 `;
 

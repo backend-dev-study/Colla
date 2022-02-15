@@ -11,14 +11,28 @@ public class UserProvider {
     @Autowired
     private UserRepository userRepository;
 
-    public User 가_회원가입을_한다() {
-        User user = User.builder()
+    public User 가_로그인을_한다1() {
+        return userRepository.save(createUser());
+    }
+
+    public User 가_로그인을_한다2() {
+        return userRepository.save(createUser2());
+    }
+
+    public static User createUser() {
+        return User.builder()
                 .name("yeongkee")
                 .githubId("kykapple")
                 .avatar("s3_content")
                 .build();
+    }
 
-        return userRepository.save(user);
+    public static User createUser2() {
+        return User.builder()
+                .name("subin")
+                .githubId("binimini")
+                .avatar("s3_content")
+                .build();
     }
 
 }

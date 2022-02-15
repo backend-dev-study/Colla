@@ -4,6 +4,7 @@ import { getTask } from '../../../apis/task';
 import useInputTask from '../../../hooks/useInputTask';
 import { TaskType } from '../../../types/kanban';
 import { BasicInfoContainer } from './Basic';
+import { CommentContainer } from './Comment';
 import { DetailInfoContainer } from './Detail';
 import { Container, ModalContainer, CancelButton, CompleteButton, ButtonContainer } from './style';
 
@@ -34,6 +35,7 @@ export const TaskModal: FC<PropType> = ({ taskId, status, taskList, hideModal })
                 <BasicInfoContainer taskList={taskList} basicInfoInput={basicInfoInput} />
                 <DetailInfoContainer status={status} detailInfoInput={detailInfoInput} />
             </Container>
+            <CommentContainer />
             <ButtonContainer>
                 <CancelButton onClick={() => hideModal()}>취소</CancelButton>
                 <CompleteButton onClick={() => handleCompleteButton(taskId)}>{taskId ? '수정' : '완료'}</CompleteButton>

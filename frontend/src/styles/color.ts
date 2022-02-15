@@ -7,4 +7,4 @@ export const DARK_GREEN = 'rgba(203, 218, 204)';
 
 export const RED = `#ff0000`;
 
-export const WHITE = '#f1f1f1';
+export const WHITE = '#fff';

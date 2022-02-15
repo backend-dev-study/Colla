@@ -4,28 +4,13 @@ import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
-import kr.kro.colla.common.fixture.Auth;
+import kr.kro.colla.common.database.DatabaseCleaner;
+import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
-import kr.kro.colla.project.project.domain.Project;
-import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
-import kr.kro.colla.project.project.service.ProjectService;
-import kr.kro.colla.project.task_status.domain.TaskStatus;
-import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
-import kr.kro.colla.story.domain.Story;
-import kr.kro.colla.story.domain.repository.StoryRepository;
-import kr.kro.colla.task.tag.domain.Tag;
-import kr.kro.colla.task.tag.domain.repository.TagRepository;
-import kr.kro.colla.task.task_tag.domain.TaskTag;
-import kr.kro.colla.task.task_tag.domain.repository.TaskTagRepository;
-import kr.kro.colla.user.notice.domain.Notice;
-import kr.kro.colla.user.notice.domain.NoticeType;
-import kr.kro.colla.user.notice.domain.repository.NoticeRepository;
 import kr.kro.colla.user.user.domain.User;
-import kr.kro.colla.user.user.domain.repository.UserRepository;
-import kr.kro.colla.user_project.domain.UserProject;
-import kr.kro.colla.user_project.domain.repository.UserProjectRepository;
-import org.junit.jupiter.api.AfterEach;
+import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
+import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,80 +37,42 @@ public class AcceptanceTest {
     private JwtProvider jwtProvider;
 
     @Autowired
-    private ProjectService projectService;
+    private UserProvider user;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private ProjectProvider project;
 
     @Autowired
-    private UserRepository userRepository;
+    private StoryProvider story;
 
     @Autowired
-    private UserProjectRepository userProjectRepository;
+    private TagProvider tag;
 
     @Autowired
-    private StoryRepository storyRepository;
+    private TaskStatusProvider taskStatus;
 
     @Autowired
-    private TagRepository tagRepository;
+    private NoticeProvider notice;
 
     @Autowired
-    private NoticeRepository noticeRepository;
-
-    @Autowired
-    private TaskTagRepository taskTagRepository;
-
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
+    private DatabaseCleaner databaseCleaner;
 
     private Auth auth;
-    private User user;
-    private Project project;
-    private String accessToken;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-
-        user = User.builder()
-                .githubId("kykapple")
-                .name("kyk")
-                .avatar("github_content")
-                .build();
-        userRepository.save(user);
-
-        project = Project.builder()
-                .managerId(user.getId())
-                .name("project name")
-                .description("project description")
-                .thumbnail("s3_content")
-                .build();
-        projectRepository.save(project);
-
-        UserProject userProject = UserProject.builder()
-                .user(user)
-                .project(project)
-                .build();
-        userProjectRepository.save(userProject);
-
         auth = new Auth(jwtProvider);
-        accessToken = auth.로그인(user.getId());
-    }
-
-    @AfterEach
-    void rollback(){
-        taskTagRepository.deleteAll();
-        tagRepository.deleteAll();
-        storyRepository.deleteAll();
-        userProjectRepository.deleteAll();
-        userRepository.deleteAll();
-        projectRepository.deleteAll();
-        taskStatusRepository.deleteAll();
+        databaseCleaner.execute();
     }
 
     @Test
     void 프로젝트_목록에서_클릭한_프로젝트를_조회한다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         ProjectResponse response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -133,19 +80,19 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + project.getId())
+                .get("/api/projects/" + createdProject.getId())
 
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("name", equalTo(project.getName()))
-                .body("description", equalTo(project.getDescription()))
+                .body("name", equalTo(createdProject.getName()))
+                .body("description", equalTo(createdProject.getDescription()))
                 .body("members.size()", is(1))
                 .extract()
                 .body()
                 .as(ProjectResponse.class);
-        assertThat(response.getMembers().get(0).getGithubId()).isEqualTo(user.getGithubId());
+        assertThat(response.getMembers().get(0).getGithubId()).isEqualTo(registeredUser.getGithubId());
         assertThat(response.getTasks().size()).isEqualTo(3);
         assertThat(response.getTasks().containsKey("To Do")).isTrue();
         assertThat(response.getTasks().containsKey("In Progress")).isTrue();
@@ -155,12 +102,11 @@ public class AcceptanceTest {
     @Test
     void 사용자를_프로젝트에_초대하는데_성공한다() {
         // given
-        User member = User.builder()
-                .name("subin")
-                .githubId("binimini")
-                .avatar("profile")
-                .build();
-        userRepository.save(member);
+        User manager = user.가_로그인을_한다1();
+        User member = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(manager.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest(member.getGithubId());
 
         given()
@@ -168,40 +114,34 @@ public class AcceptanceTest {
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
                 .body(projectMemberRequest)
+
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/members")
+                .post("/api/projects/" + createdProject.getId() + "/members")
+
         // then
         .then()
-                .statusCode(HttpStatus.OK.value())
-                .log();
+                .statusCode(HttpStatus.OK.value());
     }
 
     @Test
     void 사용자_초대를_권한_부족으로_실패한다() {
         // given
-        User manager = User.builder()
-                .name("zcvzxvxc")
-                .githubId("easdas")
-                .avatar("profile")
-                .build();
-        userRepository.save(manager);
-        Project newManagerProject = Project.builder()
-                .name("new project")
-                .description("login user isn't manager of project")
-                .managerId(manager.getId())
-                .build();
-        projectRepository.save(newManagerProject);
+        User member = user.가_로그인을_한다1();
+        String memberToken = auth.토큰을_발급한다(member.getId());
+        User manager = user.가_로그인을_한다2();
+        String managerToken = auth.토큰을_발급한다(manager.getId());
+        UserProjectResponse createdProject = project.를_생성한다(managerToken);
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest("member_github");
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", accessToken)
+                .cookie("accessToken", memberToken)
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/" + newManagerProject.getId() + "/members")
+                .post("/api/projects/" + createdProject.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.FORBIDDEN.value())
@@ -213,6 +153,9 @@ public class AcceptanceTest {
     @Test
     void 사용자_초대를_githubId_부족으로_실패한다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
 
         given()
@@ -222,7 +165,7 @@ public class AcceptanceTest {
                 .body(projectMemberRequest)
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/members")
+                .post("/api/projects/" + createdProject.getId() + "/members")
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -234,6 +177,10 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트_스토리를_생성한다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         String title = "story title";
         CreateStoryRequest createStoryRequest = new CreateStoryRequest(title);
 
@@ -245,7 +192,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/stories")
+                .post("/api/projects/" + createdProject.getId() + "/stories")
 
         // then
         .then()
@@ -256,12 +203,12 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트_스토리를_조회한다() {
         // given
-        Story story = Story.builder()
-                .title("story title")
-                .preStories("[]")
-                .project(project)
-                .build();
-        storyRepository.save(story);
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        String storyTitle = "story title";
+        story.를_생성한다(createdProject.getId(), accessToken, storyTitle);
 
         List<ProjectStoryResponse> response = given()
                 .contentType(ContentType.JSON)
@@ -270,7 +217,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + project.getId() + "/stories")
+                .get("/api/projects/" + createdProject.getId() + "/stories")
 
         // then
         .then()
@@ -280,71 +227,77 @@ public class AcceptanceTest {
                 .as(new TypeRef<List<ProjectStoryResponse>>() {});
 
         assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getTitle()).isEqualTo(story.getTitle());
+        assertThat(response.get(0).getTitle()).isEqualTo(storyTitle);
     }
 
     @Test
     void 사용자가_프로젝트_초대를_수락한다() {
         // given
-        Notice notice = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectId(project.getId())
-                .projectName(project.getName())
-                .build();
-        noticeRepository.save(notice);
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true, notice.getId());
+        User manager = user.가_로그인을_한다1();
+        String managerToken = auth.토큰을_발급한다(manager.getId());
+        User member = user.가_로그인을_한다2();
+        String memberToken = auth.토큰을_발급한다(member.getId());
+
+        UserProjectResponse createdProject = project.를_생성한다(managerToken);
+        notice.를_생성한다(managerToken, createdProject.getId(), member.getGithubId());
+        List<UserNoticeResponse> noticeResponseList = notice.를_조회한다(memberToken);
+
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(true, noticeResponseList.get(0).getId());
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", accessToken)
+                .cookie("accessToken", memberToken)
                 .body(projectMemberDecision)
 
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/members/decision")
+                .post("/api/projects/" + createdProject.getId() + "/members/decision")
 
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("id", equalTo(user.getId().intValue()))
-                .body("name", equalTo(user.getName()))
-                .body("avatar", equalTo(user.getAvatar()))
-                .body("githubId", equalTo(user.getGithubId()));
-        Notice checkedNotice = noticeRepository.findById(notice.getId()).get();
-        assertThat(checkedNotice.getIsChecked()).isEqualTo(true);
+                .body("id", equalTo(member.getId().intValue()))
+                .body("name", equalTo(member.getName()))
+                .body("avatar", equalTo(member.getAvatar()))
+                .body("githubId", equalTo(member.getGithubId()));
     }
 
     @Test
     void 사용자가_프로젝트_초대를_거절한다() {
         // given
-        Notice notice = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectId(project.getId())
-                .projectName(project.getName())
-                .build();
-        noticeRepository.save(notice);
-        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, notice.getId());
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        User member = user.가_로그인을_한다2();
+        String memberToken = auth.토큰을_발급한다(member.getId());
+
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        notice.를_생성한다(accessToken, createdProject.getId(), member.getGithubId());
+        List<UserNoticeResponse> noticeResponseList = notice.를_조회한다(memberToken);
+
+        ProjectMemberDecision projectMemberDecision = new ProjectMemberDecision(false, noticeResponseList.get(0).getId());
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .cookie("accessToken", accessToken)
+                .cookie("accessToken", memberToken)
                 .body(projectMemberDecision)
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/members/decision")
+                .post("/api/projects/" + createdProject.getId() + "/members/decision")
 
         // then
         .then()
                 .statusCode(HttpStatus.OK.value());
-        Notice checkedNotice = noticeRepository.findById(notice.getId()).get();
-        assertThat(checkedNotice.getIsChecked()).isEqualTo(true);
     }
 
     @Test
     void 사용자가_프로젝트_멤버를_조회한다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         List<ProjectMemberResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -352,7 +305,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + project.getId() + "/members")
+                .get("/api/projects/" + createdProject.getId() + "/members")
 
         // then
         .then()
@@ -362,14 +315,18 @@ public class AcceptanceTest {
                 .as(new TypeRef<List<ProjectMemberResponse>>() {});
 
         assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getId()).isEqualTo(user.getId());
-        assertThat(response.get(0).getName()).isEqualTo(user.getName());
-        assertThat(response.get(0).getAvatar()).isEqualTo(user.getAvatar());
+        assertThat(response.get(0).getId()).isEqualTo(registeredUser.getId());
+        assertThat(response.get(0).getName()).isEqualTo(registeredUser.getName());
+        assertThat(response.get(0).getAvatar()).isEqualTo(registeredUser.getAvatar());
     }
 
     @Test
     void 사용자가_프로젝트에서_사용할_새로운_태스크_태그를_생성한다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         String tagName = "backend";
         CreateTagRequest createTagRequest = new CreateTagRequest(tagName);
 
@@ -381,7 +338,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/tags")
+                .post("/api/projects/" + createdProject.getId() + "/tags")
 
         // then
         .then()
@@ -392,6 +349,10 @@ public class AcceptanceTest {
     @Test
     void 사용자는_빈_태스크_태그를_생성할_수_없다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         CreateTagRequest createTagRequest = new CreateTagRequest("");
 
         given()
@@ -402,7 +363,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/tags")
+                .post("/api/projects/" + createdProject.getId() + "/tags")
 
         // then
         .then()
@@ -413,11 +374,10 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트에_등록되어_있는_테스크_태그들을_조회한다() {
         // given
-        Tag tag = new Tag("backend");
-        tagRepository.save(tag);
-
-        TaskTag taskTag = new TaskTag(project, tag);
-        taskTagRepository.save(taskTag);
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        ProjectTagResponse createdTag = tag.를_생성한다(accessToken, createdProject.getId(), "backend");
 
         List<ProjectTagResponse> response = given()
                 .contentType(ContentType.JSON)
@@ -426,7 +386,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + project.getId() + "/tags")
+                .get("/api/projects/" + createdProject.getId() + "/tags")
 
         // then
         .then()
@@ -436,12 +396,16 @@ public class AcceptanceTest {
                 .as(new TypeRef<List<ProjectTagResponse>>() {});
 
         assertThat(response.size()).isEqualTo(1);
-        assertThat(response.get(0).getName()).isEqualTo(tag.getName());
+        assertThat(response.get(0).getName()).isEqualTo(createdTag.getName());
     }
 
     @Test
     void 사용자가_프로젝트의_테스크_상태값을_추가할_수_있다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         String statusName = "MY_TASK_STATUS_NAME_TO_CREATE";
         CreateTaskStatusRequest request = new CreateTaskStatusRequest(statusName);
 
@@ -452,24 +416,25 @@ public class AcceptanceTest {
                 .body(request)
         // when
         .when()
-                .post("/api/projects/" + project.getId() + "/statuses")
+                .post("/api/projects/" + createdProject.getId() + "/statuses")
         // then
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
                 .body("name", equalTo(statusName));
-        assertThat(taskStatusRepository.findByName(statusName).isPresent());
     }
 
     @Test
     void 사용자가_프로젝트_테스크_상태값을_삭제할_수_있다() {
         // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
         String statusName = "MY_STATUS_TO_DELETE";
         List<String> statuses = List.of("NEW_TO_DO_LIST", "NEW_DONE_LIST", statusName);
-        statuses.forEach(name -> {
-            TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus(name));
-            project.addStatus(taskStatus);
-        });
+        statuses.forEach(name -> taskStatus.를_생성한다(accessToken, createdProject.getId(), name));
+
         DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
 
         given()
@@ -479,15 +444,10 @@ public class AcceptanceTest {
                 .body(request)
         // when
         .when()
-                .delete("/api/projects/" + project.getId() + "/statuses")
+                .delete("/api/projects/" + createdProject.getId() + "/statuses")
         // then
         .then()
                 .statusCode(HttpStatus.OK.value());
-
-        assertThat(taskStatusRepository.findByName(statusName).isEmpty());
-        statuses
-                .stream()
-                .filter(name -> name==statusName)
-                .forEach(name -> assertThat(taskStatusRepository.findByName(name).isPresent()));
     }
+
 }

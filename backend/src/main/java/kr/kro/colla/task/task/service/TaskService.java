@@ -37,7 +37,7 @@ public class TaskService {
 
     public Long createTask(CreateTaskRequest createTaskRequest) {
         Project project = projectService.findProjectById(createTaskRequest.getProjectId());
-        Story story = createTaskRequest.getStory() != null
+        Story story = !createTaskRequest.getStory().isBlank()
                 ? storyService.findStoryByTitle(createTaskRequest.getStory())
                 : null;
         TaskStatus taskStatus = taskStatusService.findTaskStatusByName(createTaskRequest.getStatus());
@@ -53,9 +53,8 @@ public class TaskService {
                 .preTasks(createTaskRequest.getPreTasks())
                 .build();
 
-        if (createTaskRequest.getTags() != null) {
-            taskTagService.setTaskTag(task, createTaskRequest.getTags());
-        }
+        List<TaskTag> tags = taskTagService.translateTaskTags(task, createTaskRequest.getTags());
+        task.addTags(tags);
 
         return taskRepository.save(task)
                 .getId();
