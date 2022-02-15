@@ -9,7 +9,6 @@ export const ModalContainer = styled.div`
     flex-direction: column;
     width: 880px;
     min-height: 430px;
-    margin-top: 70px;
     border-radius: 20px;
     background-color: ${LIGHT_GRAY};
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.1);
