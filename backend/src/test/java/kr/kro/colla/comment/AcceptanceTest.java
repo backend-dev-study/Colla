@@ -1,8 +1,8 @@
 package kr.kro.colla.comment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.MapType;
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
@@ -20,8 +20,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
-
-import java.util.HashMap;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -88,7 +86,8 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("userId", equalTo(registeredUser.getId().intValue()))
+                .body("writer.displayName", equalTo(registeredUser.getName()))
+                .body("writer.avatar", equalTo(registeredUser.getAvatar()))
                 .body("superCommentId", nullValue())
                 .body("contents", equalTo(createCommentRequest.getContents()));
     }
@@ -120,7 +119,8 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("userId", equalTo(member1.getId().intValue()))
+                .body("writer.displayName", equalTo(member1.getName()))
+                .body("writer.avatar", equalTo(member1.getAvatar()))
                 .body("superCommentId", equalTo(registeredComment.getId().intValue()))
                 .body("contents", equalTo(createCommentRequest.getContents()));
     }
@@ -140,10 +140,7 @@ public class AcceptanceTest {
         CreateCommentResponse registeredComment2 = comment.를_등록한다(member2AccessToken, null);
         CreateCommentResponse subComment = comment.를_등록한다(member1AccessToken, registeredComment2.getId());
 
-        MapType mapType = objectMapper.getTypeFactory()
-                .constructMapType(HashMap.class, Long.class, TaskCommentResponse.class);
-
-        HashMap<Long, TaskCommentResponse> response = given()
+        List<TaskCommentResponse> response = given()
                 .contentType(ContentType.JSON)
                 .cookie("accessToken", member1AccessToken)
 
@@ -156,18 +153,18 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(mapType);
+                .as(new TypeRef<List<TaskCommentResponse>>() {});
 
         assertThat(response.size()).isEqualTo(2);
-        assertThat(response.get(1L).getUserId()).isEqualTo(member2.getId());
-        assertThat(response.get(1L).getContents()).isEqualTo(registeredComment1.getContents());
-        assertThat(response.get(1L).getSubComments().size()).isZero();
-        assertThat(response.get(2L).getUserId()).isEqualTo(member2.getId());
-        assertThat(response.get(2L).getContents()).isEqualTo(registeredComment2.getContents());
+        assertThat(response.get(0).getWriter().getDisplayName()).isEqualTo(member2.getName());
+        assertThat(response.get(0).getContents()).isEqualTo(registeredComment1.getContents());
+        assertThat(response.get(0).getSubComments().size()).isZero();
+        assertThat(response.get(1).getWriter().getDisplayName()).isEqualTo(member2.getName());
+        assertThat(response.get(1).getContents()).isEqualTo(registeredComment2.getContents());
 
-        List<TaskCommentResponse> subComments = response.get(2L).getSubComments();
+        List<TaskCommentResponse> subComments = response.get(1).getSubComments();
         assertThat(subComments.size()).isOne();
-        assertThat(subComments.get(0).getUserId()).isEqualTo(member1.getId());
+        assertThat(subComments.get(0).getWriter().getDisplayName()).isEqualTo(member1.getName());
         assertThat(subComments.get(0).getContents()).isEqualTo(subComment.getContents());
         assertThat(subComments.get(0).getSubComments()).isEmpty();
     }

@@ -1,6 +1,7 @@
 package kr.kro.colla.comment.presentation.dto;
 
 import kr.kro.colla.comment.domain.Comment;
+import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ public class TaskCommentResponse {
 
     private Long id;
 
-    private Long userId;
+    private UserProfileResponse writer;
 
     private String contents;
 
@@ -21,7 +22,7 @@ public class TaskCommentResponse {
 
     public TaskCommentResponse(Comment comment) {
         this.id = comment.getId();
-        this.userId = comment.getUser().getId();
+        this.writer = new UserProfileResponse(comment.getUser());
         this.contents = comment.getContents();
         this.subComments = new ArrayList<>();
     }
