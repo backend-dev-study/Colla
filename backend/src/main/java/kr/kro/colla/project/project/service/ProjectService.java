@@ -1,6 +1,7 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
@@ -147,6 +148,15 @@ public class ProjectService {
 
     public TaskStatus createTaskStatus(Long projectId, String name) {
         Project project = findProjectById(projectId);
+
+        Optional<TaskStatus> exist = project.getTaskStatuses()
+                .stream()
+                .filter(taskStatus -> taskStatus.getName().equals(name))
+                .findFirst();
+        if (exist.isPresent()) {
+            throw new TaskStatusAlreadyExistException();
+        }
+
         TaskStatus taskStatus = new TaskStatus(name);
         project.addStatus(taskStatus);
         return taskStatus;
