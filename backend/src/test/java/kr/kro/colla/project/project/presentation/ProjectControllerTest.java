@@ -2,6 +2,7 @@ package kr.kro.colla.project.project.presentation;
 
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.common.ControllerTest;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
@@ -12,6 +13,7 @@ import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
@@ -396,6 +398,28 @@ class ProjectControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.id").value(taskStatus.getId().intValue()))
                 .andExpect(jsonPath("$.name").value(taskStatus.getName()));
         verify(projectService, times(1)).createTaskStatus(projectId, statusName);
+    }
+
+    @Test
+    void 존재하는_이름의_프로젝트_테스크_상태_추가에_실패한다() throws Exception {
+        // given
+        Long projectId = 23425L;
+        String taskStatusName = "already_exist_task_status_name!!";
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest(taskStatusName);
+
+        willThrow(new TaskStatusAlreadyExistException()).
+                given(projectService).createTaskStatus(projectId, taskStatusName);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.message").value(new TaskStatusAlreadyExistException().getMessage()));
     }
 
     @Test

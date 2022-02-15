@@ -6,8 +6,8 @@ import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
-import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
@@ -426,6 +426,56 @@ public class AcceptanceTest {
     }
 
     @Test
+    void 사용자는_상태_이름_없이_프로젝트_테스크_상태값을_생성할_수_없다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest();
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .post("/api/projects/" + createdProject.getId() + "/statuses")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", containsString("널이어서는 안됩니다"));
+    }
+
+    @Test
+    void 사용자는_존재하는_상태_이름의_프로젝트_테스크_상태값을_생성할_수_없다() {
+        // given
+        String statusName = "ran_Dom_Sta_tus_name";
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), statusName);
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest(statusName);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .post("/api/projects/" + createdProject.getId() + "/statuses")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", equalTo(new TaskStatusAlreadyExistException().getMessage()));
+    }
+
+    @Test
     void 사용자는_프로젝트_테스크_상태값을_삭제할_수_있다() {
         // given
         User registeredUser = user.가_로그인을_한다1();
@@ -449,6 +499,30 @@ public class AcceptanceTest {
         // then
         .then()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    void 사용자는_상태_이름_없이_프로젝트_테스크_상태값을_삭제할_수_없다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest();
+        given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .delete("/api/projects/" + createdProject.getId() + "/statuses")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", containsString("널이어서는 안됩니다"));
     }
 
     @Test

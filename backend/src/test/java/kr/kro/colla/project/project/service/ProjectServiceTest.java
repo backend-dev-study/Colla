@@ -3,6 +3,7 @@ package kr.kro.colla.project.project.service;
 import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskStatusProvider;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
@@ -395,6 +396,24 @@ class ProjectServiceTest {
         assertThat(project.getTaskStatuses().size()).isEqualTo(2);
         verify(projectRepository, times(statuses.size())).findById(projectId);
 
+    }
+
+    @Test
+    void 존재하는_이름의_프로젝트_상태값_추가에_실패한다() {
+        // given
+        Long projectId = 683482L;
+        String statusName = "same_name_";
+        Project project = ProjectProvider.createProject(23424L);
+        TaskStatus exist = TaskStatusProvider.createTaskStatus(statusName);
+        project.addStatus(exist);
+
+        given(projectRepository.findById(projectId))
+                .willReturn(Optional.of(project));
+
+        // when, then
+        assertThatThrownBy(()->{
+            projectService.createTaskStatus(projectId, statusName);
+        }).isInstanceOf(TaskStatusAlreadyExistException.class);
     }
 
     @Test
