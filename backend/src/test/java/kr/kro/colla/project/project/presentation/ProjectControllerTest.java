@@ -403,8 +403,8 @@ class ProjectControllerTest extends ControllerTest {
     void 프로젝트의_테스크_상태_삭제에_성공한다() throws Exception {
         // given
         Long projectId = 72434L;
-        String statusName = "삭제할 테스크 상태값";
-        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
+        String statusName = "삭제할 테스크 상태값", statusNameToChange = "변경할 테스크 상태값";
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName, statusNameToChange);
 
         // when
         ResultActions perform = mockMvc.perform(delete("/projects/" + projectId + "/statuses")
@@ -415,7 +415,7 @@ class ProjectControllerTest extends ControllerTest {
         // then
         perform
                 .andExpect(status().isOk());
-        verify(projectService, times(1)).deleteTaskStatus(projectId, statusName);
+        verify(taskService, times(1)).deleteTaskStatus(projectId, statusName, statusNameToChange);
     }
 
     @Test

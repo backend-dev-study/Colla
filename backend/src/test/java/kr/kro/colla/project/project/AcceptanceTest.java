@@ -432,11 +432,11 @@ public class AcceptanceTest {
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
 
-        String statusName = "MY_STATUS_TO_DELETE";
-        List<String> statuses = List.of("NEW_TO_DO_LIST", "NEW_DONE_LIST", statusName);
+        String statusName = "MY_STATUS_TO_DELETE", statusNameToChange = "MY_STATUS_TO_CHANGE";
+        List<String> statuses = List.of("NEW_TO_DO_LIST", "NEW_DONE_LIST", statusName, statusNameToChange);
         statuses.forEach(name -> taskStatus.를_생성한다(accessToken, createdProject.getId(), name));
 
-        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName, statusNameToChange);
 
         given()
                 .contentType(ContentType.JSON)

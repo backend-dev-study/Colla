@@ -398,33 +398,6 @@ class ProjectServiceTest {
     }
 
     @Test
-    void 프로젝트_상태값_삭제에_성공한다() {
-        // given
-        String nameToDelete = "im doing this task!", nameToRemain = "it remains";
-        Long projectId = 683482L;
-        Project project = Project.builder()
-                .name("new_project_name_for_testing!!")
-                .managerId(293482L)
-                .build();
-        TaskStatus taskStatus1 = new TaskStatus(nameToDelete);
-        TaskStatus taskStatus2 = new TaskStatus(nameToRemain);
-        project.addStatus(taskStatus1);
-        project.addStatus(taskStatus2);
-
-        given(projectRepository.findById(projectId))
-                .willReturn(Optional.of(project));
-        given(taskStatusService.findTaskStatusByName(nameToDelete))
-                .willReturn(taskStatus1);
-
-        // when
-        projectService.deleteTaskStatus(projectId, nameToDelete);
-
-        // then
-        assertThat(project.getTaskStatuses().size()).isEqualTo(1);
-        assertThat(project.getTaskStatuses().get(0).getName()).isEqualTo(nameToRemain);
-    }
-
-    @Test
     void 프로젝트_상태값_조회에_성공한다() {
         // given
         Project project = ProjectProvider.createProject(1234513L);
