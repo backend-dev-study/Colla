@@ -7,6 +7,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
+import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserNoticeResponse;
@@ -425,7 +426,7 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트_테스크_상태값을_삭제할_수_있다() {
+    void 사용자는_프로젝트_테스크_상태값을_삭제할_수_있다() {
         // given
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
@@ -450,4 +451,33 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value());
     }
 
+    @Test
+    void 사용자는_프로젝트_테스크_상태값을_조회할_수_있다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+
+        List<ProjectTaskStatusResponse> response = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/statuses")
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskStatusResponse>>(){});
+        assertThat(response.size()).isEqualTo(3);
+        response
+                .stream()
+                .forEach(s -> assertThat(s.getId()).isNotNull());
+        response
+                .stream()
+                .forEach(s -> assertThat(List.of("To Do","In Progress", "Done").contains(s.getName())));
+    }
 }

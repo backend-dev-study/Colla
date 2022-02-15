@@ -21,8 +21,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.servlet.http.Cookie;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -414,5 +416,31 @@ class ProjectControllerTest extends ControllerTest {
         perform
                 .andExpect(status().isOk());
         verify(projectService, times(1)).deleteTaskStatus(projectId, statusName);
+    }
+
+    @Test
+    void 프로젝트의_테스크_상태_조회에_성공한다() throws Exception {
+        // given
+        Long projectId = 435345L;
+        List<TaskStatus> taskStatuses = List.of(
+                new TaskStatus("status1"),
+                new TaskStatus("status2"),
+                new TaskStatus("status3")
+        );
+        List<ProjectTaskStatusResponse> responses = taskStatuses
+                .stream()
+                .map(ProjectTaskStatusResponse::new)
+                .collect(Collectors.toList());
+
+        given(projectService.getTaskStatuses(projectId))
+                .willReturn(responses);
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].name").value(containsInAnyOrder("status1", "status2", "status3")));
     }
 }
