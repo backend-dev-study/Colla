@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { LiftUp } from '../../../styles/common';
 
 export const Container = styled.div`
     display: flex;
@@ -30,35 +31,34 @@ export const SuperComment = styled.div`
     margin-bottom: 7px;
 `;
 
-export const SubComment = styled.div`
+export const SubCommentContainer = styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     margin: 0 0 7px 45px;
 `;
 
-interface Props {
-    image?: string;
-}
-
-export const Writer = styled.div<Props>`
-    background: url(${({ image }) => image});
-    background-size: cover;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+export const SubComment = styled.div`
+    margin: 10px 0;
 `;
 
-export const Contents = styled.div`
+export const SubCommentInputContainer = styled.div`
     display: flex;
-    flex-direction: column;
-    margin-left: 15px;
-    max-width: 360px;
+    flex-direction: row;
+    margin-top: 10px;
+`;
 
-    span {
-        margin-bottom: 5px;
-    }
+export const SubCommentInput = styled.input`
+    border: none;
+    width: 370px;
+    height: 40px;
+    border-radius: 10px;
+    padding-left: 10px;
+    font-size: 15px;
+`;
 
-    span:last-child {
-        font-size: 14px;
-    }
+export const CancelButton = styled.div`
+    margin: 10px 0 0 10px;
+    cursor: pointer;
+
+    ${LiftUp}
 `;

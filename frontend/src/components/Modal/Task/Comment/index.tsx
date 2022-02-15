@@ -2,7 +2,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 
 import { getAllComments, saveComment } from '../../../../apis/comment';
 import { CommentType } from '../../../../types/comment';
-import { CommentList } from '../../../List/Comment';
+import { CommentList } from '../../../List/CommentList';
 import { Comment, CommentInput, Container, SaveButton, Title } from './style';
 
 interface PropType {
@@ -21,15 +21,15 @@ export const CommentContainer: FC<PropType> = ({ taskId }) => {
         const res = await saveComment(taskId, comment, null);
         setCommentList((prev) => {
             const { id, writer, superCommentId, contents } = res.data;
-            const currentList = [...prev];
+            const newCommentList = [...prev];
 
             superCommentId
-                ? currentList
+                ? newCommentList
                       .filter((comment) => comment.id === superCommentId)
                       .forEach((comment) => comment.subComments.push({ id, writer, contents, subComments: [] }))
-                : currentList.push({ id, writer, contents, subComments: [] });
+                : newCommentList.push({ id, writer, contents, subComments: [] });
 
-            return currentList;
+            return newCommentList;
         });
         setComment('');
     };
@@ -48,7 +48,7 @@ export const CommentContainer: FC<PropType> = ({ taskId }) => {
                 <CommentInput value={comment} onChange={handleChangeComment} />
                 <SaveButton onClick={handleSaveButton}>등록</SaveButton>
             </Comment>
-            <CommentList commentList={commentList} />
+            <CommentList taskId={taskId} commentList={commentList} setCommentList={setCommentList} />
         </Container>
     );
 };
