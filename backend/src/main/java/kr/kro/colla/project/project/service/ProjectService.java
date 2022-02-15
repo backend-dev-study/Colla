@@ -39,7 +39,6 @@ public class ProjectService {
     private final UserProjectService userProjectService;
     private final ProjectRepository projectRepository;
     private final ProjectProfileStorage projectProfileStorage;
-    private final TaskStatusService taskStatusService;
 
     public Project createProject(Long managerId, CreateProjectRequest createProjectRequest) {
         User user = userService.findUserById(managerId);
@@ -151,12 +150,6 @@ public class ProjectService {
         TaskStatus taskStatus = new TaskStatus(name);
         project.addStatus(taskStatus);
         return taskStatus;
-    }
-
-    public void deleteTaskStatus(Long projectId, String statusName) {
-        Project project = findProjectById(projectId);
-        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
-        project.removeStatus(taskStatus);
     }
 
     public List<ProjectTaskStatusResponse> getTaskStatuses(Long projectId) {

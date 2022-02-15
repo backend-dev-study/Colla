@@ -8,7 +8,7 @@ import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
-import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.task.task.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +23,7 @@ public class ProjectController {
 
     private final StoryService storyService;
     private final ProjectService projectService;
+    private final TaskService taskService;
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> getProject(@PathVariable Long projectId) {
@@ -92,9 +93,9 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}/statuses")
     public ResponseEntity<Void> deleteTaskStatus(@PathVariable Long projectId, @Valid @RequestBody DeleteTaskStatusRequest deleteRequest) {
-        projectService.deleteTaskStatus(projectId, deleteRequest.getName());
+        taskService.deleteTaskStatus(projectId, deleteRequest.getFrom(), deleteRequest.getTo());
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{projectId}/statuses")

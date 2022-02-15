@@ -11,5 +11,8 @@ import javax.validation.constraints.NotNull;
 @Getter
 public class DeleteTaskStatusRequest {
     @NotNull
-    private String name;
+    private String from;
+
+    @NotNull
+    private String to;
 }

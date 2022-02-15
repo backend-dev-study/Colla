@@ -458,7 +458,6 @@ public class AcceptanceTest {
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
 
-
         List<ProjectTaskStatusResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
