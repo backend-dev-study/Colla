@@ -1,8 +1,8 @@
 import React, { ChangeEvent, FC, useState } from 'react';
 import { saveComment } from '../../../apis/comment';
 import { CommentType } from '../../../types/comment';
+import { Comment } from '../../Comment';
 import { SaveButton } from '../../Modal/Task/Comment/style';
-import { Comment } from './Comment';
 import {
     CancelButton,
     Container,

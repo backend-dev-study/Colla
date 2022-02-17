@@ -1,7 +1,7 @@
 import React, { ChangeEvent, FC, useState } from 'react';
-import { modifyComment } from '../../../../apis/comment';
-import { useUserState } from '../../../../stores/userState';
-import { CommentType } from '../../../../types/comment';
+import { modifyComment } from '../../apis/comment';
+import { useUserState } from '../../stores/userState';
+import { CommentType } from '../../types/comment';
 import { ButtonContainer, Container, Contents, ContentsInput, ContentsInputContainer, Writer } from './style';
 
 interface PropType {
