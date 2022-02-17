@@ -34,10 +34,18 @@ public class CommentController {
     }
 
     @PutMapping("/tasks/comments/{commentId}")
-    public ResponseEntity<UpdateCommentResponse> updateComment(@PathVariable("commentId") Long commentId, @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
+    public ResponseEntity<UpdateCommentResponse> updateComment(@PathVariable Long commentId, @Valid @RequestBody UpdateCommentRequest updateCommentRequest) {
         Comment comment = commentService.updateComment(commentId, updateCommentRequest);
 
         return ResponseEntity.ok(new UpdateCommentResponse(comment));
+    }
+
+    @DeleteMapping("/tasks/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId);
+
+        return ResponseEntity.ok()
+                .build();
     }
 
 }

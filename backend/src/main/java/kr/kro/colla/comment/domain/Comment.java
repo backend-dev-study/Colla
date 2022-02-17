@@ -49,8 +49,7 @@ public class Comment {
     @OneToMany(
             mappedBy = "superComment",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true
+            cascade = CascadeType.REMOVE
     )
     private List<Comment> subComment = new ArrayList<>();
 
