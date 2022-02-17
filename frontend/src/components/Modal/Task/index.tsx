@@ -35,7 +35,7 @@ export const TaskModal: FC<PropType> = ({ taskId, status, taskList, hideModal })
                 <BasicInfoContainer taskList={taskList} basicInfoInput={basicInfoInput} />
                 <DetailInfoContainer status={status} detailInfoInput={detailInfoInput} />
             </Container>
-            <CommentContainer />
+            {taskId ? <CommentContainer taskId={taskId} /> : null}
             <ButtonContainer>
                 <CancelButton onClick={() => hideModal()}>취소</CancelButton>
                 <CompleteButton onClick={() => handleCompleteButton(taskId)}>{taskId ? '수정' : '완료'}</CompleteButton>

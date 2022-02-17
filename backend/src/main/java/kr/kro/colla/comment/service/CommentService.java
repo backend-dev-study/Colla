@@ -9,11 +9,13 @@ import kr.kro.colla.exception.exception.comment.CommentNotFoundException;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.service.TaskService;
 import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import kr.kro.colla.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +47,13 @@ public class CommentService {
 
         return CreateCommentResponse.builder()
                 .id(comment.getId())
-                .userId(user.getId())
+                .writer(new UserProfileResponse(user))
                 .superCommentId(superCommentId)
                 .contents(comment.getContents())
                 .build();
     }
 
-    public Map<Long, TaskCommentResponse> getAllComments(Long taskId) {
+    public List<TaskCommentResponse> getAllComments(Long taskId) {
         Task task = taskService.findTaskById(taskId);
         List<Comment> allComments = commentRepository.findAll(task);
         Map<Long, TaskCommentResponse> comments = new HashMap<>();
@@ -66,7 +68,7 @@ public class CommentService {
                     .addSubComment(comment);
         }
 
-        return comments;
+        return new ArrayList<>(comments.values());
     }
 
     public Comment findCommentById(Long commentId) {

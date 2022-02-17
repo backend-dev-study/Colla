@@ -68,7 +68,7 @@ class CommentServiceTest {
         CreateCommentResponse createCommentResponse = commentService.saveComment(userId, taskId, createCommentRequest);
 
         // then
-        assertThat(createCommentResponse.getUserId()).isEqualTo(userId);
+        assertThat(createCommentResponse.getWriter().getDisplayName()).isEqualTo(user.getName());
         assertThat(createCommentResponse.getContents()).isEqualTo(createCommentRequest.getContents());
         assertThat(createCommentResponse.getSuperCommentId()).isNull();
         verify(userService, times(1)).findUserById(eq(userId));
@@ -133,18 +133,18 @@ class CommentServiceTest {
                 .willReturn(allCommentList);
 
         // when
-        Map<Long, TaskCommentResponse> allComments = commentService.getAllComments(taskId);
+        List<TaskCommentResponse> allComments = commentService.getAllComments(taskId);
 
         // then
         assertThat(allComments.size()).isEqualTo(2);
 
-        List<TaskCommentResponse> subComments1 = allComments.get(comment1.getId()).getSubComments();
-        assertThat(allComments.get(comment1.getId()).getContents()).isEqualTo(comment1.getContents());
+        List<TaskCommentResponse> subComments1 = allComments.get(0).getSubComments();
+        assertThat(allComments.get(0).getContents()).isEqualTo(comment1.getContents());
         assertThat(subComments1.size()).isEqualTo(1);
         assertThat(subComments1.get(0).getContents()).isEqualTo(comment2.getContents());
 
-        List<TaskCommentResponse> subComments2 = allComments.get(comment3.getId()).getSubComments();
-        assertThat(allComments.get(comment3.getId()).getContents()).isEqualTo(comment3.getContents());
+        List<TaskCommentResponse> subComments2 = allComments.get(1).getSubComments();
+        assertThat(allComments.get(1).getContents()).isEqualTo(comment3.getContents());
         assertThat(subComments2.isEmpty());
     }
 
