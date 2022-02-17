@@ -1,5 +1,7 @@
 package kr.kro.colla.task.task.domain.repository;
 
+import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.TaskProvider;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusNotFoundException;
 import kr.kro.colla.exception.exception.task.TaskNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
@@ -89,6 +91,32 @@ class TaskRepositoryTest {
                 () -> taskRepository.findById(100L)
                         .orElseThrow(TaskNotFoundException::new)
         ).isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void 테스크의_상태값을_다른_상태값으로_변경한다() {
+        // given
+        Project project = ProjectProvider.createProject(345L);
+        projectRepository.save(project);
+
+        TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("before"));
+        TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("after"));;
+
+        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
+        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
+        taskRepository.save(task1);
+        taskRepository.save(task2);
+
+        // when
+        taskRepository.bulkUpdateTaskStatusToAnother(taskStatus1, taskStatus2);
+
+        // then
+        Task result1 = taskRepository.findById(task1.getId()).get();
+        assertThat(result1.getTaskStatus().getName()).isEqualTo(taskStatus2.getName());
+        assertThat(result1.getTaskStatus().getId()).isEqualTo(taskStatus2.getId());
+        Task result2 = taskRepository.findById(task2.getId()).get();
+        assertThat(result2.getTaskStatus().getName()).isEqualTo(taskStatus2.getName());
+        assertThat(result2.getTaskStatus().getId()).isEqualTo(taskStatus2.getId());
     }
 
 }

@@ -1,6 +1,9 @@
 package kr.kro.colla.project.project.service;
 
 import kr.kro.colla.common.fixture.FileProvider;
+import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.TaskStatusProvider;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
@@ -11,6 +14,7 @@ import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
+import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.notice.service.NoticeService;
@@ -395,29 +399,44 @@ class ProjectServiceTest {
     }
 
     @Test
-    void 프로젝트_상태값_삭제에_성공한다() {
+    void 존재하는_이름의_프로젝트_상태값_추가에_실패한다() {
         // given
-        String nameToDelete = "im doing this task!", nameToRemain = "it remains";
         Long projectId = 683482L;
-        Project project = Project.builder()
-                .name("new_project_name_for_testing!!")
-                .managerId(293482L)
-                .build();
-        TaskStatus taskStatus1 = new TaskStatus(nameToDelete);
-        TaskStatus taskStatus2 = new TaskStatus(nameToRemain);
-        project.addStatus(taskStatus1);
-        project.addStatus(taskStatus2);
+        String statusName = "same_name_";
+        Project project = ProjectProvider.createProject(23424L);
+        TaskStatus exist = TaskStatusProvider.createTaskStatus(statusName);
+        project.addStatus(exist);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(taskStatusService.findTaskStatusByName(nameToDelete))
-                .willReturn(taskStatus1);
+
+        // when, then
+        assertThatThrownBy(()->{
+            projectService.createTaskStatus(projectId, statusName);
+        }).isInstanceOf(TaskStatusAlreadyExistException.class);
+    }
+
+    @Test
+    void 프로젝트_상태값_조회에_성공한다() {
+        // given
+        Project project = ProjectProvider.createProject(1234513L);
+        List<String> statuses = List.of("my", "check", "list", "to", "do");
+        statuses.stream().forEach(status-> {
+            TaskStatus taskStatus = TaskStatusProvider.createTaskStatus(status);
+            project.addStatus(taskStatus);
+        });
+
+        given(projectRepository.findById(project.getId()))
+                .willReturn(Optional.of(project));
 
         // when
-        projectService.deleteTaskStatus(projectId, nameToDelete);
+        List<ProjectTaskStatusResponse> taskStatusResponses = projectService.getTaskStatuses(project.getId());
 
         // then
-        assertThat(project.getTaskStatuses().size()).isEqualTo(1);
-        assertThat(project.getTaskStatuses().get(0).getName()).isEqualTo(nameToRemain);
+        assertThat(taskStatusResponses.size()).isEqualTo(statuses.size());
+        taskStatusResponses
+                .stream()
+                .forEach(s -> assertThat(statuses.contains(s.getName())));
+
     }
 }

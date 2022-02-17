@@ -3,9 +3,9 @@ import { Center, WidthCenter } from '../../styles/common';
 
 export const Container = styled.div`
     display: flex;
-    width: 90vw;
+    width: 100vw - 150px;
     height: 100px;
-    margin-left: 100px;
+    margin-left: 150px;
 `;
 
 export const ProjectTitle = styled.div`
