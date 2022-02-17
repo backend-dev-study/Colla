@@ -1,6 +1,6 @@
 package kr.kro.colla.comment.presentation;
 
-import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.comment.domain.Comment;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
 import kr.kro.colla.comment.presentation.dto.CreateCommentResponse;
@@ -13,6 +13,7 @@ import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.servlet.http.Cookie;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +42,10 @@ class CommentControllerTest extends ControllerTest {
     @Test
     void 댓글_등록에_성공한다() throws Exception {
         // given
+        User user = UserProvider.createUser();
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(null, "comment contents");
         CreateCommentResponse createCommentResponse = CreateCommentResponse.builder()
-                .userId(loginUser.getId())
+                .writer(new UserProfileResponse(user))
                 .contents(createCommentRequest.getContents())
                 .build();
         String content = objectMapper.writeValueAsString(createCommentRequest);
@@ -59,7 +62,8 @@ class CommentControllerTest extends ControllerTest {
         // then
         perform
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(loginUser.getId()))
+                .andExpect(jsonPath("$.writer.displayName").value(user.getName()))
+                .andExpect(jsonPath("$.writer.avatar").value(user.getAvatar()))
                 .andExpect(jsonPath("$.contents").value(createCommentRequest.getContents()));
         verify(commentService, times(1)).saveComment(anyLong(), anyLong(), any(CreateCommentRequest.class));
     }
@@ -101,7 +105,7 @@ class CommentControllerTest extends ControllerTest {
         allComments.put(3L, new TaskCommentResponse(comment3));
 
         given(commentService.getAllComments(anyLong()))
-                .willReturn(allComments);
+                .willReturn(new ArrayList<>(allComments.values()));
 
         // when
         ResultActions perform = mockMvc.perform(get("/tasks/" + 1L + "/comments")
@@ -110,19 +114,19 @@ class CommentControllerTest extends ControllerTest {
 
         // then
         MvcResult result = perform.andReturn();
-        MapType mapType = objectMapper.getTypeFactory()
-                .constructMapType(HashMap.class, Long.class, TaskCommentResponse.class);
-        Map<Long, TaskCommentResponse> allCommentsResponse = objectMapper.readValue(result.getResponse().getContentAsString(), mapType);
+        CollectionType collectionType = objectMapper.getTypeFactory()
+                .constructCollectionType(List.class, TaskCommentResponse.class);
+        List<TaskCommentResponse> allCommentsResponse = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
 
         perform
                 .andExpect(status().isOk());
 
-        List<TaskCommentResponse> subComments = allCommentsResponse.get(1L).getSubComments();
+        List<TaskCommentResponse> subComments = allCommentsResponse.get(0).getSubComments();
         assertThat(allCommentsResponse.size()).isEqualTo(2);
-        assertThat(allCommentsResponse.get(1L).getContents()).isEqualTo(comment1.getContents());
+        assertThat(allCommentsResponse.get(0).getContents()).isEqualTo(comment1.getContents());
         assertThat(subComments.size()).isEqualTo(1);
         assertThat(subComments.get(0).getContents()).isEqualTo(comment2.getContents());
-        assertThat(allCommentsResponse.get(3L).getContents()).isEqualTo(comment3.getContents());
+        assertThat(allCommentsResponse.get(1).getContents()).isEqualTo(comment3.getContents());
         verify(commentService, times(1)).getAllComments(anyLong());
     }
 

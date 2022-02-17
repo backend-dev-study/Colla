@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,8 +28,8 @@ public class CommentController {
     }
 
     @GetMapping("/tasks/{taskId}/comments")
-    public ResponseEntity<Map<Long, TaskCommentResponse>> getAllComments(@PathVariable Long taskId) {
-        Map<Long, TaskCommentResponse> allComments = commentService.getAllComments(taskId);
+    public ResponseEntity<List<TaskCommentResponse>> getAllComments(@PathVariable Long taskId) {
+        List<TaskCommentResponse> allComments = commentService.getAllComments(taskId);
 
         return ResponseEntity.ok(allComments);
     }
