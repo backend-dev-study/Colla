@@ -1,11 +1,11 @@
 package kr.kro.colla.task.task.domain.repository;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.task.domain.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     @Modifying(clearAutomatically = true)
