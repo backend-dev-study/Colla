@@ -13,3 +13,7 @@ export interface CommentType {
     contents: string;
     subComments: Array<CommentType>;
 }
+
+export interface UpdateCommentType {
+    contents: string;
+}

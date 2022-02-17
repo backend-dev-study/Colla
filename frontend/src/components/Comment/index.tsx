@@ -5,12 +5,11 @@ import { CommentType } from '../../types/comment';
 import { ButtonContainer, Container, Contents, ContentsInput, ContentsInputContainer, Writer } from './style';
 
 interface PropType {
-    taskId: number;
     comment: CommentType;
     onClickInputSubComment: Function;
 }
 
-export const Comment: FC<PropType> = ({ taskId, comment, onClickInputSubComment }) => {
+export const Comment: FC<PropType> = ({ comment, onClickInputSubComment }) => {
     const profile = useUserState();
     const { id, writer, contents } = comment;
 
@@ -28,8 +27,10 @@ export const Comment: FC<PropType> = ({ taskId, comment, onClickInputSubComment 
     };
 
     const handleModifyButton = async () => {
-        const res = await modifyComment(taskId, comment.id, modifyingContents);
-        setCurrentContents(res.data);
+        const res = await modifyComment(comment.id, modifyingContents);
+        setCurrentContents(res.data.contents);
+        setModifyingContents(res.data.contents);
+        setModifyCommentInput((prev) => !prev);
     };
 
     return (

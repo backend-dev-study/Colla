@@ -57,16 +57,12 @@ export const CommentList: FC<PropType> = ({ taskId, commentList, setCommentList 
             {commentList.map((comment, idx) => (
                 <SuperCommentContainer key={idx}>
                     <SuperComment>
-                        <Comment taskId={taskId} comment={comment} onClickInputSubComment={onClickInputSubComment} />
+                        <Comment comment={comment} onClickInputSubComment={onClickInputSubComment} />
                     </SuperComment>
                     <SubCommentContainer>
                         {comment.subComments.map((subComment, idx) => (
                             <SubComment key={idx}>
-                                <Comment
-                                    taskId={taskId}
-                                    comment={subComment}
-                                    onClickInputSubComment={onClickInputSubComment}
-                                />
+                                <Comment comment={subComment} onClickInputSubComment={onClickInputSubComment} />
                             </SubComment>
                         ))}
                         {inputSubComment === comment.id ? (
