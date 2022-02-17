@@ -62,4 +62,8 @@ public class Comment {
         this.contents = contents;
     }
 
+    public void updateContents(String contents) {
+        this.contents = contents;
+    }
+
 }
