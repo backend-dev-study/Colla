@@ -1,11 +1,14 @@
 package kr.kro.colla.task.task.presentation;
 
+import io.restassured.mapper.ObjectMapper;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
+import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -15,11 +18,11 @@ import javax.servlet.http.Cookie;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,4 +86,39 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.tags").isArray());
     }
 
+    @Test
+    void 프로젝트에_속한_테스크의_상태값을_수정한다() throws Exception {
+        // given
+        Long taskId = 13494L;
+        String statusNameToUpdate = "새로운~상태~값~입니다~";
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(statusNameToUpdate);
+        // when
+        ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isOk());
+        verify(taskService, times(1)).updateTaskStatus(taskId, statusNameToUpdate);
+    }
+
+    @Test
+    void 상태값_이름이_부족하면_테스크_상태를_수정할_수_없다() throws Exception {
+        // given
+        Long taskId = 13494L;
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
+        // when
+        ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                    .andExpect(jsonPath("$.message").value("statusName : must not be null"));
+        verify(taskService, times(0)).updateTaskStatus(eq(taskId), anyString());
+
+    }
 }
