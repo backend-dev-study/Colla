@@ -1,15 +1,17 @@
 import React, { ChangeEvent, FC, useState } from 'react';
-import { modifyComment } from '../../apis/comment';
+import { deleteComment, modifyComment } from '../../apis/comment';
 import { useUserState } from '../../stores/userState';
 import { CommentType } from '../../types/comment';
 import { ButtonContainer, Container, Contents, ContentsInput, ContentsInputContainer, Writer } from './style';
 
 interface PropType {
+    subComment?: boolean;
     comment: CommentType;
     onClickInputSubComment: Function;
+    setCommentList: Function;
 }
 
-export const Comment: FC<PropType> = ({ comment, onClickInputSubComment }) => {
+export const Comment: FC<PropType> = ({ subComment, comment, onClickInputSubComment, setCommentList }) => {
     const profile = useUserState();
     const { id, writer, contents } = comment;
 
@@ -27,10 +29,25 @@ export const Comment: FC<PropType> = ({ comment, onClickInputSubComment }) => {
     };
 
     const handleModifyButton = async () => {
-        const res = await modifyComment(comment.id, modifyingContents);
+        const res = await modifyComment(id, modifyingContents);
         setCurrentContents(res.data.contents);
         setModifyingContents(res.data.contents);
         setModifyCommentInput((prev) => !prev);
+    };
+
+    const handleDeleteButton = async () => {
+        await deleteComment(id);
+        subComment
+            ? setCommentList((prev: Array<CommentType>) => {
+                  const newCommentList = [...prev];
+                  newCommentList.forEach((el) => {
+                      el.subComments.forEach((subEl, idx) => {
+                          if (subEl.id === id) el.subComments.splice(idx, 1);
+                      });
+                  });
+                  return newCommentList;
+              })
+            : setCommentList((prev: Array<CommentType>) => [...prev].filter((el) => el.id !== id));
     };
 
     return (
@@ -55,7 +72,7 @@ export const Comment: FC<PropType> = ({ comment, onClickInputSubComment }) => {
                     {writer.githubId === profile.contents.githubId ? (
                         <>
                             <div onClick={handleModifyComment}>수정</div>
-                            <div>삭제</div>
+                            <div onClick={handleDeleteButton}>삭제</div>
                         </>
                     ) : (
                         <div onClick={() => onClickInputSubComment(id)}>댓글</div>

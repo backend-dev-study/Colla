@@ -18,3 +18,9 @@ export const modifyComment = async (commentId: number, contents: string) => {
 
     return response;
 };
+
+export const deleteComment = async (commentId: number) => {
+    const response = await client.delete(`tasks/comments/${commentId}`);
+
+    return response;
+};
