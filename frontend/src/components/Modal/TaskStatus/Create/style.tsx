@@ -1,9 +1,12 @@
 import styled from '@emotion/styled';
 
-import { LIGHT_GRAY, RED } from '../../../styles/color';
-import { Modal } from '../../../styles/common';
+import { LIGHT_GRAY, RED } from '../../../../styles/color';
+import { Modal } from '../../../../styles/common';
 
 export const Wrapper = styled.div`
+    position: absolute;
+    top: 0px;
+    left: 30vw;
     width: 300px;
     height: 140px;
     background: ${LIGHT_GRAY};

@@ -1,7 +1,11 @@
 package kr.kro.colla.project.project.domain.repository;
 
+import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.TaskStatusProvider;
+import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.project.ProjectNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import kr.kro.colla.user_project.domain.UserProject;
@@ -13,6 +17,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolationException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -97,6 +104,33 @@ class ProjectRepositoryTest {
         assertThat(result).isNotNull();
         assertThat(result.getMembers().size()).isEqualTo(1);
 
+    }
+
+    @Test
+    void 프로젝트의_테스크_상태값을_조회한다() {
+        // given
+        String taskStatusName = "해야할_일_스택은_터지기_직전";
+        User user = userRepository.save(UserProvider.createUser());
+
+        Project project = ProjectProvider.createProject(user.getId());
+        TaskStatus taskStatus = TaskStatusProvider.createTaskStatus(taskStatusName);
+        project.addStatus(taskStatus);
+        projectRepository.save(project);
+
+        flushAndClear();
+
+        // when
+        Project result = projectRepository.findById(project.getId())
+                .orElseThrow(ProjectNotFoundException::new);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTaskStatuses().size()).isEqualTo(4);
+        List<String> statusNames = result.getTaskStatuses()
+                .stream()
+                .map(status->status.getName())
+                .collect(Collectors.toList());
+        assertThat(statusNames).contains("To Do", "In Progress", "Done", taskStatusName);
     }
 
     private void flushAndClear() {

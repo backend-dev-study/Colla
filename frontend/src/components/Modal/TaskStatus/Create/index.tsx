@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 
-import { createTaskStatus } from '../../../apis/project';
-import { projectState } from '../../../stores/projectState';
+import { createTaskStatus } from '../../../../apis/project';
+import { projectState } from '../../../../stores/projectState';
 import { ButtonContainer, Cancel, Input, Submit, Wrapper } from './style';
 
-const TaskStatusModal = () => {
+const CreateTaskStatusModal = () => {
     const [input, setInput] = useState('');
     const project = useRecoilValue(projectState);
 
@@ -33,4 +33,4 @@ const TaskStatusModal = () => {
     );
 };
 
-export default TaskStatusModal;
+export default CreateTaskStatusModal;

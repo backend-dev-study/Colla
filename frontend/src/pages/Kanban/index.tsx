@@ -6,7 +6,7 @@ import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
-import TaskStatusModal from '../../components/Modal/TaskStatus';
+import CreateTaskStatusModal from '../../components/Modal/TaskStatus/Create';
 import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
@@ -87,6 +87,7 @@ const Kanban = () => {
                     {taskStatuses.map((value) => (
                         <KanbanCol
                             key={value}
+                            statuses={taskStatuses}
                             status={value}
                             taskList={taskList}
                             tasks={taskList
@@ -100,7 +101,7 @@ const Kanban = () => {
                         <KanbanAddImage src={PlusIcon} />
                     </KanbanStatusAddButton>
                     <Modal>
-                        <TaskStatusModal />
+                        <CreateTaskStatusModal />
                     </Modal>
                 </Wrapper>
             </Container>

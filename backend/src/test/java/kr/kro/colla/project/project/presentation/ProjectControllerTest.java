@@ -1,8 +1,8 @@
 package kr.kro.colla.project.project.presentation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import kr.kro.colla.common.ControllerTest;
+import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
@@ -13,6 +13,7 @@ import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,8 +22,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.servlet.http.Cookie;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -398,11 +401,50 @@ class ProjectControllerTest extends ControllerTest {
     }
 
     @Test
+    void 존재하는_이름의_프로젝트_테스크_상태_추가에_실패한다() throws Exception {
+        // given
+        Long projectId = 23425L;
+        String taskStatusName = "already_exist_task_status_name!!";
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest(taskStatusName);
+
+        willThrow(new TaskStatusAlreadyExistException()).
+                given(projectService).createTaskStatus(projectId, taskStatusName);
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.message").value(new TaskStatusAlreadyExistException().getMessage()));
+    }
+
+    @Test
+    void 상태의_이름이_없다면_프로젝트의_테스크_상태_추가에_실패한다() throws Exception {
+        // given
+        Long projectId = 72434L;
+        CreateTaskStatusRequest request = new CreateTaskStatusRequest();
+        // when
+        ResultActions perform = mockMvc.perform(post("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("name : must not be null"));
+        verify(projectService, times(0)).createTaskStatus(eq(projectId), anyString());
+    }
+
+    @Test
     void 프로젝트의_테스크_상태_삭제에_성공한다() throws Exception {
         // given
         Long projectId = 72434L;
-        String statusName = "삭제할 테스크 상태값";
-        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName);
+        String statusName = "삭제할 테스크 상태값", statusNameToChange = "변경할 테스크 상태값";
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest(statusName, statusNameToChange);
 
         // when
         ResultActions perform = mockMvc.perform(delete("/projects/" + projectId + "/statuses")
@@ -412,7 +454,50 @@ class ProjectControllerTest extends ControllerTest {
 
         // then
         perform
-                .andExpect(status().isOk());
-        verify(projectService, times(1)).deleteTaskStatus(projectId, statusName);
+                .andExpect(status().isNoContent());
+        verify(taskService, times(1)).deleteTaskStatus(projectId, statusName, statusNameToChange);
+    }
+
+    @Test
+    void 상태의_이름이_없다면_프로젝트의_테스크_상태_삭제에_실패한다() throws Exception {
+        // given
+        Long projectId = 72434L;
+        DeleteTaskStatusRequest request = new DeleteTaskStatusRequest();
+        // when
+        ResultActions perform = mockMvc.perform(delete("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", anyOf(is("from : must not be null"), is("to : must not be null"))));
+        verify(taskService, times(0)).deleteTaskStatus(eq(projectId), anyString(), anyString());
+    }
+
+    @Test
+    void 프로젝트의_테스크_상태_조회에_성공한다() throws Exception {
+        // given
+        Long projectId = 435345L;
+        List<TaskStatus> taskStatuses = List.of(
+                new TaskStatus("status1"),
+                new TaskStatus("status2"),
+                new TaskStatus("status3")
+        );
+        List<ProjectTaskStatusResponse> responses = taskStatuses
+                .stream()
+                .map(ProjectTaskStatusResponse::new)
+                .collect(Collectors.toList());
+
+        given(projectService.getTaskStatuses(projectId))
+                .willReturn(responses);
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/statuses")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].name").value(containsInAnyOrder("status1", "status2", "status3")));
     }
 }
