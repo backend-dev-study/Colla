@@ -12,6 +12,7 @@ export const ModalContainer = styled.div`
     border-radius: 20px;
     background-color: ${LIGHT_GRAY};
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 `;
 
 export const Container = styled.div`
