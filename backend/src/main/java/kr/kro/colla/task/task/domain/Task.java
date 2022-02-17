@@ -129,4 +129,7 @@ public class Task {
                 .collect(Collectors.toList()));
     }
 
+    public void updateTaskStatus(TaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
+    }
 }
