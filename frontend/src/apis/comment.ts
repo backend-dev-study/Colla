@@ -1,4 +1,4 @@
-import { CommentType, CreateCommentType } from '../types/comment';
+import { CommentType, CreateCommentType, UpdateCommentType } from '../types/comment';
 import { client } from './common';
 
 export const saveComment = async (taskId: number, contents: string, superCommentId: number | null) => {
@@ -13,8 +13,14 @@ export const getAllComments = async (taskId: number) => {
     return response;
 };
 
-export const modifyComment = async (taskId: number, commentId: number, contents: string) => {
-    const response = await client.put(`tasks/${taskId}/comments/${commentId}`, { contents });
+export const modifyComment = async (commentId: number, contents: string) => {
+    const response = await client.put<UpdateCommentType>(`tasks/comments/${commentId}`, { contents });
+
+    return response;
+};
+
+export const deleteComment = async (commentId: number) => {
+    const response = await client.delete(`tasks/comments/${commentId}`);
 
     return response;
 };

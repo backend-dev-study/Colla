@@ -49,8 +49,7 @@ public class Comment {
     @OneToMany(
             mappedBy = "superComment",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.PERSIST,
-            orphanRemoval = true
+            cascade = CascadeType.REMOVE
     )
     private List<Comment> subComment = new ArrayList<>();
 
@@ -59,6 +58,10 @@ public class Comment {
         this.user = user;
         this.task = task;
         this.superComment = superComment;
+        this.contents = contents;
+    }
+
+    public void updateContents(String contents) {
         this.contents = contents;
     }
 
