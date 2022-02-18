@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
-import { WHITE } from '../../../../styles/color';
-import { LiftUp } from '../../../../styles/common';
+import { WHITE } from '../../styles/color';
+import { LiftUp } from '../../styles/common';
 
 interface Props {
     image?: string;

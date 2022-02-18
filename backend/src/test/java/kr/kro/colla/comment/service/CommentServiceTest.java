@@ -5,6 +5,7 @@ import kr.kro.colla.comment.domain.repository.CommentRepository;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
 import kr.kro.colla.comment.presentation.dto.CreateCommentResponse;
 import kr.kro.colla.comment.presentation.dto.TaskCommentResponse;
+import kr.kro.colla.comment.presentation.dto.UpdateCommentRequest;
 import kr.kro.colla.common.fixture.CommentProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskProvider;
@@ -22,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,6 +146,23 @@ class CommentServiceTest {
         List<TaskCommentResponse> subComments2 = allComments.get(1).getSubComments();
         assertThat(allComments.get(1).getContents()).isEqualTo(comment3.getContents());
         assertThat(subComments2.isEmpty());
+    }
+
+    @Test
+    void 작성한_댓글_내용을_수정한다() {
+        // given
+        Long commentId = 1L;
+        Comment comment = CommentProvider.createComment(null, null, null, "old contents");
+        UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("new contents");
+
+        given(commentRepository.findById(eq(commentId)))
+                .willReturn(Optional.of(comment));
+
+        // when
+        Comment result = commentService.updateComment(commentId, updateCommentRequest);
+
+        // then
+        assertThat(result.getContents()).isEqualTo(updateCommentRequest.getContents());
     }
 
 }

@@ -5,6 +5,7 @@ import kr.kro.colla.comment.domain.Comment;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
 import kr.kro.colla.comment.presentation.dto.CreateCommentResponse;
 import kr.kro.colla.comment.presentation.dto.TaskCommentResponse;
+import kr.kro.colla.comment.presentation.dto.UpdateCommentRequest;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.CommentProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
@@ -128,6 +129,49 @@ class CommentControllerTest extends ControllerTest {
         assertThat(subComments.get(0).getContents()).isEqualTo(comment2.getContents());
         assertThat(allCommentsResponse.get(1).getContents()).isEqualTo(comment3.getContents());
         verify(commentService, times(1)).getAllComments(anyLong());
+    }
+
+    @Test
+    void 작성한_댓글_내용을_수정한다() throws Exception {
+        // given
+        Long commentId = 1L;
+        UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("new contents");
+        String content = objectMapper.writeValueAsString(updateCommentRequest);
+        Comment comment = CommentProvider.createComment(null, null, null, "new contents");
+
+        given(commentService.updateComment(eq(commentId), any(UpdateCommentRequest.class)))
+                .willReturn(comment);
+
+        // when
+        ResultActions perform = mockMvc.perform(put("/tasks/comments/" + commentId)
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contents").value(updateCommentRequest.getContents()));
+        verify(commentService, times(1)).updateComment(eq(commentId), any(UpdateCommentRequest.class));
+    }
+
+    @Test
+    void 빈_내용으로는_댓글을_수정할_수_없다() throws Exception {
+        // given
+        Long commentId = 1L;
+        UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("");
+        String content = objectMapper.writeValueAsString(updateCommentRequest);
+
+        // when
+        ResultActions perform = mockMvc.perform(put("/tasks/comments/" + commentId)
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content));
+
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("contents : must not be blank"));
     }
 
 }

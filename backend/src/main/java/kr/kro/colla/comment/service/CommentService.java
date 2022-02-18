@@ -5,6 +5,7 @@ import kr.kro.colla.comment.domain.repository.CommentRepository;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
 import kr.kro.colla.comment.presentation.dto.CreateCommentResponse;
 import kr.kro.colla.comment.presentation.dto.TaskCommentResponse;
+import kr.kro.colla.comment.presentation.dto.UpdateCommentRequest;
 import kr.kro.colla.exception.exception.comment.CommentNotFoundException;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.service.TaskService;
@@ -69,6 +70,17 @@ public class CommentService {
         }
 
         return new ArrayList<>(comments.values());
+    }
+
+    public Comment updateComment(Long commentId, UpdateCommentRequest updateCommentRequest) {
+        Comment comment = findCommentById(commentId);
+        comment.updateContents(updateCommentRequest.getContents());
+
+        return comment;
+    }
+
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 
     public Comment findCommentById(Long commentId) {
