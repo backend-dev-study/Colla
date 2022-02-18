@@ -6,6 +6,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,9 @@ public class AcceptanceTest {
 
     @Autowired
     private TaskProvider task;
+
+    @Autowired
+    private TaskStatusProvider taskStatus;
 
     @Autowired
     private DatabaseCleaner databaseCleaner;
@@ -198,4 +202,54 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value());
     }
 
+    @Test
+    void 사용자가_테스크의_상태값을_수정한다() {
+        // given
+        String newStatusName = "새로 변경될 상태 이름!!";
+
+        User loginedUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginedUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, null, createdProject.getId(), null);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), newStatusName);
+
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(newStatusName);
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .patch("/api/projects/tasks/" + 1L)
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 사용자는_상태_이름_없이_테스크_상태를_수정할_수_없다() {
+        // given
+        User loginedUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginedUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, null, createdProject.getId(), null);
+
+        UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+                .body(request)
+        // when
+        .when()
+                .patch("/api/projects/tasks/" + 1L)
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
+                .body("message", equalTo("statusName : 널이어서는 안됩니다"));
+    }
 }

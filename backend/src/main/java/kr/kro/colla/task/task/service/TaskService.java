@@ -84,13 +84,13 @@ public class TaskService {
 
     public void updateTask(Long taskId, UpdateTaskRequest updateTaskRequest) {
         Task task = findTaskById(taskId);
-        String title = task.getStory().getTitle();
+        String title = task.getStory() != null ? task.getTitle() : null;
         List<TaskTag> taskTags = taskTagService.translateTaskTags(task, updateTaskRequest.getTags());
 
         task.updateContents(updateTaskRequest);
         task.updateTags(taskTags);
 
-        if (!title.equals(updateTaskRequest.getStory())) {
+        if (title == null || !title.equals(updateTaskRequest.getStory())) {
             Story story = storyService.findStoryByTitle(updateTaskRequest.getStory());
             task.updateStory(story);
         }
@@ -108,5 +108,11 @@ public class TaskService {
 
         Project project = projectService.findProjectById(projectId);
         project.removeStatus(fromTaskStatus);
+    }
+
+    public void updateTaskStatus(Long taskId, String statusName) {
+        Task task = findTaskById(taskId);
+        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
+        task.updateTaskStatus(taskStatus);
     }
 }

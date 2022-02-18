@@ -231,4 +231,23 @@ class TaskServiceTest {
         verify(taskStatusService, times(2)).findTaskStatusByName(anyString());
         verify(taskRepository, times(1)).bulkUpdateTaskStatusToAnother(any(TaskStatus.class), any(TaskStatus.class));
     }
+
+    @Test
+    void 테스크의_상태값을_수정한다() {
+        // given
+        Long taskId = 482593L;
+        TaskStatus before = new TaskStatus("기존_상태값");
+        TaskStatus after = new TaskStatus("변경_후_새로운_상태값");
+        Task task = TaskProvider.createTaskForRepository(2345L, null, null, before);
+
+        given(taskRepository.findById(taskId))
+                .willReturn(Optional.of(task));
+        given(taskStatusService.findTaskStatusByName(after.getName()))
+                .willReturn(after);
+        // when
+        taskService.updateTaskStatus(taskId, after.getName());
+
+        // then
+        assertThat(task.getTaskStatus().getName()).isEqualTo(after.getName());
+    }
 }

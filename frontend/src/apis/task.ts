@@ -22,3 +22,9 @@ export const updateTask = async (taskId: number, data: FormData) => {
 
     return response;
 };
+
+export const updateTaskStatus = async (taskId: number, statusName: string) => {
+    const response = await client.patch(`/projects/tasks/${taskId}`, { statusName });
+
+    return response;
+};
