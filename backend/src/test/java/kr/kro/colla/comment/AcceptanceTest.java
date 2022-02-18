@@ -8,6 +8,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.comment.presentation.dto.CreateCommentRequest;
 import kr.kro.colla.comment.presentation.dto.CreateCommentResponse;
 import kr.kro.colla.comment.presentation.dto.TaskCommentResponse;
+import kr.kro.colla.comment.presentation.dto.UpdateCommentRequest;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.user.user.domain.User;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -167,6 +169,58 @@ public class AcceptanceTest {
         assertThat(subComments.get(0).getWriter().getDisplayName()).isEqualTo(member1.getName());
         assertThat(subComments.get(0).getContents()).isEqualTo(subComment.getContents());
         assertThat(subComments.get(0).getSubComments()).isEmpty();
+    }
+
+    @Test
+    void 사용자가_자신이_작성한_댓글의_내용을_수정한다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
+        CreateCommentResponse createdComment = comment.를_등록한다(accessToken, null);
+
+        UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("new contents");
+
+        given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+                .body(updateCommentRequest)
+
+        // when
+        .when()
+                .put("/api/tasks/comments/" + createdComment.getId())
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("contents", equalTo(updateCommentRequest.getContents()));
+    }
+
+    @Test
+    void 사용자는_빈_내용으로_댓글을_수정할_수_없다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
+        CreateCommentResponse createdComment = comment.를_등록한다(accessToken, null);
+
+        UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("");
+
+        given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+                .body(updateCommentRequest)
+
+        // when
+        .when()
+                .put("/api/tasks/comments/" + createdComment.getId())
+
+        // then
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("contents : 공백일 수 없습니다"));
     }
 
 }

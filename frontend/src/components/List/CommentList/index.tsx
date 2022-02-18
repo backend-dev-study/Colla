@@ -1,8 +1,8 @@
 import React, { ChangeEvent, FC, useState } from 'react';
 import { saveComment } from '../../../apis/comment';
 import { CommentType } from '../../../types/comment';
+import { Comment } from '../../Comment';
 import { SaveButton } from '../../Modal/Task/Comment/style';
-import { Comment } from './Comment';
 import {
     CancelButton,
     Container,
@@ -57,15 +57,20 @@ export const CommentList: FC<PropType> = ({ taskId, commentList, setCommentList 
             {commentList.map((comment, idx) => (
                 <SuperCommentContainer key={idx}>
                     <SuperComment>
-                        <Comment taskId={taskId} comment={comment} onClickInputSubComment={onClickInputSubComment} />
+                        <Comment
+                            comment={comment}
+                            onClickInputSubComment={onClickInputSubComment}
+                            setCommentList={setCommentList}
+                        />
                     </SuperComment>
                     <SubCommentContainer>
                         {comment.subComments.map((subComment, idx) => (
                             <SubComment key={idx}>
                                 <Comment
-                                    taskId={taskId}
+                                    subComment
                                     comment={subComment}
                                     onClickInputSubComment={onClickInputSubComment}
+                                    setCommentList={setCommentList}
                                 />
                             </SubComment>
                         ))}

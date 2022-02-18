@@ -10,9 +10,10 @@ export const ModalContainer = styled.div`
     width: 880px;
     min-height: 430px;
     border-radius: 20px;
+    margin-left: 220px;
     background-color: ${LIGHT_GRAY};
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 4px 20px rgba(0, 0, 0, 0.1);
-    z-index: 1;
+    z-index: 10;
 `;
 
 export const Container = styled.div`
