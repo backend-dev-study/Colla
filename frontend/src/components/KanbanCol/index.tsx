@@ -3,6 +3,7 @@ import { useDrop } from 'react-dnd';
 
 import deleteIconImg from '../../../public/assets/images/close-circle.svg';
 import plusIconImg from '../../../public/assets/images/plus-circle.svg';
+import { updateTaskStatus } from '../../apis/task';
 import useInputTask from '../../hooks/useInputTask';
 import useModal from '../../hooks/useModal';
 import { ItemType, TaskType } from '../../types/kanban';
@@ -25,9 +26,16 @@ const KanbanCol: FC<PropType> = ({ statuses, status, taskList, tasks, changeColu
     const [taskId, setTaskId] = useState<number | null>(null);
     const { Modal, setModal } = useModal();
     const { Modal: StatusModal, setModal: setStatusModal } = useModal();
+
+    const handleUpdateTask = async (taskId: number, statusName: string) => {
+        await updateTaskStatus(taskId, statusName);
+    };
     const [, drop] = useDrop({
         accept: 'task_type',
-        drop: () => ({ name: status }),
+        drop: (item: ItemType) => {
+            handleUpdateTask(item.id, status);
+            return { name: status };
+        },
         collect: (monitor) => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),

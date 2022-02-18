@@ -1,5 +1,6 @@
 package kr.kro.colla.task.task.presentation;
 
+import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
@@ -38,6 +39,14 @@ public class TaskController {
     @PutMapping("/{taskId}")
     public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid UpdateTaskRequest updateTaskRequest) {
         taskService.updateTask(taskId, updateTaskRequest);
+
+        return ResponseEntity.ok()
+                .build();
+    }
+
+    @PatchMapping("/{taskId}")
+    public ResponseEntity<Void> updateTaskStatus(@PathVariable Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
+        taskService.updateTaskStatus(taskId, request.getStatusName());
 
         return ResponseEntity.ok()
                 .build();
