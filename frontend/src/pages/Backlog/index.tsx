@@ -38,8 +38,13 @@ const Backlog = () => (
         <SideBar />
         <Container>
             <Wrapper>
-                {dummy.map(({ title }: any, idx) => (
-                    <Issue key={idx} title={title} story />
+                {dummy.map(({ title, tasks }: any, idx) => (
+                    <>
+                        <Issue key={idx} title={title} story />
+                        {tasks.map(({ id, title }: any) => (
+                            <Issue key={id} title={title} />
+                        ))}
+                    </>
                 ))}
             </Wrapper>
         </Container>
