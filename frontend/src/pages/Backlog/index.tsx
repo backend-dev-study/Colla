@@ -17,12 +17,13 @@ const dummy = [
             {
                 id: 2,
                 title: 'task2',
-                priority: 3,
+                priority: 5,
+                manager: 'https://avatars.githubusercontent.com/u/69030160?v=4',
             },
             {
                 id: 3,
                 title: 'task3',
-                priority: 3,
+                priority: 1,
             },
         ],
     },
@@ -37,12 +38,13 @@ const Backlog = () => (
         <Header />
         <SideBar />
         <Container>
+            <div>필터링 속성들 영역</div>
             <Wrapper>
                 {dummy.map(({ title, tasks }: any, idx) => (
                     <>
                         <Issue key={idx} title={title} story />
-                        {tasks.map(({ id, title }: any) => (
-                            <Issue key={id} title={title} />
+                        {tasks.map(({ id, title, priority, manager }: any) => (
+                            <Issue key={id} title={title} priority={priority} manager={manager} />
                         ))}
                     </>
                 ))}

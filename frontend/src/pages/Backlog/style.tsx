@@ -1,9 +1,11 @@
 import styled from '@emotion/styled';
 import { LIGHT_GRAY } from '../../styles/color';
-import { Column, WidthCenter } from '../../styles/common';
+import { Column } from '../../styles/common';
 
 export const Container = styled.div`
-    ${WidthCenter}
+    align-items: center;
+
+    ${Column}
 `;
 
 export const Wrapper = styled.div`

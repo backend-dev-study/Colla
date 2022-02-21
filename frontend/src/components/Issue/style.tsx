@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { GREEN, WHITE } from '../../styles/color';
+import { GREEN, LIGHT_GRAY, WHITE } from '../../styles/color';
 
 interface Props {
     story?: boolean;
@@ -15,7 +15,7 @@ export const Wrapper = styled.div<Props>`
     align-items: center;
     padding-left: 20px;
     width: ${({ story }) => (story ? `${BASE + EXTRA}px` : `${BASE}px`)};
-    height: 40px;
+    height: 50px;
     border-radius: 20px;
     background: ${({ story }) => (story ? GREEN : WHITE)};
     margin-left: ${({ story }) => (story ? '0px' : `${EXTRA}px`)};
@@ -28,4 +28,25 @@ export const Attributes = styled.div`
     position: absolute;
     right: 20px;
     display: flex;
+    align-items: center;
+`;
+
+export const Priority = styled.div`
+    display: flex;
+    margin-left: 10px;
+    margin-right: 10px;
+`;
+
+export const Star = styled.img`
+    width: 10px;
+    height: 10px;
+`;
+
+export const Manager = styled.img`
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background: ${LIGHT_GRAY};
+    margin-left: 10px;
+    margin-right: 10px;
 `;

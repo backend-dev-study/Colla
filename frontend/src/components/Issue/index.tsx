@@ -1,20 +1,27 @@
 import React, { FC } from 'react';
-import { Attributes, Wrapper } from './style';
+
+import starImg from '../../../public/assets/images/star.png';
+import { Attributes, Manager, Priority, Star, Wrapper } from './style';
 
 interface PropType {
     story?: boolean;
     title: string;
+    priority?: number;
+    manager?: string;
 }
 
-const Issue: FC<PropType> = ({ story, title }) => (
+const Issue: FC<PropType> = ({ story, title, priority, manager }) => (
     <>
         <Wrapper story={story}>
             {title}
             {!story ? (
                 <Attributes>
-                    <div>우선순위</div>
-                    <div>태그들</div>
-                    <div>담당자</div>
+                    <Priority>
+                        {Array.from({ length: priority! }, (v, i) => i).map((v, i) => (
+                            <Star key={i} src={starImg} />
+                        ))}
+                    </Priority>
+                    <Manager src={manager} />
                 </Attributes>
             ) : null}
         </Wrapper>
