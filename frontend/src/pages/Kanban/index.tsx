@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 
 import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
@@ -13,11 +14,21 @@ import { TaskType } from '../../types/kanban';
 import { menu } from '../common';
 import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './style';
 
+interface stateType {
+    projectId: number;
+}
+
 const Kanban = () => {
+    const history = useHistory();
+    const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
     const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
-    const [project, setProject] = useRecoilState(projectState);
+    const setProject = useSetRecoilState(projectState);
     const { Modal, setModal } = useModal();
+
+    if (!state.projectId) {
+        history.push('/home');
+    }
 
     const changeTaskColumn = (currentTaskId: number, newColumnName: string) => {
         setTaskList((prevState) =>
@@ -43,10 +54,8 @@ const Kanban = () => {
     };
 
     useEffect(() => {
-        if (project.id === -1) return;
-
         (async () => {
-            const res = await getProject(project.id);
+            const res = await getProject(state.projectId);
             const { id, name, description, thumbnail, tasks, members } = res.data;
             setProject({
                 id,
@@ -67,7 +76,7 @@ const Kanban = () => {
             setTaskStatuses(Object.keys(tasks));
             setTaskList(newTaskList);
         })();
-    }, [project.id]);
+    }, []);
 
     return (
         <>

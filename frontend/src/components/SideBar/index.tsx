@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useHistory } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
 import { menuPath } from '../../pages/common';
 import { projectState } from '../../stores/projectState';
@@ -24,7 +24,7 @@ interface Props {
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
-    const setProjectState = useSetRecoilState(projectState);
+    const [currentProjectState, setProjectState] = useRecoilState(projectState);
 
     const isProjectType = (el: ProjectType | string): el is ProjectType => (el as ProjectType).name !== undefined;
 
@@ -37,11 +37,17 @@ export const SideBar = ({ props, project }: Props) => {
             thumbnail,
             members: [],
         });
-        history.push('/kanban');
+        history.push({
+            pathname: '/kanban',
+            state: { projectId: id },
+        });
     };
 
     const handleClickSideBar = (idx: number) => {
-        history.push(menuPath[idx]);
+        history.push({
+            pathname: menuPath[idx],
+            state: { projectId: currentProjectState.id },
+        });
     };
 
     return (
