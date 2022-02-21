@@ -25,6 +25,11 @@ export const TaskContainer = styled.div`
 export const Feature = styled.div`
     font-size: 20px;
     margin-right: 30px;
+    cursor: pointer;
+
+    :hover {
+        text-decoration: 3px solid #000 underline;
+    }
 `;
 
 export const SearchBar = styled.div`
