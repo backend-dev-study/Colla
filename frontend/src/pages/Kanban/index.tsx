@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 
 import PlusIcon from '../../../public/assets/images/plus-circle.svg';
 import { getProject } from '../../apis/project';
@@ -11,24 +10,14 @@ import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
+import { menu } from '../common';
 import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './style';
 
-interface stateType {
-    projectId: number;
-}
-const menu = ['로드맵', '백로그', '대시보드', '지도'];
-
 const Kanban = () => {
-    const history = useHistory();
-    const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
     const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
-    const setProjectState = useSetRecoilState(projectState);
+    const [project, setProject] = useRecoilState(projectState);
     const { Modal, setModal } = useModal();
-
-    if (!state.projectId) {
-        history.push('/home');
-    }
 
     const changeTaskColumn = (currentTaskId: number, newColumnName: string) => {
         setTaskList((prevState) =>
@@ -54,10 +43,12 @@ const Kanban = () => {
     };
 
     useEffect(() => {
+        if (project.id === -1) return;
+
         (async () => {
-            const res = await getProject(state.projectId);
+            const res = await getProject(project.id);
             const { id, name, description, thumbnail, tasks, members } = res.data;
-            setProjectState({
+            setProject({
                 id,
                 name,
                 description,
@@ -76,7 +67,7 @@ const Kanban = () => {
             setTaskStatuses(Object.keys(tasks));
             setTaskList(newTaskList);
         })();
-    }, []);
+    }, [project.id]);
 
     return (
         <>
