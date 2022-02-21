@@ -16,7 +16,6 @@ import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './sty
 interface stateType {
     projectId: number;
 }
-const menu = ['로드맵', '백로그', '대시보드', '지도'];
 
 const Kanban = () => {
     const history = useHistory();
@@ -26,7 +25,7 @@ const Kanban = () => {
     const setProjectState = useSetRecoilState(projectState);
     const { Modal, setModal } = useModal();
 
-    if (!state.projectId) {
+    if (!state || !state.projectId) {
         history.push('/home');
     }
 
@@ -81,7 +80,7 @@ const Kanban = () => {
     return (
         <>
             <Header />
-            <SideBar props={menu} />
+            <SideBar />
             <Container>
                 <Wrapper>
                     {taskStatuses.map((value) => (
