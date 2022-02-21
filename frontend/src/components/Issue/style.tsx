@@ -50,3 +50,19 @@ export const Manager = styled.img`
     margin-left: 10px;
     margin-right: 10px;
 `;
+
+export const Tags = styled.div`
+    display: flex;
+    font-size: 15px;
+`;
+
+export const Tag = styled.div`
+    display: flex;
+    justify-content: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    background: ${GREEN};
+`;

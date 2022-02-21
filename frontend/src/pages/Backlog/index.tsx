@@ -13,17 +13,20 @@ const dummy = [
                 id: 1,
                 title: 'task1',
                 priority: 3,
+                tags: ['backend', 'frontend', 'etc'],
             },
             {
                 id: 2,
                 title: 'task2',
                 priority: 5,
                 manager: 'https://avatars.githubusercontent.com/u/69030160?v=4',
+                tags: ['bug'],
             },
             {
                 id: 3,
                 title: 'task3',
                 priority: 1,
+                tags: ['refactor'],
             },
         ],
     },
@@ -43,8 +46,8 @@ const Backlog = () => (
                 {dummy.map(({ title, tasks }: any, idx) => (
                     <>
                         <Issue key={idx} title={title} story />
-                        {tasks.map(({ id, title, priority, manager }: any) => (
-                            <Issue key={id} title={title} priority={priority} manager={manager} />
+                        {tasks.map(({ id, title, priority, manager, tags }: any) => (
+                            <Issue key={id} title={title} priority={priority} manager={manager} tags={tags} />
                         ))}
                     </>
                 ))}

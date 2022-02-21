@@ -1,5 +1,13 @@
 import React from 'react';
 
-const NotFound = () => <div>Page Not Found!</div>;
+import Header from '../../components/Header';
+import { Error } from './style';
+
+const NotFound = () => (
+    <>
+        <Header />
+        <Error>Page Not Found!</Error>
+    </>
+);
 
 export default NotFound;
