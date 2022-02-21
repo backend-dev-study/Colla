@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
 import { projectState } from '../../stores/projectState';
@@ -17,13 +17,20 @@ import {
 } from './style';
 
 interface Props {
-    props: Array<ProjectType | string>;
+    props?: Array<ProjectType>;
     project?: boolean;
 }
 
-function isProjectType(el: ProjectType | string): el is ProjectType {
-    return (el as ProjectType).name !== undefined;
-}
+const MENU = [
+    { kor: '칸반보드', en: 'kanban' },
+    {
+        kor: '로드맵',
+        en: 'roadmap',
+    },
+    { kor: '백로그', en: 'backlog' },
+    { kor: '대시보드', en: 'dashboard' },
+    { kor: '지도', en: 'map' },
+];
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
@@ -50,22 +57,22 @@ export const SideBar = ({ props, project }: Props) => {
             {project ? (
                 <ProjectContainer>
                     <ProjectWrapper>
-                        {props.map((el, idx) =>
-                            isProjectType(el) ? (
-                                <Project key={idx} onClick={() => enterProject(el)}>
-                                    <ProjectIcon src={el.thumbnail ? el.thumbnail : EmptySrc} />
-                                    <span>{el.name}</span>
-                                </Project>
-                            ) : null,
-                        )}
+                        {props!.map((el, idx) => (
+                            <Project key={idx} onClick={() => enterProject(el)}>
+                                <ProjectIcon src={el.thumbnail ? el.thumbnail : EmptySrc} />
+                                <span>{el.name}</span>
+                            </Project>
+                        ))}
                     </ProjectWrapper>
                 </ProjectContainer>
             ) : (
                 <MenuContainer>
                     <MenuWrapper>
-                        {props.map((el, idx) => (
+                        {MENU.map(({ kor, en }, idx) => (
                             <div key={idx}>
-                                <Menu>{el}</Menu>
+                                <Link to={`/${en}`}>
+                                    <Menu>{kor}</Menu>
+                                </Link>
                             </div>
                         ))}
                     </MenuWrapper>
