@@ -11,6 +11,7 @@ import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
@@ -115,5 +116,22 @@ public class TaskService {
         Task task = findTaskById(taskId);
         TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
         task.updateTaskStatus(taskStatus);
+    }
+
+    public List<ProjectTaskSimpleResponse> getTasksOrderByCreateDate(Long projectId, Boolean asc) {
+        Project project = projectService.findProjectById(projectId);
+        List<Task> result = asc ?
+                taskRepository.findByProjectOrderByCreatedAtAsc(project) :
+                taskRepository.findByProjectOrderByCreatedAtDesc(project);
+
+        return result.stream()
+                .map(task -> {
+                    User user = null;
+                    if (task.getManagerId()!=null) {
+                        user = userService.findUserById(task.getManagerId());
+                    }
+                    return new ProjectTaskSimpleResponse(task, user);
+                })
+                .collect(Collectors.toList());
     }
 }
