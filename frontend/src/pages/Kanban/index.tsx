@@ -11,7 +11,6 @@ import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
-import { menu } from '../common';
 import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './style';
 
 interface stateType {
@@ -26,7 +25,7 @@ const Kanban = () => {
     const setProject = useSetRecoilState(projectState);
     const { Modal, setModal } = useModal();
 
-    if (!state.projectId) {
+    if (!state || !state.projectId) {
         history.push('/home');
     }
 
@@ -81,7 +80,7 @@ const Kanban = () => {
     return (
         <>
             <Header />
-            <SideBar props={menu} />
+            <SideBar />
             <Container>
                 <Wrapper>
                     {taskStatuses.map((value) => (

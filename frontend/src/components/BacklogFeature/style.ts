@@ -12,14 +12,8 @@ export const FeatureContainer = styled.div`
     flex-direction: row;
     width: 500px;
     height: 50px;
-    margin: 50px 0 10px 600px;
+    margin: 50px 0 10px 670px;
     align-items: center;
-`;
-
-export const TaskContainer = styled.div`
-    width: 1200px;
-    height: 500px;
-    background-color: #c5f0f5;
 `;
 
 export const Feature = styled.div`

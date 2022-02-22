@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import SearchButtonImg from '../../../public/assets/images/search-button.svg';
 import { SortCriteria } from '../DropDown/SortCriteria';
 import { Filter } from '../Modal/Filter';
-import { Container, Feature, FeatureContainer, SearchBar, SearchIcon, SearchInput, TaskContainer } from './style';
+import { Container, Feature, FeatureContainer, SearchBar, SearchIcon, SearchInput } from './style';
 
 export const BacklogFeature = () => {
     const features = ['Story', 'Filter', 'Sort'];
@@ -28,7 +28,6 @@ export const BacklogFeature = () => {
                     <SearchIcon src={SearchButtonImg} />
                 </SearchBar>
             </FeatureContainer>
-            <TaskContainer />
         </Container>
     );
 };

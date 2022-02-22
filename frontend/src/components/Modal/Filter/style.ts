@@ -8,6 +8,7 @@ export const Container = styled.div`
     border: 2px solid ${GRAY};
     border-radius: 10px;
     background-color: ${WHITE};
+    z-index: 10;
 `;
 
 export const FilterCriteria = styled.div`
