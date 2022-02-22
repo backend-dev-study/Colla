@@ -1,13 +1,17 @@
 package kr.kro.colla.task.task;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
+import kr.kro.colla.project.project.presentation.dto.ProjectResponse;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.presentation.dto.CreateProjectRequest;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,10 +22,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 
@@ -329,5 +337,35 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", equalTo("statusName : 널이어서는 안됩니다"));
+    }
+
+    @Test
+    void 사용자는_프로젝트의_테스크를_생성_날짜_오름차순으로_조회할_수_있다() {
+        // given
+        User loginedUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginedUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, loginedUser.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, null, createdProject.getId(), null);
+        List<ProjectTaskSimpleResponse> responses = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/sorting/create-date?ascending=true")
+
+        // then
+        .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+        assertThat(responses.size()).isEqualTo(2);
+        assertThat(responses
+                        .stream()
+                        .map(ProjectTaskSimpleResponse::getManagerName)
+                        .collect(Collectors.toList()).containsAll(Arrays.asList(loginedUser.getName(), null)));
     }
 }
