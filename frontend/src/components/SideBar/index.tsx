@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { useHistory } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
+import { menuPath } from '../../pages/common';
 import { projectState } from '../../stores/projectState';
 import { ProjectType } from '../../types/project';
 import {
@@ -21,13 +22,11 @@ interface Props {
     project?: boolean;
 }
 
-function isProjectType(el: ProjectType | string): el is ProjectType {
-    return (el as ProjectType).name !== undefined;
-}
-
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
-    const setProjectState = useSetRecoilState(projectState);
+    const [currentProjectState, setProjectState] = useRecoilState(projectState);
+
+    const isProjectType = (el: ProjectType | string): el is ProjectType => (el as ProjectType).name !== undefined;
 
     const enterProject = (project: ProjectType) => {
         const { id, name, description, thumbnail } = project;
@@ -41,6 +40,13 @@ export const SideBar = ({ props, project }: Props) => {
         history.push({
             pathname: '/kanban',
             state: { projectId: id },
+        });
+    };
+
+    const handleClickSideBar = (idx: number) => {
+        history.push({
+            pathname: menuPath[idx],
+            state: { projectId: currentProjectState.id },
         });
     };
 
@@ -64,7 +70,7 @@ export const SideBar = ({ props, project }: Props) => {
                 <MenuContainer>
                     <MenuWrapper>
                         {props.map((el, idx) => (
-                            <div key={idx}>
+                            <div key={idx} onClick={() => handleClickSideBar(idx)}>
                                 <Menu>{el}</Menu>
                             </div>
                         ))}

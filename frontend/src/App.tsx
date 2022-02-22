@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import ValidationRoute from './components/ValidationRoute';
+import { Backlog } from './pages/Backlog';
 import Home from './pages/Home';
 import Kanban from './pages/Kanban';
 import Login from './pages/Login';
@@ -23,6 +24,7 @@ const App = () => (
                     <Route exact path="/login" component={LoginProcessing} />
                     <ValidationRoute exact path="/kanban" component={Kanban} />
                     <ValidationRoute exact path="/home" component={Home} />
+                    <ValidationRoute exact path="/backlog" component={Backlog} />
                 </Switch>
             </Router>
         </DndProvider>
