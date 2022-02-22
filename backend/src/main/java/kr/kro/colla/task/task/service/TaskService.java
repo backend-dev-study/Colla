@@ -84,13 +84,14 @@ public class TaskService {
 
     public void updateTask(Long taskId, UpdateTaskRequest updateTaskRequest) {
         Task task = findTaskById(taskId);
-        String title = task.getStory() != null ? task.getTitle() : null;
+        String title = task.getStory() != null ? task.getStory().getTitle() : null;
         List<TaskTag> taskTags = taskTagService.translateTaskTags(task, updateTaskRequest.getTags());
 
         task.updateContents(updateTaskRequest);
         task.updateTags(taskTags);
 
-        if (title == null || !title.equals(updateTaskRequest.getStory())) {
+        if (title == null && !updateTaskRequest.getStory().isBlank()
+                || title != null && !title.equals(updateTaskRequest.getStory())) {
             Story story = storyService.findStoryByTitle(updateTaskRequest.getStory());
             task.updateStory(story);
         }

@@ -60,3 +60,9 @@ export const deleteTaskStatus = async (projectId: number, from: string, to: stri
 
     return response;
 };
+
+export const getProjectStatus = async (projectId: number) => {
+    const response = await client.get(`/projects/${projectId}/statuses`);
+
+    return response;
+};

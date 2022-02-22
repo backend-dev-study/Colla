@@ -3,8 +3,8 @@ import { List, Title, Work } from '../../../styles/dropdown';
 
 export const StoryList = styled.div`
     width: 375px;
-    top: 390px;
-    left: 120px;
+    top: 315px;
+    left: 340px;
 
     ${List}
 `;

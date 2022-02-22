@@ -22,7 +22,7 @@ const Kanban = () => {
     const { state } = useLocation<stateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
     const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
-    const setProjectState = useSetRecoilState(projectState);
+    const setProject = useSetRecoilState(projectState);
     const { Modal, setModal } = useModal();
 
     if (!state || !state.projectId) {
@@ -56,7 +56,7 @@ const Kanban = () => {
         (async () => {
             const res = await getProject(state.projectId);
             const { id, name, description, thumbnail, tasks, members } = res.data;
-            setProjectState({
+            setProject({
                 id,
                 name,
                 description,

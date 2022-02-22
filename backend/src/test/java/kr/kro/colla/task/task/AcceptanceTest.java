@@ -203,6 +203,84 @@ public class AcceptanceTest {
     }
 
     @Test
+    void 사용자가_스토리에_속해있지_않은_태스크에_스토리를_추가한다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
+
+        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        createdTask.put("story", createdStory.getTitle());
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(createdTask)
+
+        // when
+        .when()
+                .put("/api/projects/tasks/" + 1L)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 사용자가_특정_스토리에_속해있는_태스크의_스토리를_수정한다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        ProjectStoryResponse oldStory = story.를_생성한다(createdProject.getId(), accessToken, "old story");
+        Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), oldStory.getTitle());
+
+        ProjectStoryResponse newStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        createdTask.put("story", newStory.getTitle());
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(createdTask)
+
+        // when
+        .when()
+                .put("/api/projects/tasks/" + 1L)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 스토리에_속해있지_않은_태스크에_스토리를_추가하지도_않으면_아무런_반영도_되지_않는다() {
+        // given
+        User registeredUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(registeredUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
+
+        createdTask.put("story", "");
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(createdTask)
+
+        // when
+        .when()
+                .put("/api/projects/tasks/" + 1L)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
     void 사용자가_테스크의_상태값을_수정한다() {
         // given
         String newStatusName = "새로 변경될 상태 이름!!";

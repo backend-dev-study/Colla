@@ -3,8 +3,8 @@ import { List, Work } from '../../../styles/dropdown';
 
 export const MemberList = styled.div`
     width: 200px;
-    top: 190px;
-    left: 630px;
+    top: 120px;
+    left: 849px;
 
     ${List}
 `;

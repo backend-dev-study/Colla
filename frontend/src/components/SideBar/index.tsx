@@ -1,7 +1,7 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { Link, useHistory } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
 import { projectState } from '../../stores/projectState';
 import { ProjectType } from '../../types/project';
@@ -22,19 +22,19 @@ interface Props {
 }
 
 const MENU = [
-    { kor: '칸반보드', en: 'kanban' },
+    { name: '칸반보드', path: '/kanban' },
     {
-        kor: '로드맵',
-        en: 'roadmap',
+        name: '로드맵',
+        path: '/roadmap',
     },
-    { kor: '백로그', en: 'backlog' },
-    { kor: '대시보드', en: 'dashboard' },
-    { kor: '지도', en: 'map' },
+    { name: '백로그', path: '/backlog' },
+    { name: '대시보드', path: '/dashboard' },
+    { name: '지도', path: '/map' },
 ];
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
-    const setProjectState = useSetRecoilState(projectState);
+    const [currentProjectState, setProjectState] = useRecoilState(projectState);
 
     const enterProject = (project: ProjectType) => {
         const { id, name, description, thumbnail } = project;
@@ -48,6 +48,13 @@ export const SideBar = ({ props, project }: Props) => {
         history.push({
             pathname: '/kanban',
             state: { projectId: id },
+        });
+    };
+
+    const handleClickSideBar = (path: string) => {
+        history.push({
+            pathname: path,
+            state: { projectId: currentProjectState.id },
         });
     };
 
@@ -68,11 +75,9 @@ export const SideBar = ({ props, project }: Props) => {
             ) : (
                 <MenuContainer>
                     <MenuWrapper>
-                        {MENU.map(({ kor, en }, idx) => (
-                            <div key={idx}>
-                                <Link to={`/${en}`}>
-                                    <Menu>{kor}</Menu>
-                                </Link>
+                        {MENU.map(({ name, path }, idx) => (
+                            <div key={idx} onClick={() => handleClickSideBar(path)}>
+                                <Menu>{name}</Menu>
                             </div>
                         ))}
                     </MenuWrapper>

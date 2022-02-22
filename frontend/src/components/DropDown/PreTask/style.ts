@@ -3,8 +3,8 @@ import { List, Title, Work } from '../../../styles/dropdown';
 
 export const TaskList = styled.div`
     width: 375px;
-    top: 450px;
-    left: 120px;
+    top: 375px;
+    left: 340px;
 
     ${List}
 `;

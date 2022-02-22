@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { SideBar } from '../../components/SideBar';
@@ -40,8 +41,8 @@ const Backlog = () => (
     <>
         <Header />
         <SideBar />
+        <BacklogFeature />
         <Container>
-            <div>필터링 속성들 영역</div>
             <Wrapper>
                 {dummy.map(({ title, tasks }: any, idx) => (
                     <>
