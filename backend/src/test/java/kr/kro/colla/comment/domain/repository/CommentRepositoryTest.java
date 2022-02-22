@@ -70,7 +70,7 @@ class CommentRepositoryTest {
         // given
         User user = userRepository.save(UserProvider.createUser());
         Project project = projectRepository.save(ProjectProvider.createProject(user.getId()));
-        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0)));
+        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0), 3));
         commentRepository.saveAll(List.of(
                 CommentProvider.createComment(user, task, null, "first comment contents"),
                 CommentProvider.createComment(user, task, null, "second comment contents")
@@ -91,7 +91,7 @@ class CommentRepositoryTest {
         // given
         User user = userRepository.save(UserProvider.createUser());
         Project project = projectRepository.save(ProjectProvider.createProject(user.getId()));
-        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0)));
+        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0), 3));
         Comment comment = commentRepository.save(CommentProvider.createComment(user, task, null, "comment contents"));
 
         // when
@@ -108,7 +108,7 @@ class CommentRepositoryTest {
         // given
         User user = userRepository.save(UserProvider.createUser());
         Project project = projectRepository.save(ProjectProvider.createProject(user.getId()));
-        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0)));
+        Task task = taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, project.getTaskStatuses().get(0), 3));
         Comment superComment = commentRepository.save(CommentProvider.createComment(user, task, null, "super comment contents"));
         Comment subComment = commentRepository.save(CommentProvider.createComment(user, task, superComment, "sub comment contents"));
 

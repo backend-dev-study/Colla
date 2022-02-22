@@ -95,7 +95,7 @@ class CommentControllerTest extends ControllerTest {
 
         User user = UserProvider.createUser();
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(user.getId(), project, null);
+        Task task = TaskProvider.createTask(user.getId(), project, null, 3);
 
         Comment comment1 = CommentProvider.createComment(user, task, null, "first comment contents");
         Comment comment2 = CommentProvider.createComment(user, task, comment1, "first comment's subComment");
