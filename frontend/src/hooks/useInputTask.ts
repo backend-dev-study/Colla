@@ -76,9 +76,9 @@ const useInputTask = () => {
         setTaskInput({
             title,
             description,
-            story,
+            story: story || '',
             preTasks: JSON.parse(preTasks),
-            managerId: manager,
+            managerId: manager || '',
             status,
             priority,
             selectedTags: tags,

@@ -48,12 +48,14 @@ export const ProjectManageButton = styled.button`
 export const LeftNav = styled.div`
     flex: 10;
     height: 100%;
+    margin-right: 1000px;
 
     ${Center}
 `;
 
 export const RightNav = styled.div`
     height: 100%;
+    margin-right: 50px;
 
     ${Center}
 `;

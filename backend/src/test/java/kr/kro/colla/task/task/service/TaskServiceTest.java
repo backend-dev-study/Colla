@@ -33,8 +33,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -173,7 +172,7 @@ class TaskServiceTest {
                 .description("new description")
                 .story("new story")
                 .priority(4)
-                .tags("[\"backend\", \"frontend\"]")
+                .tags("[\"backend\", \"frontend\", \"bug fix\"]")
                 .build();
         List<TaskTag> taskTags = List.of(
                 new TaskTag(task, new Tag("refactoring")),
@@ -201,6 +200,135 @@ class TaskServiceTest {
         assertThat(task.getTaskTags()).hasSize(3);
         assertThat(task.getTaskTags()).extracting(taskTag -> taskTag.getTag().getName())
                 .containsExactly("backend", "refactoring", "bug fix");
+    }
+
+    @Test
+    void 스토리에_속해있지_않은_태스크에_스토리를_추가한다() {
+        // given
+        Long userId = 1L, taskId = 5L;
+        User user = UserProvider.createUser();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Project project = ProjectProvider.createProject(user.getId());
+        Task task = TaskProvider.createTask(null, project, null);
+        ReflectionTestUtils.setField(task, "id", taskId);
+
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
+                .title(task.getTitle())
+                .managerId("")
+                .description(task.getDescription())
+                .story("new story")
+                .priority(task.getPriority())
+                .build();
+        Story newStory = StoryProvider.createStory(project, updateTaskRequest.getStory());
+
+        given(taskRepository.findById(taskId))
+                .willReturn(Optional.of(task));
+        given(storyService.findStoryByTitle(eq(updateTaskRequest.getStory())))
+                .willReturn(newStory);
+
+        // when
+        taskService.updateTask(taskId, updateTaskRequest);
+
+        // then
+        assertThat(task.getStory()).isNotNull();
+        assertThat(task.getStory().getTitle()).isEqualTo(updateTaskRequest.getStory());
+        verify(storyService, times(1)).findStoryByTitle(eq(updateTaskRequest.getStory()));
+    }
+
+    @Test
+    void 기존에_특정_스토리에_속해있던_태스크의_스토리를_수정한다() {
+        // given
+        Long userId = 1L, taskId = 5L;
+        User user = UserProvider.createUser();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Project project = ProjectProvider.createProject(user.getId());
+        Story oldStory = StoryProvider.createStory(project, "old story");
+        Task task = TaskProvider.createTask(null, project, oldStory);
+        ReflectionTestUtils.setField(task, "id", taskId);
+
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
+                .title(task.getTitle())
+                .managerId("")
+                .description(task.getDescription())
+                .story("new story")
+                .priority(task.getPriority())
+                .build();
+        Story newStory = StoryProvider.createStory(project, updateTaskRequest.getStory());
+
+        given(taskRepository.findById(taskId))
+                .willReturn(Optional.of(task));
+        given(storyService.findStoryByTitle(eq(updateTaskRequest.getStory())))
+                .willReturn(newStory);
+
+        // when
+        taskService.updateTask(taskId, updateTaskRequest);
+
+        // then
+        assertThat(task.getStory()).isNotNull();
+        assertThat(task.getStory().getTitle()).isNotEqualTo(oldStory.getTitle());
+        assertThat(task.getStory().getTitle()).isEqualTo(newStory.getTitle());
+        verify(storyService, times(1)).findStoryByTitle(eq(updateTaskRequest.getStory()));
+    }
+
+    @Test
+    void 기존_스토리와_동일한_스토리로_수정_시_반영되지_않는다() {
+        // given
+        Long userId = 1L, taskId = 5L;
+        User user = UserProvider.createUser();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Project project = ProjectProvider.createProject(user.getId());
+        Story oldStory = StoryProvider.createStory(project, "old story");
+        Task task = TaskProvider.createTask(null, project, oldStory);
+        ReflectionTestUtils.setField(task, "id", taskId);
+
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
+                .title(task.getTitle())
+                .managerId("")
+                .description(task.getDescription())
+                .story("old story")
+                .priority(task.getPriority())
+                .build();
+
+        given(taskRepository.findById(taskId))
+                .willReturn(Optional.of(task));
+
+        // when
+        taskService.updateTask(taskId, updateTaskRequest);
+
+        // then
+        verify(storyService, never()).findStoryByTitle(eq(updateTaskRequest.getStory()));
+    }
+
+    @Test
+    void 태스크가_스토리에_속해있지_않고_추가하지도_않았다면_아무런_반영도_되지_않는다() {
+        // given
+        Long userId = 1L, taskId = 5L;
+        User user = UserProvider.createUser();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Project project = ProjectProvider.createProject(user.getId());
+        Task task = TaskProvider.createTask(null, project, null);
+        ReflectionTestUtils.setField(task, "id", taskId);
+
+        UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
+                .title(task.getTitle())
+                .managerId("")
+                .description(task.getDescription())
+                .story("")
+                .priority(task.getPriority())
+                .build();
+
+        given(taskRepository.findById(eq(taskId)))
+                .willReturn(Optional.of(task));
+
+        // when
+        taskService.updateTask(taskId, updateTaskRequest);
+
+        // then
+        verify(storyService, never()).findStoryByTitle(eq(updateTaskRequest.getStory()));
     }
 
     @Test
