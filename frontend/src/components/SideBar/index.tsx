@@ -1,9 +1,8 @@
 import React from 'react';
-
 import { useHistory } from 'react-router-dom';
+
 import { useRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
-import { menuPath } from '../../pages/common';
 import { projectState } from '../../stores/projectState';
 import { ProjectType } from '../../types/project';
 import {
@@ -18,15 +17,24 @@ import {
 } from './style';
 
 interface Props {
-    props: Array<ProjectType | string>;
+    props?: Array<ProjectType>;
     project?: boolean;
 }
+
+const MENU = [
+    { name: '칸반보드', path: '/kanban' },
+    {
+        name: '로드맵',
+        path: '/roadmap',
+    },
+    { name: '백로그', path: '/backlog' },
+    { name: '대시보드', path: '/dashboard' },
+    { name: '지도', path: '/map' },
+];
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
     const [currentProjectState, setProjectState] = useRecoilState(projectState);
-
-    const isProjectType = (el: ProjectType | string): el is ProjectType => (el as ProjectType).name !== undefined;
 
     const enterProject = (project: ProjectType) => {
         const { id, name, description, thumbnail } = project;
@@ -43,9 +51,9 @@ export const SideBar = ({ props, project }: Props) => {
         });
     };
 
-    const handleClickSideBar = (idx: number) => {
+    const handleClickSideBar = (path: string) => {
         history.push({
-            pathname: menuPath[idx],
+            pathname: path,
             state: { projectId: currentProjectState.id },
         });
     };
@@ -56,22 +64,20 @@ export const SideBar = ({ props, project }: Props) => {
             {project ? (
                 <ProjectContainer>
                     <ProjectWrapper>
-                        {props.map((el, idx) =>
-                            isProjectType(el) ? (
-                                <Project key={idx} onClick={() => enterProject(el)}>
-                                    <ProjectIcon src={el.thumbnail ? el.thumbnail : EmptySrc} />
-                                    <span>{el.name}</span>
-                                </Project>
-                            ) : null,
-                        )}
+                        {props!.map((el, idx) => (
+                            <Project key={idx} onClick={() => enterProject(el)}>
+                                <ProjectIcon src={el.thumbnail ? el.thumbnail : EmptySrc} />
+                                <span>{el.name}</span>
+                            </Project>
+                        ))}
                     </ProjectWrapper>
                 </ProjectContainer>
             ) : (
                 <MenuContainer>
                     <MenuWrapper>
-                        {props.map((el, idx) => (
-                            <div key={idx} onClick={() => handleClickSideBar(idx)}>
-                                <Menu>{el}</Menu>
+                        {MENU.map(({ name, path }, idx) => (
+                            <div key={idx} onClick={() => handleClickSideBar(path)}>
+                                <Menu>{name}</Menu>
                             </div>
                         ))}
                     </MenuWrapper>

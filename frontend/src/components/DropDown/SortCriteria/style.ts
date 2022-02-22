@@ -4,9 +4,10 @@ import { List, Work } from '../../../styles/dropdown';
 export const Container = styled.div`
     width: 92px;
     top: 210px;
-    left: 1145px;
+    right: 910px;
     font-size: 16px;
     overflow-x: hidden;
+    z-index: 10;
 
     ${List}
 `;
