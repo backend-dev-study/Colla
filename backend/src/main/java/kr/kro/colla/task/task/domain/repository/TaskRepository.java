@@ -1,5 +1,6 @@
 package kr.kro.colla.task.task.domain.repository;
 
+import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.task.domain.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,8 +8,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface TaskRepository extends JpaRepository<Task, Long> {
+
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Task t SET t.taskStatus = :to WHERE  t.taskStatus = :from")
+    @Query("update Task t set t.taskStatus = :to where t.taskStatus = :from")
     void bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
+
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority asc")
+    List<Task> findAllOrderByPriority(@Param("project")Project project);
+
 }

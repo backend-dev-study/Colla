@@ -21,7 +21,7 @@ public class TaskStatus {
     @Column
     private String name;
 
-    @OneToMany(mappedBy = "taskStatus", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "taskStatus", fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
     public TaskStatus(String name){

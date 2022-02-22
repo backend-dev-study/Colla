@@ -1,9 +1,6 @@
 package kr.kro.colla.task.task.presentation;
 
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
-import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/projects/tasks")
@@ -50,6 +48,13 @@ public class TaskController {
 
         return ResponseEntity.ok()
                 .build();
+    }
+
+    @GetMapping("/priority")
+    public ResponseEntity<List<ProjectTaskResponse>> getTasksOrderByPriority(@Valid @RequestBody ProjectTaskRequest projectTaskRequest) {
+        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectTaskRequest.getProjectId());
+
+        return ResponseEntity.ok(taskList);
     }
 
 }
