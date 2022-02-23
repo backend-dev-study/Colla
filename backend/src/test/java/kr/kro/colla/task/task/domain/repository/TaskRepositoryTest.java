@@ -12,15 +12,18 @@ import kr.kro.colla.task.task.domain.Task;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ActiveProfiles("test")
 @DataJpaTest
+@EnableJpaAuditing
 class TaskRepositoryTest {
 
     @Autowired
@@ -102,6 +105,52 @@ class TaskRepositoryTest {
         Task result2 = taskRepository.findById(task2.getId()).get();
         assertThat(result2.getTaskStatus().getName()).isEqualTo(taskStatus2.getName());
         assertThat(result2.getTaskStatus().getId()).isEqualTo(taskStatus2.getId());
+    }
+
+    @Test
+    void 프로젝트의_테스크들을_생성_날짜_오름차순으로_정렬해_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(234234L));
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
+        List<Task> tasks = List.of(
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus))
+        );
+
+        // when
+        List<Task> result = taskRepository.findByProjectOrderByCreatedAtAsc(project);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        IntStream.range(0, result.size())
+                .filter(idx -> idx != 0)
+                .forEach(idx -> {
+                    assertThat(result.get(idx).getCreatedAt().isBefore(result.get(idx-1).getCreatedAt()));
+                });
+    }
+
+    @Test
+    void 프로젝트의_테스크들을_생성_날짜_내림차순으로_정렬해_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(234234L));
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
+        List<Task> tasks = List.of(
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus))
+        );
+
+        // when
+        List<Task> result = taskRepository.findByProjectOrderByCreatedAtDesc(project);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        IntStream.range(0, result.size())
+                .filter(idx -> idx != 0)
+                .forEach(idx -> {
+                    assertThat(result.get(idx).getCreatedAt().isAfter(result.get(idx-1).getCreatedAt()));
+                });
     }
 
     @Test

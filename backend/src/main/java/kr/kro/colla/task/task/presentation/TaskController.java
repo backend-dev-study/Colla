@@ -12,13 +12,13 @@ import java.net.URI;
 import java.util.List;
 
 @RequiredArgsConstructor
-@RequestMapping("/projects/tasks")
+@RequestMapping("/projects")
 @Controller
 public class TaskController {
 
     private final TaskService taskService;
 
-    @PostMapping
+    @PostMapping("/tasks")
     public ResponseEntity<Void> createTask(@Valid CreateTaskRequest createTaskRequest) {
         Long taskId = taskService.createTask(createTaskRequest);
         URI redirectUrl = URI.create("/api/projects/tasks/" + taskId);
@@ -27,14 +27,14 @@ public class TaskController {
                 .build();
     }
 
-    @GetMapping("/{taskId}")
+    @GetMapping("/tasks/{taskId}")
     public ResponseEntity<ProjectTaskResponse> getTask(@PathVariable Long taskId) {
         ProjectTaskResponse projectTaskResponse = taskService.getTask(taskId);
 
         return ResponseEntity.ok(projectTaskResponse);
     }
 
-    @PutMapping("/{taskId}")
+    @PutMapping("/tasks/{taskId}")
     public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid UpdateTaskRequest updateTaskRequest) {
         taskService.updateTask(taskId, updateTaskRequest);
 
@@ -42,7 +42,7 @@ public class TaskController {
                 .build();
     }
 
-    @PatchMapping("/{taskId}")
+    @PatchMapping("/tasks/{taskId}")
     public ResponseEntity<Void> updateTaskStatus(@PathVariable Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
         taskService.updateTaskStatus(taskId, request.getStatusName());
 
@@ -50,6 +50,13 @@ public class TaskController {
                 .build();
     }
 
+    @GetMapping("/{projectId}/tasks/sorting/create-date")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksSortByCreateDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
+        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreateDate(projectId, ascending);
+
+        return ResponseEntity.ok(responses);
+    }
+  
     @GetMapping("/priority")
     public ResponseEntity<List<ProjectTaskResponse>> getTasksOrderByPriority(@Valid @RequestBody ProjectTaskRequest projectTaskRequest) {
         List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectTaskRequest.getProjectId());

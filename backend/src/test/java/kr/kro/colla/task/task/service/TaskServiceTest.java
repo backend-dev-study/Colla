@@ -15,6 +15,7 @@ import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
@@ -29,6 +30,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -377,6 +379,70 @@ class TaskServiceTest {
 
         // then
         assertThat(task.getTaskStatus().getName()).isEqualTo(after.getName());
+    }
+
+    @Test
+    void 테스크를_생성_날짜_오름차순으로_조회한다() {
+        // given
+        Long projectId = 132128L, managerId = 9283L;
+        Project project = ProjectProvider.createProject(120394L);
+        User user = UserProvider.createUser2();
+        List<Task> tasks = List.of(
+                TaskProvider.createTask(managerId,project,null),
+                TaskProvider.createTask(null,project,null)
+        );
+
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(taskRepository.findByProjectOrderByCreatedAtAsc(any(Project.class)))
+                .willReturn(tasks);
+        given(userService.findUserById(managerId))
+                .willReturn(user);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, true);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        List<String> names = result
+                .stream()
+                .map(response -> response.getManagerName())
+                .collect(Collectors.toList());
+        assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
+        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtDesc(any());
+    }
+
+    @Test
+    void 테스크를_생성_날짜_내림차순으로_조회한다() {
+        // given
+        Long projectId = 132128L, managerId = 9283L;
+        Project project = ProjectProvider.createProject(120394L);
+        User user = UserProvider.createUser2();
+        List<Task> tasks = List.of(
+                TaskProvider.createTask(managerId,project,null),
+                TaskProvider.createTask(null,project,null)
+        );
+
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(taskRepository.findByProjectOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(tasks);
+        given(userService.findUserById(managerId))
+                .willReturn(user);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, false);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        List<String> names = result
+                .stream()
+                .map(response -> response.getManagerName())
+                .collect(Collectors.toList());
+        assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
+        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtDesc(any());
     }
 
     @Test
