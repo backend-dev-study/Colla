@@ -56,4 +56,12 @@ public class TaskController {
 
         return ResponseEntity.ok(responses);
     }
+  
+    @GetMapping("/priority")
+    public ResponseEntity<List<ProjectTaskResponse>> getTasksOrderByPriority(@Valid @RequestBody ProjectTaskRequest projectTaskRequest) {
+        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectTaskRequest.getProjectId());
+
+        return ResponseEntity.ok(taskList);
+    }
+
 }

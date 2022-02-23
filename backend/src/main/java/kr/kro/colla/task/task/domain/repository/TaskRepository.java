@@ -11,11 +11,16 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
+
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Task t SET t.taskStatus = :to WHERE  t.taskStatus = :from")
+    @Query("update Task t set t.taskStatus = :to where t.taskStatus = :from")
     void bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
 
     List<Task> findByProjectOrderByCreatedAtAsc(Project project);
 
     List<Task> findByProjectOrderByCreatedAtDesc(Project project);
+  
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority asc")
+    List<Task> findAllOrderByPriority(@Param("project")Project project);
+
 }

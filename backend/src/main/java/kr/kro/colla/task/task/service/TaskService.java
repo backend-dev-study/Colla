@@ -18,6 +18,7 @@ import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -67,20 +68,7 @@ public class TaskService {
                 ? userService.findUserById(task.getManagerId())
                 : null;
 
-        return ProjectTaskResponse.builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .story(task.getStory() != null ? task.getStory().getTitle() : null)
-                .preTasks(task.getPreTasks())
-                .manager(user != null ? user.getName() : null)
-                .status(task.getTaskStatus().getName())
-                .priority(task.getPriority())
-                .tags(task.getTaskTags()
-                        .stream()
-                        .map(taskTag -> taskTag.getTag().getName())
-                        .collect(Collectors.toList()))
-                .build();
+        return convertToProjectTaskResponse(task, user);
     }
 
     public void updateTask(Long taskId, UpdateTaskRequest updateTaskRequest) {
@@ -96,11 +84,6 @@ public class TaskService {
             Story story = storyService.findStoryByTitle(updateTaskRequest.getStory());
             task.updateStory(story);
         }
-    }
-
-    public Task findTaskById(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(TaskNotFoundException::new);
     }
 
     public void deleteTaskStatus(Long projectId, String from, String to) {
@@ -133,5 +116,44 @@ public class TaskService {
                     return new ProjectTaskSimpleResponse(task, user);
                 })
                 .collect(Collectors.toList());
+
+    public List<ProjectTaskResponse> getTasksOrderByPriority(Long projectId) {
+        Project project = projectService.findProjectById(projectId);
+        Hibernate.initialize(project.getMembers());
+        Hibernate.initialize(project.getStories());
+        Hibernate.initialize(project.getTaskStatuses());
+
+        return taskRepository.findAllOrderByPriority(project)
+                .stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return convertToProjectTaskResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
+    public Task findTaskById(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(TaskNotFoundException::new);
+    }
+
+    public ProjectTaskResponse convertToProjectTaskResponse(Task task, User user) {
+        return ProjectTaskResponse.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .story(task.getStory() != null ? task.getStory().getTitle() : null)
+                .preTasks(task.getPreTasks())
+                .manager(user != null ? user.getName() : null)
+                .status(task.getTaskStatus().getName())
+                .priority(task.getPriority())
+                .tags(task.getTaskTags()
+                        .stream()
+                        .map(taskTag -> taskTag.getTag().getName())
+                        .collect(Collectors.toList()))
+                .build();
+
     }
 }
