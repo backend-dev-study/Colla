@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,21 +35,12 @@ class TaskRepositoryTest {
     @Test
     void 프로젝트에_새로운_태스크를_등록한다() {
         // given
-        Project project = Project.builder()
-                .name("collaboration")
-                .description("collaboration tool")
-                .managerId(1L)
-                .build();
+        Project project = ProjectProvider.createProject(1L);
         projectRepository.save(project);
 
         TaskStatus taskStatus = taskStatusRepository.findByName("To Do")
                 .orElseThrow(TaskStatusNotFoundException::new);
-        Task task = Task.builder()
-                .title("task title")
-                .description("task description")
-                .project(project)
-                .taskStatus(taskStatus)
-                .build();
+        Task task = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 3);
 
         // when
         Task result = taskRepository.save(task);
@@ -61,18 +54,10 @@ class TaskRepositoryTest {
     @Test
     void 프로젝트의_태스크를_조회한다() {
         // given
-        Project project = Project.builder()
-                .name("collaboration")
-                .description("collaboration tool")
-                .managerId(1L)
-                .build();
+        Project project = ProjectProvider.createProject(1L);
         projectRepository.save(project);
 
-        Task task = Task.builder()
-                .title("task title")
-                .description("task description")
-                .project(project)
-                .build();
+        Task task = TaskProvider.createTaskForRepository(null, project, null, null, 3);
         taskRepository.save(task);
 
         // when
@@ -94,7 +79,7 @@ class TaskRepositoryTest {
     }
 
     @Test
-    void 테스크의_상태값을_다른_상태값으로_변경한다() {
+    void 태스크의_상태값을_다른_상태값으로_변경한다() {
         // given
         Project project = ProjectProvider.createProject(345L);
         projectRepository.save(project);
@@ -102,8 +87,8 @@ class TaskRepositoryTest {
         TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("before"));
         TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("after"));;
 
-        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
-        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
+        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
+        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
         taskRepository.save(task1);
         taskRepository.save(task2);
 
@@ -117,6 +102,28 @@ class TaskRepositoryTest {
         Task result2 = taskRepository.findById(task2.getId()).get();
         assertThat(result2.getTaskStatus().getName()).isEqualTo(taskStatus2.getName());
         assertThat(result2.getTaskStatus().getId()).isEqualTo(taskStatus2.getId());
+    }
+
+    @Test
+    void 프로젝트의_태스크를_중요도순_으로_정렬하여_조회한다() {
+        // given
+        Project project = ProjectProvider.createProject(1L);
+        projectRepository.save(project);
+
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("backend"));
+
+        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 4);
+        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 2);
+        taskRepository.save(task1);
+        taskRepository.save(task2);
+
+        // when
+        List<Task> taskList = taskRepository.findAllOrderByPriority(project);
+
+        // then
+        assertThat(taskList.size()).isEqualTo(2);
+        assertThat(taskList.get(0).getTitle()).isEqualTo(task2.getTitle());
+        assertThat(taskList.get(1).getTitle()).isEqualTo(task1.getTitle());
     }
 
 }

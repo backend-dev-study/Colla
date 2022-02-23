@@ -1,6 +1,5 @@
 package kr.kro.colla.task.task.presentation;
 
-import io.restassured.mapper.ObjectMapper;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
@@ -92,11 +91,13 @@ class TaskControllerTest extends ControllerTest {
         Long taskId = 13494L;
         String statusNameToUpdate = "새로운~상태~값~입니다~";
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(statusNameToUpdate);
+
         // when
         ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
+
         // then
         perform
                 .andExpect(status().isOk());
@@ -108,17 +109,19 @@ class TaskControllerTest extends ControllerTest {
         // given
         Long taskId = 13494L;
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
+
         // when
         ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
+
         // then
         perform
                 .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.message").value("statusName : must not be null"));
         verify(taskService, times(0)).updateTaskStatus(eq(taskId), anyString());
-
     }
+
 }
