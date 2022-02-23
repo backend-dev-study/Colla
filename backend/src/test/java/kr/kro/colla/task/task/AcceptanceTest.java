@@ -9,7 +9,6 @@ import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -371,13 +371,14 @@ public class AcceptanceTest {
     }
     
     @Test
-    void 사용자가_프로젝트의_태스크를_중요도순으로_조회한다() {
+    void 사용자가_프로젝트의_태스크를_우선순위_오름차순으로_조회한다() {
         // given
         User member1 = user.가_로그인을_한다1();
         User member2 = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(member1.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
         task.를_특정_우선순위로_생성한다(accessToken, member1.getId(), createdProject.getId(), null, 2);
+        task.를_특정_우선순위로_생성한다(accessToken, member1.getId(), createdProject.getId(), null, 5);
         task.를_특정_우선순위로_생성한다(accessToken, member2.getId(), createdProject.getId(), null, 1);
 
         ProjectTaskRequest projectTaskRequest = new ProjectTaskRequest(createdProject.getId());
@@ -399,11 +400,44 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-        assertThat(response.size()).isEqualTo(2);
-        assertThat(response.get(0).getManagerName()).isEqualTo(member2.getName());
-        assertThat(response.get(1).getManagerName()).isEqualTo(member1.getName());
-        assertThat(response.get(0).getId()).isEqualTo(2L);
-        assertThat(response.get(1).getId()).isEqualTo(1L);
+        assertThat(response.size()).isEqualTo(3);
+        IntStream.range(0, response.size() - 1)
+                .forEach(idx -> assertThat(response.get(idx).getPriority()).isLessThan(response.get(idx + 1).getPriority()));
+    }
+
+    @Test
+    void 사용자가_프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+        // given
+        User member1 = user.가_로그인을_한다1();
+        User member2 = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(member1.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_특정_우선순위로_생성한다(accessToken, member1.getId(), createdProject.getId(), null, 3);
+        task.를_특정_우선순위로_생성한다(accessToken, member2.getId(), createdProject.getId(), null, 1);
+        task.를_특정_우선순위로_생성한다(accessToken, member2.getId(), createdProject.getId(), null, 5);
+
+        ProjectTaskRequest projectTaskRequest = new ProjectTaskRequest(createdProject.getId());
+
+        List<ProjectTaskSimpleResponse> response = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+                .body(projectTaskRequest)
+
+        // when
+        .when()
+                .get("/api/projects/ "+ createdProject.getId() + "/tasks/priority")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(3);
+        IntStream.range(0, response.size() - 1)
+                .forEach(idx -> assertThat(response.get(idx).getPriority()).isGreaterThan(response.get(idx + 1).getPriority()));
     }
 
 }

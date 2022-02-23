@@ -401,7 +401,7 @@ class TaskServiceTest {
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, true);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreatedDate(projectId, true);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -434,7 +434,7 @@ class TaskServiceTest {
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, false);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreatedDate(projectId, false);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -472,8 +472,38 @@ class TaskServiceTest {
         assertThat(taskList.size()).isEqualTo(2);
         assertThat(taskList.get(0).getTitle()).isEqualTo(task2.getTitle());
         assertThat(taskList.get(1).getTitle()).isEqualTo(task1.getTitle());
+        assertThat(taskList.get(0).getPriority()).isLessThan(taskList.get(1).getPriority());
         verify(taskRepository, never()).findAllOrderByPriorityDesc(any(Project.class));
         verify(taskRepository, times(1)).findAllOrderByPriorityAsc(any(Project.class));
+    }
+
+    @Test
+    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        User member = UserProvider.createUser();
+        Project project = ProjectProvider.createProject(memberId);
+
+        Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
+        Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
+
+        given(projectService.findProjectById(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2));
+        given(userService.findUserById(eq(memberId)))
+                .willReturn(member);
+
+        // when
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, false);
+
+        // then
+        assertThat(taskList.size()).isEqualTo(2);
+        assertThat(taskList.get(0).getTitle()).isEqualTo(task1.getTitle());
+        assertThat(taskList.get(1).getTitle()).isEqualTo(task2.getTitle());
+        assertThat(taskList.get(0).getPriority()).isGreaterThan(taskList.get(1).getPriority());
+        verify(taskRepository, never()).findAllOrderByPriorityAsc(any(Project.class));
+        verify(taskRepository, times(1)).findAllOrderByPriorityDesc(any(Project.class));
     }
 
 }

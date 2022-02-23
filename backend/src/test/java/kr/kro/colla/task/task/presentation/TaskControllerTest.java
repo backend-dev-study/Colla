@@ -136,13 +136,12 @@ class TaskControllerTest extends ControllerTest {
         // given
         Long projectId = 52494L;
         Project project = ProjectProvider.createProject(92348L);
-        TaskProvider.createTask(null, project, null);
         List<ProjectTaskSimpleResponse> responses = List.of(
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
         );
 
-        given(taskService.getTasksOrderByCreateDate(projectId, true))
+        given(taskService.getTasksOrderByCreatedDate(projectId, true))
                 .willReturn(responses);
       
         // when
@@ -162,7 +161,7 @@ class TaskControllerTest extends ControllerTest {
                         .stream()
                         .map(ProjectTaskSimpleResponse::getManagerName)
                         .toArray())));
-        verify(taskService, times(1)).getTasksOrderByCreateDate(projectId, true);
+        verify(taskService, times(1)).getTasksOrderByCreatedDate(projectId, true);
     }
 
     @Test
@@ -170,13 +169,12 @@ class TaskControllerTest extends ControllerTest {
         // given
         Long projectId = 52494L;
         Project project = ProjectProvider.createProject(92348L);
-        TaskProvider.createTask(null, project, null);
         List<ProjectTaskSimpleResponse> responses = List.of(
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
         );
 
-        given(taskService.getTasksOrderByCreateDate(projectId, false))
+        given(taskService.getTasksOrderByCreatedDate(projectId, false))
                 .willReturn(responses);
 
         // when
@@ -188,7 +186,61 @@ class TaskControllerTest extends ControllerTest {
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(responses.size()));
-        verify(taskService, times(1)).getTasksOrderByCreateDate(projectId, false);
+        verify(taskService, times(1)).getTasksOrderByCreatedDate(projectId, false);
+    }
+
+    @Test
+    void 프로젝트의_태스크를_우선순위_오름차순으로_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        List<ProjectTaskSimpleResponse> taskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskWithPriority(null, project, null, 1), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskWithPriority(null, project, null, 3), null)
+        );
+
+        given(taskService.getTasksOrderByPriority(projectId, true))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/priority?ascending=true")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(taskList.size()))
+                .andExpect(jsonPath("$[0].priority").value(1))
+                .andExpect(jsonPath("$[1].priority").value(3));
+        verify(taskService, times(1)).getTasksOrderByPriority(projectId, true);
+    }
+
+    @Test
+    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        List<ProjectTaskSimpleResponse> taskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskWithPriority(null, project, null, 5), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskWithPriority(null, project, null, 2), null)
+        );
+
+        given(taskService.getTasksOrderByPriority(projectId, false))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/priority")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(taskList.size()))
+                .andExpect(jsonPath("$[0].priority").value(5))
+                .andExpect(jsonPath("$[1].priority").value(2));
+        verify(taskService, times(1)).getTasksOrderByPriority(projectId, false);
     }
 
 }

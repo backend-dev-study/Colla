@@ -52,7 +52,7 @@ public class TaskController {
 
     @GetMapping("/{projectId}/tasks/sorting/created-date")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksSortByCreateDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
-        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreateDate(projectId, ascending);
+        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreatedDate(projectId, ascending);
 
         return ResponseEntity.ok(responses);
     }

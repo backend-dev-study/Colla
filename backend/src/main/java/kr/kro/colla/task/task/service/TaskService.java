@@ -102,7 +102,7 @@ public class TaskService {
         task.updateTaskStatus(taskStatus);
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksOrderByCreateDate(Long projectId, Boolean ascending) {
+    public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
         List<Task> taskList = ascending
                 ? taskRepository.findByProjectOrderByCreatedAtAsc(project)
