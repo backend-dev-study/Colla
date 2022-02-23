@@ -9,6 +9,7 @@ import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
+import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +21,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.servlet.http.Cookie;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -138,8 +138,8 @@ class TaskControllerTest extends ControllerTest {
         Project project = ProjectProvider.createProject(92348L);
         TaskProvider.createTask(null, project, null);
         List<ProjectTaskSimpleResponse> responses = List.of(
-                new ProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
-                new ProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
         );
 
         given(taskService.getTasksOrderByCreateDate(projectId, true))
@@ -172,8 +172,8 @@ class TaskControllerTest extends ControllerTest {
         Project project = ProjectProvider.createProject(92348L);
         TaskProvider.createTask(null, project, null);
         List<ProjectTaskSimpleResponse> responses = List.of(
-                new ProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
-                new ProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
         );
 
         given(taskService.getTasksOrderByCreateDate(projectId, false))

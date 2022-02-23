@@ -58,8 +58,8 @@ public class TaskController {
     }
   
     @GetMapping("/{projectId}/tasks/priority")
-    public ResponseEntity<List<ProjectTaskResponse>> getTasksOrderByPriority(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
-        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectId, ascending);
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksOrderByPriority(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, ascending);
 
         return ResponseEntity.ok(taskList);
     }

@@ -13,6 +13,7 @@ import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
+import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -64,11 +65,11 @@ public class TaskService {
 
     public ProjectTaskResponse getTask(Long taskId) {
         Task task = findTaskById(taskId);
-        User user = task.getManagerId() != null
+        User manager = task.getManagerId() != null
                 ? userService.findUserById(task.getManagerId())
                 : null;
 
-        return convertToProjectTaskResponse(task, user);
+        return TaskResponseConverter.convertToProjectTaskResponse(task, manager);
     }
 
     public void updateTask(Long taskId, UpdateTaskRequest updateTaskRequest) {
@@ -113,12 +114,11 @@ public class TaskService {
                             ? userService.findUserById(task.getManagerId())
                             : null;
 
-                    return new ProjectTaskSimpleResponse(task, manager);
-                })
-                .collect(Collectors.toList());
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
     }
 
-    public List<ProjectTaskResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
+    public List<ProjectTaskSimpleResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
         Hibernate.initialize(project.getMembers());
         Hibernate.initialize(project.getStories());
@@ -134,7 +134,7 @@ public class TaskService {
                             ? userService.findUserById(task.getManagerId())
                             : null;
 
-                    return convertToProjectTaskResponse(task, manager);
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
                 }).collect(Collectors.toList());
     }
 
@@ -143,21 +143,4 @@ public class TaskService {
                 .orElseThrow(TaskNotFoundException::new);
     }
 
-    public ProjectTaskResponse convertToProjectTaskResponse(Task task, User user) {
-        return ProjectTaskResponse.builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .story(task.getStory() != null ? task.getStory().getTitle() : null)
-                .preTasks(task.getPreTasks())
-                .manager(user != null ? user.getName() : null)
-                .status(task.getTaskStatus().getName())
-                .priority(task.getPriority())
-                .tags(task.getTaskTags()
-                        .stream()
-                        .map(taskTag -> taskTag.getTag().getName())
-                        .collect(Collectors.toList()))
-                .build();
-
-    }
 }

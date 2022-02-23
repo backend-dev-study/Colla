@@ -382,7 +382,7 @@ public class AcceptanceTest {
 
         ProjectTaskRequest projectTaskRequest = new ProjectTaskRequest(createdProject.getId());
 
-        List<ProjectTaskResponse> response = given()
+        List<ProjectTaskSimpleResponse> response = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(ContentType.JSON)
                 .cookie("accessToken", accessToken)
@@ -397,11 +397,11 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(new TypeRef<List<ProjectTaskResponse>>() {});
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
         assertThat(response.size()).isEqualTo(2);
-        assertThat(response.get(0).getManager()).isEqualTo(member2.getName());
-        assertThat(response.get(1).getManager()).isEqualTo(member1.getName());
+        assertThat(response.get(0).getManagerName()).isEqualTo(member2.getName());
+        assertThat(response.get(1).getManagerName()).isEqualTo(member1.getName());
         assertThat(response.get(0).getId()).isEqualTo(2L);
         assertThat(response.get(1).getId()).isEqualTo(1L);
     }
