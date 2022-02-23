@@ -1,8 +1,13 @@
 package kr.kro.colla.task.task.presentation;
 
 import kr.kro.colla.common.ControllerTest;
+import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.TaskProvider;
+import kr.kro.colla.common.fixture.UserProvider;
+import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -15,8 +20,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.servlet.http.Cookie;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -122,6 +129,64 @@ class TaskControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.message").value("statusName : must not be null"));
         verify(taskService, times(0)).updateTaskStatus(eq(taskId), anyString());
+    }
+
+    @Test
+    void 테스크_목록을_생성_날짜_오름차순으로_조회한다() throws Exception {
+        // given
+        Long projectId = 52494L;
+        Project project = ProjectProvider.createProject(92348L);
+        TaskProvider.createTask(null, project, null);
+        List<ProjectTaskSimpleResponse> responses = List.of(
+                new ProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
+                new ProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
+        );
+
+        given(taskService.getTasksOrderByCreateDate(projectId, true))
+                .willReturn(responses);
+      
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/create-date?ascending=true")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+      
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(responses.size()))
+                .andExpect(jsonPath("$[*].title").value(containsInAnyOrder(responses
+                        .stream()
+                        .map(r -> r.getTitle())
+                        .toArray())))
+                .andExpect(jsonPath("$[*].managerName").value(containsInAnyOrder(responses
+                        .stream()
+                        .map(r -> r.getManagerName())
+                        .toArray())));
+        verify(taskService, times(1)).getTasksOrderByCreateDate(projectId, true);
+    }
+
+    @Test
+    void 테스크_목록을_생성_날짜_내림차순으로_조회한다() throws Exception {
+        // given
+        Long projectId = 52494L;
+        Project project = ProjectProvider.createProject(92348L);
+        TaskProvider.createTask(null, project, null);
+        List<ProjectTaskSimpleResponse> responses = List.of(
+                new ProjectTaskSimpleResponse(TaskProvider.createTask(null, project, null), null),
+                new ProjectTaskSimpleResponse(TaskProvider.createTask(82349L, project, null), UserProvider.createUser())
+        );
+
+        given(taskService.getTasksOrderByCreateDate(projectId, false))
+                .willReturn(responses);
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/create-date")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(responses.size()));
+        verify(taskService, times(1)).getTasksOrderByCreateDate(projectId, false);
     }
 
 }
