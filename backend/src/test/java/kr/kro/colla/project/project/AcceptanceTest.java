@@ -545,12 +545,9 @@ public class AcceptanceTest {
                 .extract()
                 .body()
                 .as(new TypeRef<List<ProjectTaskStatusResponse>>(){});
+
         assertThat(response.size()).isEqualTo(3);
-        response
-                .stream()
-                .forEach(s -> assertThat(s.getId()).isNotNull());
-        response
-                .stream()
-                .forEach(s -> assertThat(List.of("To Do","In Progress", "Done").contains(s.getName())));
+        response.forEach(s -> assertThat(s.getId()).isNotNull());
+        response.forEach(s -> assertThat(List.of("To Do","In Progress", "Done").contains(s.getName())));
     }
 }

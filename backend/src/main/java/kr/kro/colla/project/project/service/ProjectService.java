@@ -141,11 +141,6 @@ public class ProjectService {
         return noticeService.decideInvitation(loginUserId, project, projectMemberDecision);
     }
 
-    public Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(ProjectNotFoundException::new);
-    }
-
     public TaskStatus createTaskStatus(Long projectId, String name) {
         Project project = findProjectById(projectId);
 
@@ -169,5 +164,10 @@ public class ProjectService {
                 .stream()
                 .map(ProjectTaskStatusResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public Project findProjectById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(ProjectNotFoundException::new);
     }
 }
