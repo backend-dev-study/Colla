@@ -43,7 +43,7 @@ class TaskRepositoryTest {
 
         TaskStatus taskStatus = taskStatusRepository.findByName("To Do")
                 .orElseThrow(TaskStatusNotFoundException::new);
-        Task task = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 3);
+        Task task = TaskProvider.createTaskForRepository(null, project, null, taskStatus);
 
         // when
         Task result = taskRepository.save(task);
@@ -60,7 +60,7 @@ class TaskRepositoryTest {
         Project project = ProjectProvider.createProject(1L);
         projectRepository.save(project);
 
-        Task task = TaskProvider.createTaskForRepository(null, project, null, null, 3);
+        Task task = TaskProvider.createTaskForRepository(null, project, null, null);
         taskRepository.save(task);
 
         // when
@@ -90,8 +90,8 @@ class TaskRepositoryTest {
         TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("before"));
         TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("after"));;
 
-        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
-        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
+        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
+        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
         taskRepository.save(task1);
         taskRepository.save(task2);
 
@@ -161,13 +161,13 @@ class TaskRepositoryTest {
 
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("backend"));
 
-        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 4);
-        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 2);
+        Task task1 = TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 4);
+        Task task2 = TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 2);
         taskRepository.save(task1);
         taskRepository.save(task2);
 
         // when
-        List<Task> taskList = taskRepository.findAllOrderByPriority(project);
+        List<Task> taskList = taskRepository.findAllOrderByPriorityAsc(project);
 
         // then
         assertThat(taskList.size()).isEqualTo(2);

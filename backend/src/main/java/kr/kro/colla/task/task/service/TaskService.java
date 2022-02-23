@@ -101,30 +101,34 @@ public class TaskService {
         task.updateTaskStatus(taskStatus);
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksOrderByCreateDate(Long projectId, Boolean asc) {
+    public List<ProjectTaskSimpleResponse> getTasksOrderByCreateDate(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
-        List<Task> result = asc ?
-                taskRepository.findByProjectOrderByCreatedAtAsc(project) :
-                taskRepository.findByProjectOrderByCreatedAtDesc(project);
+        List<Task> taskList = ascending
+                ? taskRepository.findByProjectOrderByCreatedAtAsc(project)
+                : taskRepository.findByProjectOrderByCreatedAtDesc(project);
 
-        return result.stream()
+        return taskList.stream()
                 .map(task -> {
-                    User user = null;
-                    if (task.getManagerId()!=null) {
-                        user = userService.findUserById(task.getManagerId());
-                    }
-                    return new ProjectTaskSimpleResponse(task, user);
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return new ProjectTaskSimpleResponse(task, manager);
                 })
                 .collect(Collectors.toList());
+    }
 
-    public List<ProjectTaskResponse> getTasksOrderByPriority(Long projectId) {
+    public List<ProjectTaskResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
         Hibernate.initialize(project.getMembers());
         Hibernate.initialize(project.getStories());
         Hibernate.initialize(project.getTaskStatuses());
 
-        return taskRepository.findAllOrderByPriority(project)
-                .stream()
+        List<Task> taskList = ascending
+                ? taskRepository.findAllOrderByPriorityAsc(project)
+                : taskRepository.findAllOrderByPriorityDesc(project);
+
+        return taskList.stream()
                 .map(task -> {
                     User manager = task.getManagerId() != null
                             ? userService.findUserById(task.getManagerId())

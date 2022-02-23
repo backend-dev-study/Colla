@@ -113,7 +113,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story story = StoryProvider.createStory(project, "user can login with github");
-        Task task = TaskProvider.createTask(user.getId(), project, story, 3);
+        Task task = TaskProvider.createTask(user.getId(), project, story);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         given(taskRepository.findById(eq(taskId)))
@@ -138,7 +138,7 @@ class TaskServiceTest {
         // given
         Long taskId = 1L;
         Project project = ProjectProvider.createProject(1L);
-        Task task = TaskProvider.createTask(null, project, null, 3);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         given(taskRepository.findById(eq(taskId)))
@@ -161,7 +161,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story story = StoryProvider.createStory(project, "story title");
-        Task task = TaskProvider.createTask(user.getId(), project, story, 3);
+        Task task = TaskProvider.createTask(user.getId(), project, story);
         ReflectionTestUtils.setField(task, "id", taskId);
         task.addTags(List.of(
                 new TaskTag(task, new Tag("backend")),
@@ -212,7 +212,7 @@ class TaskServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(null, project, null, 5);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -247,7 +247,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story oldStory = StoryProvider.createStory(project, "old story");
-        Task task = TaskProvider.createTask(null, project, oldStory, 4);
+        Task task = TaskProvider.createTask(null, project, oldStory);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -283,7 +283,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story oldStory = StoryProvider.createStory(project, "old story");
-        Task task = TaskProvider.createTask(null, project, oldStory, 1);
+        Task task = TaskProvider.createTask(null, project, oldStory);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -312,7 +312,7 @@ class TaskServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(null, project, null, 3);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -368,7 +368,7 @@ class TaskServiceTest {
         Long taskId = 482593L;
         TaskStatus before = new TaskStatus("기존_상태값");
         TaskStatus after = new TaskStatus("변경_후_새로운_상태값");
-        Task task = TaskProvider.createTaskForRepository(2345L, null, null, before, 3);
+        Task task = TaskProvider.createTaskForRepository(2345L, null, null, before);
 
         given(taskRepository.findById(taskId))
                 .willReturn(Optional.of(task));
@@ -420,8 +420,8 @@ class TaskServiceTest {
         Project project = ProjectProvider.createProject(120394L);
         User user = UserProvider.createUser2();
         List<Task> tasks = List.of(
-                TaskProvider.createTask(managerId,project,null),
-                TaskProvider.createTask(null,project,null)
+                TaskProvider.createTask(managerId, project, null),
+                TaskProvider.createTask(null, project, null)
         );
 
         given(projectService.findProjectById(projectId))
@@ -452,18 +452,18 @@ class TaskServiceTest {
         User member = UserProvider.createUser();
         Project project = ProjectProvider.createProject(memberId);
 
-        Task task1 = TaskProvider.createTask(memberId, project, null, 3);
-        Task task2 = TaskProvider.createTask(memberId, project, null, 1);
+        Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
+        Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
         given(projectService.findProjectById(eq(projectId)))
                 .willReturn(project);
-        given(taskRepository.findAllOrderByPriority(any(Project.class)))
+        given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
         given(userService.findUserById(eq(memberId)))
                 .willReturn(member);
 
         // when
-        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectId);
+        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectId, true);
 
         // then
         assertThat(taskList.size()).isEqualTo(2);

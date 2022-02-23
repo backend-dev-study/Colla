@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -71,7 +70,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null, 3);
+        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
 
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(null, "comment contents");
 
@@ -103,7 +102,7 @@ public class AcceptanceTest {
         String member2AccessToken = auth.토큰을_발급한다(member2.getId());
 
         UserProjectResponse createdProject = project.를_생성한다(member1AccessToken);
-        task.를_생성한다(member1AccessToken, member1.getId(), createdProject.getId(), null, 3);
+        task.를_생성한다(member1AccessToken, member1.getId(), createdProject.getId(), null);
         CreateCommentResponse registeredComment = comment.를_등록한다(member2AccessToken, null);
 
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(registeredComment.getId(), "comment contents");
@@ -136,7 +135,7 @@ public class AcceptanceTest {
         String member2AccessToken = auth.토큰을_발급한다(member2.getId());
 
         UserProjectResponse createdProject = project.를_생성한다(member1AccessToken);
-        task.를_생성한다(member1AccessToken, member1.getId(), createdProject.getId(), null, 3);
+        task.를_생성한다(member1AccessToken, member1.getId(), createdProject.getId(), null);
 
         CreateCommentResponse registeredComment1 = comment.를_등록한다(member2AccessToken, null);
         CreateCommentResponse registeredComment2 = comment.를_등록한다(member2AccessToken, null);
@@ -177,7 +176,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null, 3);
+        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
         CreateCommentResponse createdComment = comment.를_등록한다(accessToken, null);
 
         UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("new contents");
@@ -203,7 +202,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null, 2);
+        task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
         CreateCommentResponse createdComment = comment.를_등록한다(accessToken, null);
 
         UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("");

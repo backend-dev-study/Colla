@@ -146,7 +146,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(responses);
       
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/create-date?ascending=true")
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/created-date?ascending=true")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
       
@@ -156,11 +156,11 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.length()").value(responses.size()))
                 .andExpect(jsonPath("$[*].title").value(containsInAnyOrder(responses
                         .stream()
-                        .map(r -> r.getTitle())
+                        .map(ProjectTaskSimpleResponse::getTitle)
                         .toArray())))
                 .andExpect(jsonPath("$[*].managerName").value(containsInAnyOrder(responses
                         .stream()
-                        .map(r -> r.getManagerName())
+                        .map(ProjectTaskSimpleResponse::getManagerName)
                         .toArray())));
         verify(taskService, times(1)).getTasksOrderByCreateDate(projectId, true);
     }
@@ -178,10 +178,12 @@ class TaskControllerTest extends ControllerTest {
 
         given(taskService.getTasksOrderByCreateDate(projectId, false))
                 .willReturn(responses);
+
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/create-date")
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/created-date")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
+
         // then
         perform
                 .andExpect(status().isOk())
