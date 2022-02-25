@@ -108,18 +108,18 @@ class TaskServiceTest {
     void 프로젝트의_태스크를_조회한다() {
         // given
         Long taskId = 1L, managerId = 5L;
-        User user = UserProvider.createUser();
-        ReflectionTestUtils.setField(user, "id", managerId);
+        User manager = UserProvider.createUser();
+        ReflectionTestUtils.setField(manager, "id", managerId);
 
-        Project project = ProjectProvider.createProject(user.getId());
+        Project project = ProjectProvider.createProject(manager.getId());
         Story story = StoryProvider.createStory(project, "user can login with github");
-        Task task = TaskProvider.createTask(user.getId(), project, story, 3);
+        Task task = TaskProvider.createTask(manager.getId(), project, story);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         given(taskRepository.findById(eq(taskId)))
                 .willReturn(Optional.of(task));
         given(userService.findUserById(eq(managerId)))
-                .willReturn(user);
+                .willReturn(manager);
 
         // when
         ProjectTaskResponse projectTaskResponse = taskService.getTask(taskId);
@@ -128,7 +128,7 @@ class TaskServiceTest {
         assertThat(projectTaskResponse.getId()).isEqualTo(taskId);
         assertThat(projectTaskResponse.getTitle()).isEqualTo(task.getTitle());
         assertThat(projectTaskResponse.getStory()).isEqualTo(story.getTitle());
-        assertThat(projectTaskResponse.getManager()).isEqualTo(user.getName());
+        assertThat(projectTaskResponse.getManager()).isEqualTo(manager.getName());
         verify(taskRepository, times(1)).findById(anyLong());
         verify(userService, times(1)).findUserById(anyLong());
     }
@@ -138,7 +138,7 @@ class TaskServiceTest {
         // given
         Long taskId = 1L;
         Project project = ProjectProvider.createProject(1L);
-        Task task = TaskProvider.createTask(null, project, null, 3);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         given(taskRepository.findById(eq(taskId)))
@@ -161,7 +161,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story story = StoryProvider.createStory(project, "story title");
-        Task task = TaskProvider.createTask(user.getId(), project, story, 3);
+        Task task = TaskProvider.createTask(user.getId(), project, story);
         ReflectionTestUtils.setField(task, "id", taskId);
         task.addTags(List.of(
                 new TaskTag(task, new Tag("backend")),
@@ -212,7 +212,7 @@ class TaskServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(null, project, null, 5);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -247,7 +247,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story oldStory = StoryProvider.createStory(project, "old story");
-        Task task = TaskProvider.createTask(null, project, oldStory, 4);
+        Task task = TaskProvider.createTask(null, project, oldStory);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -283,7 +283,7 @@ class TaskServiceTest {
 
         Project project = ProjectProvider.createProject(user.getId());
         Story oldStory = StoryProvider.createStory(project, "old story");
-        Task task = TaskProvider.createTask(null, project, oldStory, 1);
+        Task task = TaskProvider.createTask(null, project, oldStory);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -312,7 +312,7 @@ class TaskServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(null, project, null, 3);
+        Task task = TaskProvider.createTask(null, project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
@@ -368,12 +368,13 @@ class TaskServiceTest {
         Long taskId = 482593L;
         TaskStatus before = new TaskStatus("기존_상태값");
         TaskStatus after = new TaskStatus("변경_후_새로운_상태값");
-        Task task = TaskProvider.createTaskForRepository(2345L, null, null, before, 3);
+        Task task = TaskProvider.createTaskForRepository(2345L, null, null, before);
 
         given(taskRepository.findById(taskId))
                 .willReturn(Optional.of(task));
         given(taskStatusService.findTaskStatusByName(after.getName()))
                 .willReturn(after);
+
         // when
         taskService.updateTaskStatus(taskId, after.getName());
 
@@ -388,8 +389,8 @@ class TaskServiceTest {
         Project project = ProjectProvider.createProject(120394L);
         User user = UserProvider.createUser2();
         List<Task> tasks = List.of(
-                TaskProvider.createTask(managerId,project,null),
-                TaskProvider.createTask(null,project,null)
+                TaskProvider.createTask(managerId, project,null),
+                TaskProvider.createTask(null, project,null)
         );
 
         given(projectService.findProjectById(projectId))
@@ -400,7 +401,7 @@ class TaskServiceTest {
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, true);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreatedDate(projectId, true);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -408,6 +409,7 @@ class TaskServiceTest {
                 .stream()
                 .map(response -> response.getManagerName())
                 .collect(Collectors.toList());
+
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
         verify(taskRepository, times(1)).findByProjectOrderByCreatedAtAsc(any());
         verify(taskRepository, times(0)).findByProjectOrderByCreatedAtDesc(any());
@@ -420,8 +422,8 @@ class TaskServiceTest {
         Project project = ProjectProvider.createProject(120394L);
         User user = UserProvider.createUser2();
         List<Task> tasks = List.of(
-                TaskProvider.createTask(managerId,project,null),
-                TaskProvider.createTask(null,project,null)
+                TaskProvider.createTask(managerId, project, null),
+                TaskProvider.createTask(null, project, null)
         );
 
         given(projectService.findProjectById(projectId))
@@ -432,7 +434,7 @@ class TaskServiceTest {
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreateDate(projectId, false);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksOrderByCreatedDate(projectId, false);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -440,35 +442,68 @@ class TaskServiceTest {
                 .stream()
                 .map(response -> response.getManagerName())
                 .collect(Collectors.toList());
+
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
         verify(taskRepository, times(0)).findByProjectOrderByCreatedAtAsc(any());
         verify(taskRepository, times(1)).findByProjectOrderByCreatedAtDesc(any());
     }
 
     @Test
-    void 프로젝트의_태스크를_중요도순_으로_정렬하여_조회한다() {
+    void 프로젝트의_태스크를_우선순위_오름차순으로_조회한다() {
         // given
         Long projectId = 1L, memberId = 5L;
         User member = UserProvider.createUser();
         Project project = ProjectProvider.createProject(memberId);
 
-        Task task1 = TaskProvider.createTask(memberId, project, null, 3);
-        Task task2 = TaskProvider.createTask(memberId, project, null, 1);
+        Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
+        Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
         given(projectService.findProjectById(eq(projectId)))
                 .willReturn(project);
-        given(taskRepository.findAllOrderByPriority(any(Project.class)))
+        given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
         given(userService.findUserById(eq(memberId)))
                 .willReturn(member);
 
         // when
-        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectId);
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, true);
 
         // then
         assertThat(taskList.size()).isEqualTo(2);
         assertThat(taskList.get(0).getTitle()).isEqualTo(task2.getTitle());
         assertThat(taskList.get(1).getTitle()).isEqualTo(task1.getTitle());
+        assertThat(taskList.get(0).getPriority()).isLessThan(taskList.get(1).getPriority());
+        verify(taskRepository, never()).findAllOrderByPriorityDesc(any(Project.class));
+        verify(taskRepository, times(1)).findAllOrderByPriorityAsc(any(Project.class));
+    }
+
+    @Test
+    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        User member = UserProvider.createUser();
+        Project project = ProjectProvider.createProject(memberId);
+
+        Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
+        Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
+
+        given(projectService.findProjectById(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2));
+        given(userService.findUserById(eq(memberId)))
+                .willReturn(member);
+
+        // when
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, false);
+
+        // then
+        assertThat(taskList.size()).isEqualTo(2);
+        assertThat(taskList.get(0).getTitle()).isEqualTo(task1.getTitle());
+        assertThat(taskList.get(1).getTitle()).isEqualTo(task2.getTitle());
+        assertThat(taskList.get(0).getPriority()).isGreaterThan(taskList.get(1).getPriority());
+        verify(taskRepository, never()).findAllOrderByPriorityAsc(any(Project.class));
+        verify(taskRepository, times(1)).findAllOrderByPriorityDesc(any(Project.class));
     }
 
 }

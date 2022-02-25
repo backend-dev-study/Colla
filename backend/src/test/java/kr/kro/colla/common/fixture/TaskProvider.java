@@ -16,12 +16,12 @@ import static io.restassured.RestAssured.given;
 @Component
 public class TaskProvider {
 
-    public Map<String, String> 를_생성한다(String accessToken, Long managerId, Long projectId, String story, int priority) {
+    public Map<String, String> 를_생성한다(String accessToken, Long managerId, Long projectId, String story) {
         Map<String, String> formData = new HashMap<>();
         formData.put("title", "task title");
         formData.put("description", "task description");
         formData.put("managerId", managerId != null ? managerId.toString() : null);
-        formData.put("priority", String.valueOf(priority));
+        formData.put("priority", "3");
         formData.put("status", "To Do");
         formData.put("tags", "[\"backend\"]");
         formData.put("projectId", projectId.toString());
@@ -40,7 +40,44 @@ public class TaskProvider {
         return formData;
     }
 
-    public static Task createTask(Long managerId, Project project, Story story, int priority) {
+    public Map<String, String> 를_특정_우선순위로_생성한다(String accessToken, Long managerId, Long projectId, String story, int priority) {
+        Map<String, String> formData = new HashMap<>();
+        formData.put("title", "task title");
+        formData.put("description", "task description");
+        formData.put("managerId", managerId != null ? managerId.toString() : null);
+        formData.put("priority", String.valueOf(priority));
+        formData.put("status", "To Do");
+        formData.put("tags", "[\"backend\"]");
+        formData.put("projectId", projectId.toString());
+        formData.put("story", story);
+        formData.put("preTasks", "[]");
+
+        given()
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(formData)
+                .when()
+                .post("/api/projects/tasks")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        return formData;
+    }
+
+    public static Task createTask(Long managerId, Project project, Story story) {
+        return Task.builder()
+                .title("task title")
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(new TaskStatus("To Do"))
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
+    public static Task createTaskWithPriority(Long managerId, Project project, Story story, int priority) {
         return Task.builder()
                 .title("task title")
                 .managerId(managerId)
@@ -53,7 +90,20 @@ public class TaskProvider {
                 .build();
     }
 
-    public static Task createTaskForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus, int priority) {
+    public static Task createTaskForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus) {
+        return Task.builder()
+                .title("task title")
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(taskStatus)
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
+    public static Task createTaskWithPriorityForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus, int priority) {
         return Task.builder()
                 .title("task title")
                 .managerId(managerId)

@@ -54,7 +54,7 @@ class CommentServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(user.getId(), project, null, 3);
+        Task task = TaskProvider.createTask(user.getId(), project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(null, "comment contents");
@@ -84,7 +84,7 @@ class CommentServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(user.getId(), project, null, 4);
+        Task task = TaskProvider.createTask(user.getId(), project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         Comment superComment = CommentProvider.createComment(user, task, null, "first comment contents");
@@ -115,7 +115,7 @@ class CommentServiceTest {
         ReflectionTestUtils.setField(user, "id", userId);
 
         Project project = ProjectProvider.createProject(user.getId());
-        Task task = TaskProvider.createTask(user.getId(), project, null, 2);
+        Task task = TaskProvider.createTask(user.getId(), project, null);
         ReflectionTestUtils.setField(task, "id", taskId);
 
         Comment comment1 = CommentProvider.createComment(user, task, null, "first comment contents");

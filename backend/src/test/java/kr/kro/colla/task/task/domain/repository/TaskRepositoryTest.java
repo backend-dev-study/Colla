@@ -43,7 +43,7 @@ class TaskRepositoryTest {
 
         TaskStatus taskStatus = taskStatusRepository.findByName("To Do")
                 .orElseThrow(TaskStatusNotFoundException::new);
-        Task task = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 3);
+        Task task = TaskProvider.createTaskForRepository(null, project, null, taskStatus);
 
         // when
         Task result = taskRepository.save(task);
@@ -60,7 +60,7 @@ class TaskRepositoryTest {
         Project project = ProjectProvider.createProject(1L);
         projectRepository.save(project);
 
-        Task task = TaskProvider.createTaskForRepository(null, project, null, null, 3);
+        Task task = TaskProvider.createTaskForRepository(null, project, null, null);
         taskRepository.save(task);
 
         // when
@@ -90,8 +90,8 @@ class TaskRepositoryTest {
         TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("before"));
         TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("after"));;
 
-        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
-        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1, 3);
+        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
+        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus1);
         taskRepository.save(task1);
         taskRepository.save(task2);
 
@@ -112,22 +112,20 @@ class TaskRepositoryTest {
         // given
         Project project = projectRepository.save(ProjectProvider.createProject(234234L));
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
-        List<Task> tasks = List.of(
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus))
-        );
+        List<Task> taskList = taskRepository.saveAll(List.of(
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus)
+        ));
 
         // when
         List<Task> result = taskRepository.findByProjectOrderByCreatedAtAsc(project);
 
         // then
-        assertThat(result.size()).isEqualTo(tasks.size());
+        assertThat(result.size()).isEqualTo(taskList.size());
         IntStream.range(0, result.size())
                 .filter(idx -> idx != 0)
-                .forEach(idx -> {
-                    assertThat(result.get(idx).getCreatedAt().isBefore(result.get(idx-1).getCreatedAt()));
-                });
+                .forEach(idx -> assertThat(result.get(idx).getCreatedAt().isBefore(result.get(idx - 1).getCreatedAt())));
     }
 
     @Test
@@ -135,44 +133,65 @@ class TaskRepositoryTest {
         // given
         Project project = projectRepository.save(ProjectProvider.createProject(234234L));
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
-        List<Task> tasks = List.of(
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus)),
-                taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus))
-        );
+        List<Task> taskList = taskRepository.saveAll(List.of(
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
+                TaskProvider.createTaskForRepository(null, project, null, taskStatus)
+        ));
 
         // when
         List<Task> result = taskRepository.findByProjectOrderByCreatedAtDesc(project);
 
         // then
-        assertThat(result.size()).isEqualTo(tasks.size());
+        assertThat(result.size()).isEqualTo(taskList.size());
         IntStream.range(0, result.size())
                 .filter(idx -> idx != 0)
-                .forEach(idx -> {
-                    assertThat(result.get(idx).getCreatedAt().isAfter(result.get(idx-1).getCreatedAt()));
-                });
+                .forEach(idx -> assertThat(result.get(idx).getCreatedAt().isAfter(result.get(idx - 1).getCreatedAt())));
     }
 
     @Test
-    void 프로젝트의_태스크를_중요도순_으로_정렬하여_조회한다() {
+    void 프로젝트의_태스크를_우선순위_오름차순으로_조회한다() {
         // given
         Project project = ProjectProvider.createProject(1L);
         projectRepository.save(project);
 
-        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("backend"));
-
-        Task task1 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 4);
-        Task task2 = TaskProvider.createTaskForRepository(null, project, null, taskStatus, 2);
-        taskRepository.save(task1);
-        taskRepository.save(task2);
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("To Do"));
+        List<Task> taskList = taskRepository.saveAll(List.of(
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 4),
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 2),
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 1)
+        ));
 
         // when
-        List<Task> taskList = taskRepository.findAllOrderByPriority(project);
+        List<Task> result = taskRepository.findAllOrderByPriorityAsc(project);
 
         // then
-        assertThat(taskList.size()).isEqualTo(2);
-        assertThat(taskList.get(0).getTitle()).isEqualTo(task2.getTitle());
-        assertThat(taskList.get(1).getTitle()).isEqualTo(task1.getTitle());
+        assertThat(result.size()).isEqualTo(taskList.size());
+        IntStream.range(0, result.size() - 1)
+                .forEach(idx -> assertThat(result.get(idx).getPriority()).isLessThan(result.get(idx + 1).getPriority()));
+    }
+
+    @Test
+    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+        // given
+        Project project = ProjectProvider.createProject(1L);
+        projectRepository.save(project);
+
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("To Do"));
+
+        List<Task> taskList = taskRepository.saveAll(List.of(
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 4),
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 2),
+                TaskProvider.createTaskWithPriorityForRepository(null, project, null, taskStatus, 1)
+        ));
+
+        // when
+        List<Task> result = taskRepository.findAllOrderByPriorityDesc(project);
+
+        // then
+        assertThat(result.size()).isEqualTo(taskList.size());
+        IntStream.range(0, result.size() - 1)
+                .forEach(idx -> assertThat(result.get(idx).getPriority()).isGreaterThan(result.get(idx + 1).getPriority()));
     }
 
 }
