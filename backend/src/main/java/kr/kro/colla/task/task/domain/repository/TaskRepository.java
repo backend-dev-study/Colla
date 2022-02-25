@@ -21,6 +21,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByProjectOrderByCreatedAtDesc(Project project);
   
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority asc")
-    List<Task> findAllOrderByPriority(@Param("project")Project project);
+    List<Task> findAllOrderByPriorityAsc(@Param("project")Project project);
+
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority desc")
+    List<Task> findAllOrderByPriorityDesc(@Param("project")Project project);
 
 }

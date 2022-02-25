@@ -14,7 +14,7 @@ class TaskTest {
     void 태스크의_내용을_수정한다() {
         // given
         Project project = ProjectProvider.createProject(1L);
-        Task task = TaskProvider.createTask(1L, project, null, 5);
+        Task task = TaskProvider.createTask(1L, project, null);
         UpdateTaskRequest updateTaskRequest = UpdateTaskRequest.builder()
                 .title("new title")
                 .managerId("25")

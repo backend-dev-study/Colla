@@ -50,16 +50,16 @@ public class TaskController {
                 .build();
     }
 
-    @GetMapping("/{projectId}/tasks/sorting/create-date")
+    @GetMapping("/{projectId}/tasks/sorting/created-date")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksSortByCreateDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
-        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreateDate(projectId, ascending);
+        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreatedDate(projectId, ascending);
 
         return ResponseEntity.ok(responses);
     }
   
-    @GetMapping("/priority")
-    public ResponseEntity<List<ProjectTaskResponse>> getTasksOrderByPriority(@Valid @RequestBody ProjectTaskRequest projectTaskRequest) {
-        List<ProjectTaskResponse> taskList = taskService.getTasksOrderByPriority(projectTaskRequest.getProjectId());
+    @GetMapping("/{projectId}/tasks/priority")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksOrderByPriority(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, ascending);
 
         return ResponseEntity.ok(taskList);
     }
