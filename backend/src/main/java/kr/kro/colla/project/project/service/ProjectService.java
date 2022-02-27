@@ -33,13 +33,14 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
 
+    private final ProjectRepository projectRepository;
+    private final ProjectProfileStorage projectProfileStorage;
+
     private final TagService tagService;
     private final TaskTagService taskTagService;
     private final NoticeService noticeService;
     private final UserService userService;
     private final UserProjectService userProjectService;
-    private final ProjectRepository projectRepository;
-    private final ProjectProfileStorage projectProfileStorage;
 
     public Project createProject(Long managerId, CreateProjectRequest createProjectRequest) {
         User user = userService.findUserById(managerId);
@@ -132,13 +133,20 @@ public class ProjectService {
             throw new UserNotManagerException();
         }
 
-        noticeService.createNotice(project, memberGithubId);
+        User user = userService.findByGithubId(memberGithubId);
+        noticeService.createNotice(project, user);
     }
 
     public ProjectMemberResponse decideInvitation(Long projectId, Long loginUserId, ProjectMemberDecision projectMemberDecision) {
         Project project = findProjectById(projectId);
+        User user = userService.findUserById(loginUserId);
 
-        return noticeService.decideInvitation(loginUserId, project, projectMemberDecision);
+        noticeService.checkNotice(projectMemberDecision.getNoticeId(), user);
+        if (projectMemberDecision.isAccept()) {
+            UserProject userProject = userProjectService.joinProject(user, project);
+            return new ProjectMemberResponse(userProject.getUser());
+        }
+        return null;
     }
 
     public TaskStatus createTaskStatus(Long projectId, String name) {

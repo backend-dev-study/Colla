@@ -1,6 +1,7 @@
 package kr.kro.colla.user.notice.service;
 
 import kr.kro.colla.exception.exception.notice.NoticeNotFoundException;
+import kr.kro.colla.exception.exception.user.UserNotReceiverException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberDecision;
 import kr.kro.colla.project.project.presentation.dto.ProjectMemberResponse;
@@ -21,13 +22,9 @@ import javax.transaction.Transactional;
 @Service
 public class NoticeService {
 
-    private final UserService userService;
-    private final UserProjectService userProjectService;
     private final NoticeRepository noticeRepository;
 
-    public Notice createNotice(Project project, String memberGithubId) {
-        User user = userService.findByGithubId(memberGithubId);
-
+    public Notice createNotice(Project project, User receiver) {
         Notice notice = Notice.builder()
                 .noticeType(NoticeType.INVITE_USER)
                 .projectId(project.getId())
@@ -35,28 +32,18 @@ public class NoticeService {
                 .build();
 
         Notice result = noticeRepository.save(notice);
-        user.addNotice(result);
+        receiver.addNotice(result);
 
         return result;
     }
 
-    public ProjectMemberResponse decideInvitation(Long userId, Project project, ProjectMemberDecision projectMemberDecision) {
-        User user = userService.findUserById(userId);
-        Notice notice = findById(projectMemberDecision.getNoticeId());
-        notice.check();
+    public void checkNotice(Long noticeId, User receiver) {
+        Notice notice = findById(noticeId);
 
-        if (projectMemberDecision.isAccept()) {
-            UserProject userProject = userProjectService.joinProject(user, project);
-            return new ProjectMemberResponse(userProject.getUser());
+        if (!receiver.getNotices().contains(notice)){
+            throw new UserNotReceiverException();
         }
-
-        return null;
-    }
-
-    public Notice checkNotice(Long id) {
-        Notice notice = findById(id);
         notice.check();
-        return notice;
     }
 
     public Notice findById(Long id) {
