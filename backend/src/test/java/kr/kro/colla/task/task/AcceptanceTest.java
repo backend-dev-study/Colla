@@ -355,7 +355,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/sorting/created-date?ascending=true")
+                .get("/api/projects/" + createdProject.getId() + "/tasks/created-date?ascending=true")
 
         // then
         .then().log().all()
