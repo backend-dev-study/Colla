@@ -395,7 +395,7 @@ class TaskServiceTest {
 
         given(projectService.findProjectById(projectId))
                 .willReturn(project);
-        given(taskRepository.findByProjectOrderByCreatedAtAsc(any(Project.class)))
+        given(taskRepository.findAllOrderByCreatedAtAsc(any(Project.class)))
                 .willReturn(tasks);
         given(userService.findUserById(managerId))
                 .willReturn(user);
@@ -411,8 +411,8 @@ class TaskServiceTest {
                 .collect(Collectors.toList());
 
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
-        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtAsc(any());
-        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtDesc(any());
+        verify(taskRepository, times(1)).findAllOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(0)).findAllOrderByCreatedAtDesc(any());
     }
 
     @Test
@@ -428,7 +428,7 @@ class TaskServiceTest {
 
         given(projectService.findProjectById(projectId))
                 .willReturn(project);
-        given(taskRepository.findByProjectOrderByCreatedAtDesc(any(Project.class)))
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(tasks);
         given(userService.findUserById(managerId))
                 .willReturn(user);
@@ -444,8 +444,8 @@ class TaskServiceTest {
                 .collect(Collectors.toList());
 
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
-        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtAsc(any());
-        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtDesc(any());
+        verify(taskRepository, times(0)).findAllOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(1)).findAllOrderByCreatedAtDesc(any());
     }
 
     @Test

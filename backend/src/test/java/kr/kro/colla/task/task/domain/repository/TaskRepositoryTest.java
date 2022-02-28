@@ -119,7 +119,7 @@ class TaskRepositoryTest {
         ));
 
         // when
-        List<Task> result = taskRepository.findByProjectOrderByCreatedAtAsc(project);
+        List<Task> result = taskRepository.findAllOrderByCreatedAtAsc(project);
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
@@ -140,7 +140,7 @@ class TaskRepositoryTest {
         ));
 
         // when
-        List<Task> result = taskRepository.findByProjectOrderByCreatedAtDesc(project);
+        List<Task> result = taskRepository.findAllOrderByCreatedAtDesc(project);
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());

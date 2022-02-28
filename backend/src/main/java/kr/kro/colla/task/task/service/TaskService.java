@@ -7,6 +7,7 @@ import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
+import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
@@ -19,10 +20,10 @@ import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,14 +104,11 @@ public class TaskService {
     }
 
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
-        Project project = projectService.findProjectById(projectId);
-        Hibernate.initialize(project.getMembers());
-        Hibernate.initialize(project.getStories());
-        Hibernate.initialize(project.getTaskStatuses());
+        Project project = projectService.getAllProjectInfo(projectId);
 
         List<Task> taskList = ascending
-                ? taskRepository.findByProjectOrderByCreatedAtAsc(project)
-                : taskRepository.findByProjectOrderByCreatedAtDesc(project);
+                ? taskRepository.findAllOrderByCreatedAtAsc(project)
+                : taskRepository.findAllOrderByCreatedAtDesc(project);
 
         return taskList.stream()
                 .map(task -> {
@@ -123,10 +121,7 @@ public class TaskService {
     }
 
     public List<ProjectTaskSimpleResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
-        Project project = projectService.findProjectById(projectId);
-        Hibernate.initialize(project.getMembers());
-        Hibernate.initialize(project.getStories());
-        Hibernate.initialize(project.getTaskStatuses());
+        Project project = projectService.getAllProjectInfo(projectId);
 
         List<Task> taskList = ascending
                 ? taskRepository.findAllOrderByPriorityAsc(project)
@@ -134,6 +129,29 @@ public class TaskService {
 
         return taskList.stream()
                 .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
+    public List<ProjectTaskSimpleResponse> getTasksFilteredByTags(Long projectId, List<String> tags) {
+        Project project = projectService.getAllProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
+        Collections.sort(tags);
+
+        return taskList.stream()
+                .filter(task -> {
+                    List<String> taskTags = task.getTaskTags()
+                            .stream()
+                            .map(taskTag -> taskTag.getTag().getName())
+                            .sorted()
+                            .collect(Collectors.toList());
+
+                    return taskTags.equals(tags);
+                }).map(task -> {
                     User manager = task.getManagerId() != null
                             ? userService.findUserById(task.getManagerId())
                             : null;
