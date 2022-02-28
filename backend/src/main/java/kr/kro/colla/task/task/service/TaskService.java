@@ -9,10 +9,7 @@ import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
-import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
@@ -22,7 +19,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -155,6 +155,41 @@ public class TaskService {
 
                     return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
                 }).collect(Collectors.toList());
+    }
+
+    public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {
+        Project project = projectService.getAllProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
+
+        List<ProjectStoryTaskResponse> projectStoryTaskResponseList = new ArrayList<>();
+        Map<String, List<ProjectTaskSimpleResponse>> taskMap = new HashMap<>();
+        List<ProjectTaskSimpleResponse> emptyStoryTaskList = new ArrayList<>();
+
+        for (Story story : project.getStories()) {
+            String title = story.getTitle();
+            taskMap.put(title, new ArrayList<>());
+            projectStoryTaskResponseList.add(new ProjectStoryTaskResponse(title, taskMap.get(title)));
+        }
+
+        for (Task task : taskList) {
+            String story = task.getStory() != null
+                    ? task.getStory().getTitle()
+                    : null;
+            User manager = task.getManagerId() != null
+                    ? userService.findUserById(task.getManagerId())
+                    : null;
+            ProjectTaskSimpleResponse projectTaskSimpleResponse = TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+
+            if (story == null) {
+                emptyStoryTaskList.add(projectTaskSimpleResponse);
+                continue;
+            }
+
+            taskMap.get(story).add(projectTaskSimpleResponse);
+        }
+        projectStoryTaskResponseList.add(new ProjectStoryTaskResponse(null, emptyStoryTaskList));
+
+        return projectStoryTaskResponseList;
     }
 
     public Task findTaskById(Long taskId) {

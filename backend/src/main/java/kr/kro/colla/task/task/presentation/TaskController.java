@@ -71,4 +71,11 @@ public class TaskController {
         return ResponseEntity.ok(taskList);
     }
 
+    @GetMapping("/{projectId}/tasks/story")
+    public ResponseEntity<List<ProjectStoryTaskResponse>> getTasksGroupByStory(@PathVariable Long projectId) {
+        List<ProjectStoryTaskResponse> taskList = taskService.getTasksGroupByStory(projectId);
+
+        return ResponseEntity.ok(taskList);
+    }
+
 }
