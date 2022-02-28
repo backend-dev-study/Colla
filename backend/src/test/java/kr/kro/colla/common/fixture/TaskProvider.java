@@ -56,9 +56,33 @@ public class TaskProvider {
                 .contentType(ContentType.URLENC)
                 .cookie("accessToken", accessToken)
                 .formParams(formData)
-                .when()
+        .when()
                 .post("/api/projects/tasks")
-                .then()
+        .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        return formData;
+    }
+
+    public Map<String, String> 를_생성한다(String accessToken, Long managerId, Long projectId, String story, String statusName) {
+        Map<String, String> formData = new HashMap<>();
+        formData.put("title", "task title");
+        formData.put("description", "task description");
+        formData.put("managerId", managerId != null ? managerId.toString() : null);
+        formData.put("priority", "3");
+        formData.put("status", statusName);
+        formData.put("tags", "[\"backend\"]");
+        formData.put("projectId", projectId.toString());
+        formData.put("story", story);
+        formData.put("preTasks", "[]");
+
+        given()
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(formData)
+        .when()
+                .post("/api/projects/tasks")
+        .then()
                 .statusCode(HttpStatus.CREATED.value());
 
         return formData;

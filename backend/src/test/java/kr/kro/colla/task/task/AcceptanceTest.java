@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 
@@ -340,7 +341,7 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자는_프로젝트의_테스크를_생성_날짜_오름차순으로_조회할_수_있다() {
+    void 사용자는_프로젝트의_테스크들을_생성_날짜_오름차순으로_조회할_수_있다() {
         // given
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
@@ -371,7 +372,7 @@ public class AcceptanceTest {
     }
     
     @Test
-    void 사용자가_프로젝트의_태스크를_우선순위_오름차순으로_조회한다() {
+    void 사용자가_프로젝트의_태스크들을_우선순위_오름차순으로_조회한다() {
         // given
         User member1 = user.가_로그인을_한다1();
         User member2 = user.가_로그인을_한다2();
@@ -391,7 +392,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/ "+ createdProject.getId() + "/tasks/priority?ascending=true")
+                .get("/api/projects/ " + createdProject.getId() + "/tasks/priority?ascending=true")
 
         // then
         .then()
@@ -406,7 +407,7 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+    void 사용자가_프로젝트의_태스크들을_우선순위_내림차순으로_조회한다() {
         // given
         User member1 = user.가_로그인을_한다1();
         User member2 = user.가_로그인을_한다2();
@@ -440,4 +441,42 @@ public class AcceptanceTest {
                 .forEach(idx -> assertThat(response.get(idx).getPriority()).isGreaterThan(response.get(idx + 1).getPriority()));
     }
 
+    @Test
+    void 사용자가_프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
+        // given
+        Long statusId = 4L;
+        String nameToFilter = "sTatuSToFiLteR", nameToIgnore = "sTatUStOiGNOre";
+        User loginUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToIgnore);
+
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToIgnore);
+        List<Map<String, String>> filteredTasks = List.of(
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter),
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter));
+        task.를_생성한다(accessToken, null, createdProject.getId(), null, nameToIgnore);
+
+        List<ProjectTaskSimpleResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/status/" + statusId)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+        assertThat(result.size()).isEqualTo(filteredTasks.size());
+        result.forEach(task -> {
+                    assertThat(task.getId()).isNotNull();
+                    assertThat(task.getStatus()).isEqualTo(nameToFilter);
+                });
+    }
 }
