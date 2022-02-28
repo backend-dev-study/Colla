@@ -393,7 +393,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project,null)
         );
 
-        given(projectService.findProjectById(projectId))
+        given(projectService.getAllProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtAsc(any(Project.class)))
                 .willReturn(tasks);
@@ -426,7 +426,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null)
         );
 
-        given(projectService.findProjectById(projectId))
+        given(projectService.getAllProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(tasks);
@@ -458,7 +458,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
-        given(projectService.findProjectById(eq(projectId)))
+        given(projectService.getAllProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
@@ -487,7 +487,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
 
-        given(projectService.findProjectById(eq(projectId)))
+        given(projectService.getAllProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
