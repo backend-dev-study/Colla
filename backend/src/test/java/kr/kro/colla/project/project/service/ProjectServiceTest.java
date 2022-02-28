@@ -3,6 +3,7 @@ package kr.kro.colla.project.project.service;
 import kr.kro.colla.common.fixture.FileProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskStatusProvider;
+import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.domain.Project;
@@ -63,9 +64,6 @@ class ProjectServiceTest {
 
     @Mock
     private UserProjectService userProjectService;
-
-    @Mock
-    private TaskStatusService taskStatusService;
 
     @InjectMocks
     private ProjectService projectService;
@@ -275,46 +273,35 @@ class ProjectServiceTest {
     void 프로젝트_멤버_초대에_성공한다(){
         // given
         Long loginId = 987234L, projectId = 84234L;
-        String githubId = "random_github_id";
-        User user = User.builder()
-                .name("subin")
-                .avatar("github_url")
-                .githubId(githubId)
-                .build();
-        Project project = Project.builder()
-                .name("random_project_name")
-                .managerId(loginId)
-                .build();
+        User user = UserProvider.createUser2();
+        Project project = ProjectProvider.createProject(loginId);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
+        given(userService.findByGithubId(user.getGithubId()))
+                .willReturn(user);
 
         // when
-        projectService.inviteUserToProject(projectId, loginId, githubId);
+        projectService.inviteUserToProject(projectId, loginId, user.getGithubId());
 
         // then
-        verify(noticeService, times(1)).createNotice(any(Project.class), anyString());
+        verify(noticeService, times(1))
+                .createNotice(any(Project.class), any(User.class));
     }
 
     @Test
     void 프로젝트_초대에_매니저_권한이_아니여서_실패한다(){
-        Long loginId = 987234L, projectId = 84234L, managerId=234234L;
-        String githubId = "random_github_id";
-        User user = User.builder()
-                .name("subin")
-                .avatar("github_url")
-                .githubId(githubId)
-                .build();
-        Project project = Project.builder()
-                .name("random_project_name")
-                .managerId(managerId)
-                .build();
+        // given
+        Long loginId = 987234L, projectId = 84234L;
+        User user = UserProvider.createUser2();
+        Project project = ProjectProvider.createProject(46546L);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        // when
+
+        // when, then
         assertThatThrownBy(()->{
-          projectService.inviteUserToProject(projectId, loginId, githubId);
+          projectService.inviteUserToProject(projectId, loginId, user.getGithubId());
         }).isInstanceOf(UserNotManagerException.class);
     }
 
@@ -322,23 +309,18 @@ class ProjectServiceTest {
     void 프로젝트_초대_수락에_성공한다() {
         // given
         Long loginId = 2455L, projectId = 23414L, noticeId = 43524L;
-        User user = User.builder()
-                .name("name__")
-                .avatar("avatar__")
-                .githubId("github__")
-                .build();
+        User user = UserProvider.createUser2();
         ReflectionTestUtils.setField(user, "id", loginId);
-        Project project = Project.builder()
-                .name("project__")
-                .managerId(230492L)
-                .build();
+        Project project = ProjectProvider.createProject(33456L);
+        UserProject userProject = new UserProject(user, project);
         ReflectionTestUtils.setField(project, "id", projectId);
-        ProjectMemberResponse projectMemberResponse = new ProjectMemberResponse(user);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(noticeService.decideInvitation(anyLong(), any(Project.class), any(ProjectMemberDecision.class)))
-                .willReturn(projectMemberResponse);
+        given(userService.findUserById(loginId))
+                .willReturn(user);
+        given(userProjectService.joinProject(any(User.class), any(Project.class)))
+                .willReturn(userProject);
 
         // when
         ProjectMemberResponse result = projectService.decideInvitation(projectId, loginId, new ProjectMemberDecision(true, noticeId));
@@ -348,28 +330,32 @@ class ProjectServiceTest {
         assertThat(result.getId()).isEqualTo(user.getId());
         assertThat(result.getName()).isEqualTo(user.getName());
         assertThat(result.getGithubId()).isEqualTo(user.getGithubId());
-        verify(noticeService, times(1)).decideInvitation(anyLong(), any(Project.class), any(ProjectMemberDecision.class));
+        verify(userProjectService, times(1))
+                .joinProject(any(User.class), any(Project.class));
+        verify(noticeService, times(1))
+                .checkNotice(anyLong(), any(User.class));
     }
 
     @Test
     void 프로젝트_초대_거절에_성공한다() {
         // given
-        Long loginId = 2455L, projectId = 23414L, noticeId = 74123L;
-        Project project = Project.builder()
-                .name("projectName")
-                .managerId(194910L)
-                .build();
+        Long loginId = 2455L, projectId = 23414L, noticeId = 43524L;
+        User user = UserProvider.createUser2();
+        ReflectionTestUtils.setField(user, "id", loginId);
+        Project project = ProjectProvider.createProject(33456L);
+        UserProject userProject = new UserProject(user, project);
         ReflectionTestUtils.setField(project, "id", projectId);
 
         given(projectRepository.findById(projectId))
                 .willReturn(Optional.of(project));
-        given(noticeService.decideInvitation(eq(loginId), any(Project.class), any(ProjectMemberDecision.class)))
-                .willReturn(null);
+        given(userService.findUserById(loginId))
+                .willReturn(user);
 
         // when
-        projectService.decideInvitation(projectId, loginId, new ProjectMemberDecision(false, noticeId));
+        ProjectMemberResponse result = projectService.decideInvitation(projectId, loginId, new ProjectMemberDecision(false, noticeId));
 
         // then
+        assertThat(result).isNull();
         verify(userProjectService, never()).joinProject(any(User.class), any(Project.class));
     }
 

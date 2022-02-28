@@ -104,6 +104,10 @@ public class TaskService {
 
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
+        Hibernate.initialize(project.getMembers());
+        Hibernate.initialize(project.getStories());
+        Hibernate.initialize(project.getTaskStatuses());
+
         List<Task> taskList = ascending
                 ? taskRepository.findByProjectOrderByCreatedAtAsc(project)
                 : taskRepository.findByProjectOrderByCreatedAtDesc(project);

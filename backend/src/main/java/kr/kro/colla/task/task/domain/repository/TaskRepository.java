@@ -16,14 +16,16 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("update Task t set t.taskStatus = :to where t.taskStatus = :from")
     void bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
 
-    List<Task> findByProjectOrderByCreatedAtAsc(Project project);
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.createdAt asc")
+    List<Task> findByProjectOrderByCreatedAtAsc(@Param("project") Project project);
 
-    List<Task> findByProjectOrderByCreatedAtDesc(Project project);
-  
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.createdAt desc")
+    List<Task> findByProjectOrderByCreatedAtDesc(@Param("project") Project project);
+
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority asc")
-    List<Task> findAllOrderByPriorityAsc(@Param("project")Project project);
+    List<Task> findAllOrderByPriorityAsc(@Param("project") Project project);
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority desc")
-    List<Task> findAllOrderByPriorityDesc(@Param("project")Project project);
+    List<Task> findAllOrderByPriorityDesc(@Param("project") Project project);
 
 }

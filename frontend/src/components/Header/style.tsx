@@ -3,13 +3,18 @@ import { Center, WidthCenter } from '../../styles/common';
 
 export const Container = styled.div`
     display: flex;
-    width: 100vw - 150px;
+    width: 80vw;
     height: 100px;
-    margin-left: 150px;
+    margin-left: 15vw;
+    justify-content: space-between;
 `;
 
 export const ProjectTitle = styled.div`
+    overflow: hidden;
+    width: 220px;
+    white-space: nowrap;
     font-size: 36px;
+    text-overflow: ellipsis;
 `;
 
 export const ProjectDesc = styled.div`
@@ -48,7 +53,6 @@ export const ProjectManageButton = styled.button`
 export const LeftNav = styled.div`
     flex: 10;
     height: 100%;
-    margin-right: 1000px;
 
     ${Center}
 `;
