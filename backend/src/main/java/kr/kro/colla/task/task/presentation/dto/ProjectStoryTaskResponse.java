@@ -1,9 +1,11 @@
 package kr.kro.colla.task.task.presentation.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@NoArgsConstructor
 @Getter
 public class ProjectStoryTaskResponse {
 

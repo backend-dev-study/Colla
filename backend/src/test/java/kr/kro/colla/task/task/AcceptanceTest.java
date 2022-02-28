@@ -7,6 +7,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectStoryTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
@@ -509,6 +510,47 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("size()", equalTo(0));
+    }
+
+    @Test
+    void 사용자가_프로젝트의_태스크들을_스토리로_그룹핑한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        ProjectStoryResponse story1 = story.를_생성한다(createdProject.getId(), accessToken, "user can login with github");
+        ProjectStoryResponse story2 = story.를_생성한다(createdProject.getId(), accessToken, "set up CI/CD");
+
+        task.를_생성한다(accessToken, member.getId(), createdProject.getId(), story1.getTitle());
+        task.를_생성한다(accessToken, member.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, member.getId(), createdProject.getId(), story2.getTitle());
+        task.를_생성한다(accessToken, member.getId(), createdProject.getId(), story1.getTitle());
+
+        List<ProjectStoryTaskResponse> response = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/story")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectStoryTaskResponse>>() {});
+
+        assertThat(response).hasSize(3);
+        assertThat(response.get(0).getStory()).isEqualTo(story1.getTitle());
+        assertThat(response.get(0).getTaskList()).hasSize(2);
+        assertThat(response.get(1).getStory()).isEqualTo(story2.getTitle());
+        assertThat(response.get(1).getTaskList()).hasSize(1);
+        assertThat(response.get(2).getStory()).isNull();
+        assertThat(response.get(2).getTaskList()).hasSize(1);
+
     }
 
 }

@@ -10,10 +10,7 @@ import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
-import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -574,6 +571,57 @@ class TaskServiceTest {
 
         // then
         assertThat(taskList.size()).isZero();
+    }
+
+    @Test
+    void 프로젝트의_태스크들을_스토리로_그룹핑한다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+        Story story = StoryProvider.createStory(project, "user can login with github");
+        ReflectionTestUtils.setField(project, "stories", List.of(story));
+
+        Task task1 = TaskProvider.createTask(memberId, project, story);
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+        Task task3 = TaskProvider.createTask(memberId, project, story);
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2, task3));
+
+        // when
+        List<ProjectStoryTaskResponse> storyTaskList = taskService.getTasksGroupByStory(projectId);
+
+        // then
+        assertThat(storyTaskList).hasSize(2);
+        assertThat(storyTaskList.get(0).getStory()).isEqualTo(story.getTitle());
+        assertThat(storyTaskList.get(0).getTaskList()).hasSize(2);
+        assertThat(storyTaskList.get(1).getStory()).isNull();
+        assertThat(storyTaskList.get(1).getTaskList()).hasSize(1);
+    }
+
+    @Test
+    void 프로젝트에_아무런_스토리가_없다면_모든_태스크는_스토리가_없는_그룹으로_묶인다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+
+        Task task1 = TaskProvider.createTask(memberId, project, null);
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2));
+
+        // when
+        List<ProjectStoryTaskResponse> storyTaskList = taskService.getTasksGroupByStory(projectId);
+
+        // then
+        assertThat(storyTaskList).hasSize(1);
+        assertThat(storyTaskList.get(0).getStory()).isNull();
+        assertThat(storyTaskList.get(0).getTaskList()).hasSize(2);
     }
 
 }

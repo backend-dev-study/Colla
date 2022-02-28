@@ -3,12 +3,10 @@ package kr.kro.colla.task.task.presentation;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +22,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -276,7 +275,7 @@ class TaskControllerTest extends ControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/tags?tags=backend, enhancement")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -285,6 +284,45 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$[0].tags").value(containsInAnyOrder("backend", "enhancement")))
                 .andExpect(jsonPath("$[1].tags").value(containsInAnyOrder("backend", "enhancement", "refactoring")));
         verify(taskService, times(1)).getTasksFilteredByTags(anyLong(), any(List.class));
+    }
+
+    @Test
+    void 프로젝트의_태스크들을_스토리로_그룹핑한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        Story story1 = StoryProvider.createStory(project, "user can login with github");
+        Story story2 = StoryProvider.createStory(project, "write test code");
+        Task task1 = TaskProvider.createTask(null, project, story1);
+        Task task2 = TaskProvider.createTask(null, project, story2);
+        Task task3 = TaskProvider.createTask(null, project, story1);
+
+        List<ProjectTaskSimpleResponse> firstGroupTaskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task1, null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task3, null)
+        );
+        List<ProjectTaskSimpleResponse> secondGroupTaskList = List.of(TaskResponseConverter.convertToProjectTaskSimpleResponse(task2, null));
+
+        List<ProjectStoryTaskResponse> taskList = List.of(
+                new ProjectStoryTaskResponse(story1.getTitle(), firstGroupTaskList),
+                new ProjectStoryTaskResponse(story2.getTitle(), secondGroupTaskList)
+        );
+
+        given(taskService.getTasksGroupByStory(eq(projectId)))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/story")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].story").value(story1.getTitle()))
+                .andExpect(jsonPath("$[0].taskList", hasSize(2)))
+                .andExpect(jsonPath("$[1].story").value(story2.getTitle()))
+                .andExpect(jsonPath("$[1].taskList", hasSize(1)));
     }
 
 }
