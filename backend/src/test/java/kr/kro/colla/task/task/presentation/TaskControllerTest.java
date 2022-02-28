@@ -145,7 +145,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(responses);
       
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/created-date?ascending=true")
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/created-date?ascending=true")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
       
@@ -178,7 +178,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(responses);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/sorting/created-date")
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/created-date")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 

@@ -1,7 +1,11 @@
 package kr.kro.colla.user.notice.service;
 
 
+import kr.kro.colla.common.fixture.NoticeProvider;
+import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.notice.NoticeNotFoundException;
+import kr.kro.colla.exception.exception.user.UserNotReceiverException;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.user.notice.domain.Notice;
 import kr.kro.colla.user.notice.domain.NoticeType;
@@ -28,8 +32,6 @@ import static org.mockito.Mockito.verify;
 public class NoticeServiceTest {
     @Mock
     private NoticeRepository noticeRepository;
-    @Mock
-    private UserService userService;
 
     @InjectMocks
     private NoticeService noticeService;
@@ -37,43 +39,26 @@ public class NoticeServiceTest {
     @Test
     void 알림_생성에_성공한다() {
         // given
-        String mentionURL = "mention_url", projectName = "project_to_invite";
-        Long id = 123L, userId = 324L, projectId = 3456L;
-        Notice notice = Notice.builder()
-                .noticeType(NoticeType.INVITE_USER)
-                .projectName(projectName)
-                .projectId(projectId)
-                .mentionedURL(mentionURL)
-                .build();
-        User user = User.builder()
-                .name("binimini")
-                .githubId("binimini")
-                .avatar("github_content")
-                .build();
-        Project project = Project.builder()
-                .name("project name")
-                .managerId(5L)
-                .build();
-        ReflectionTestUtils.setField(notice, "id", id);
+        Long noticeId = 123L, userId = 324L, projectId = 3456L;
+        Notice notice = NoticeProvider.createInviteNotice();
+        User user = UserProvider.createUser2();
+        Project project = ProjectProvider.createProject(345345L);
+
+        ReflectionTestUtils.setField(notice, "id", noticeId);
         ReflectionTestUtils.setField(user, "id", userId);
-        ReflectionTestUtils.setField(project, "id", 1L);
+        ReflectionTestUtils.setField(project, "id", projectId);
 
-
-        given(userService.findByGithubId(user.getGithubId()))
-                .willReturn(user);
         given(noticeRepository.save(any(Notice.class)))
                 .willReturn(notice);
 
         // when
-        Notice result = noticeService.createNotice(project, user.getGithubId());
+        Notice result = noticeService.createNotice(project, user);
 
         // then
-        assertThat(result.getId()).isEqualTo(id);
+        assertThat(result.getId()).isEqualTo(noticeId);
         assertThat(result.getIsChecked()).isEqualTo(false);
         assertThat(result.getNoticeType()).isEqualTo(NoticeType.INVITE_USER);
-        assertThat(result.getMentionedURL()).isEqualTo(mentionURL);
-        assertThat(result.getProjectId()).isEqualTo(projectId);
-        assertThat(result.getProjectName()).isEqualTo(projectName);
+        assertThat(result.getProjectName()).isEqualTo(notice.getProjectName());
         assertThat(user.getNotices().size()).isEqualTo(1);
         verify(noticeRepository, times(1)).save(any(Notice.class));
     }
@@ -82,11 +67,7 @@ public class NoticeServiceTest {
     void 알림_조회에_성공한다() {
         // given
         Long noticeId = 76253L;
-        String mention = "path/asdfasf/mention/zxcvvv";
-        Notice notice = Notice.builder()
-                        .noticeType(NoticeType.MENTION_USER)
-                        .mentionedURL(mention)
-                        .build();
+        Notice notice = NoticeProvider.createMentionNotice();
         ReflectionTestUtils.setField(notice, "id", noticeId);
 
         given(noticeRepository.findById(noticeId))
@@ -114,5 +95,39 @@ public class NoticeServiceTest {
             noticeService.findById(notFoundNoticeId);
         }).isInstanceOf(NoticeNotFoundException.class);
 
+    }
+
+    @Test
+    void 알림_확인에_성공한다() {
+        // given
+        Long noticeId = 63424L;
+        User user = UserProvider.createUser2();
+        Notice notice = NoticeProvider.createInviteNotice();
+        user.addNotice(notice);
+
+        given(noticeRepository.findById(noticeId))
+                .willReturn(Optional.of(notice));
+
+        // when
+        noticeService.checkNotice(noticeId, user);
+
+        // then
+        assertThat(notice.getIsChecked()).isEqualTo(true);
+    }
+
+    @Test
+    void 알림의_수신자가_아닐시_알림_확인에_실패한다() {
+        // given
+        Long noticeId = 63424L;
+        User user = UserProvider.createUser2();
+        Notice notice = NoticeProvider.createInviteNotice();
+
+        given(noticeRepository.findById(noticeId))
+                .willReturn(Optional.of(notice));
+
+        // when, then
+        assertThatThrownBy(()->{
+            noticeService.checkNotice(noticeId, user);
+        }).isInstanceOf(UserNotReceiverException.class);
     }
 }
