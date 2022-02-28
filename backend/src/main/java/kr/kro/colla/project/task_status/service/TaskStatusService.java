@@ -20,4 +20,9 @@ public class TaskStatusService {
                 .orElseThrow(TaskStatusNotFoundException::new);
     }
 
+    public TaskStatus findTaskStatusById(Long statusId) {
+        return taskStatusRepository.findById(statusId)
+                .orElseThrow(TaskStatusNotFoundException::new);
+    }
+
 }

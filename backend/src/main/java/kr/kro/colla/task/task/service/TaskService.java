@@ -109,8 +109,8 @@ public class TaskService {
         Hibernate.initialize(project.getTaskStatuses());
 
         List<Task> taskList = ascending
-                ? taskRepository.findByProjectOrderByCreatedAtAsc(project)
-                : taskRepository.findByProjectOrderByCreatedAtDesc(project);
+                ? taskRepository.findAllOrderByCreatedAtAsc(project)
+                : taskRepository.findAllOrderByCreatedAtDesc(project);
 
         return taskList.stream()
                 .map(task -> {
@@ -147,4 +147,19 @@ public class TaskService {
                 .orElseThrow(TaskNotFoundException::new);
     }
 
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, Long statusId) {
+        Project project = projectService.findProjectById(projectId);
+        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
+
+        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
 }

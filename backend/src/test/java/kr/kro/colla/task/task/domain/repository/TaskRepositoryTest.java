@@ -2,6 +2,7 @@ package kr.kro.colla.task.task.domain.repository;
 
 import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskProvider;
+import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusNotFoundException;
 import kr.kro.colla.exception.exception.task.TaskNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
@@ -9,6 +10,8 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -34,6 +37,9 @@ class TaskRepositoryTest {
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     void 프로젝트에_새로운_태스크를_등록한다() {
@@ -119,7 +125,7 @@ class TaskRepositoryTest {
         ));
 
         // when
-        List<Task> result = taskRepository.findByProjectOrderByCreatedAtAsc(project);
+        List<Task> result = taskRepository.findAllOrderByCreatedAtAsc(project);
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
@@ -140,7 +146,7 @@ class TaskRepositoryTest {
         ));
 
         // when
-        List<Task> result = taskRepository.findByProjectOrderByCreatedAtDesc(project);
+        List<Task> result = taskRepository.findAllOrderByCreatedAtDesc(project);
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());

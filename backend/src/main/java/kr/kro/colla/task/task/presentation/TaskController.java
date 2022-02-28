@@ -29,9 +29,9 @@ public class TaskController {
 
     @GetMapping("/tasks/{taskId}")
     public ResponseEntity<ProjectTaskResponse> getTask(@PathVariable Long taskId) {
-        ProjectTaskResponse projectTaskResponse = taskService.getTask(taskId);
+        ProjectTaskResponse task = taskService.getTask(taskId);
 
-        return ResponseEntity.ok(projectTaskResponse);
+        return ResponseEntity.ok(task);
     }
 
     @PutMapping("/tasks/{taskId}")
@@ -52,14 +52,21 @@ public class TaskController {
 
     @GetMapping("/{projectId}/tasks/created-date")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksSortByCreateDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
-        List<ProjectTaskSimpleResponse> responses = taskService.getTasksOrderByCreatedDate(projectId, ascending);
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByCreatedDate(projectId, ascending);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(taskList);
     }
   
     @GetMapping("/{projectId}/tasks/priority")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksOrderByPriority(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
         List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByPriority(projectId, ascending);
+
+        return ResponseEntity.ok(taskList);
+    }
+
+    @GetMapping("/{projectId}/tasks/status/{statusId}")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatus(@PathVariable Long projectId, @PathVariable Long statusId) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statusId);
 
         return ResponseEntity.ok(taskList);
     }
