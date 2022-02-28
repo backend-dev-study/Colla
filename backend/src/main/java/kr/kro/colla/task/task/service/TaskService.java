@@ -105,7 +105,6 @@ public class TaskService {
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
         Hibernate.initialize(project.getMembers());
-        Hibernate.initialize(project.getStories());
         Hibernate.initialize(project.getTaskStatuses());
 
         List<Task> taskList = ascending
@@ -125,7 +124,6 @@ public class TaskService {
     public List<ProjectTaskSimpleResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
         Hibernate.initialize(project.getMembers());
-        Hibernate.initialize(project.getStories());
         Hibernate.initialize(project.getTaskStatuses());
 
         List<Task> taskList = ascending
@@ -149,8 +147,10 @@ public class TaskService {
 
     public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, Long statusId) {
         Project project = projectService.findProjectById(projectId);
-        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
+        Hibernate.initialize(project.getMembers());
+        Hibernate.initialize(project.getTaskStatuses());
 
+        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
         List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
 
         return taskList.stream()
