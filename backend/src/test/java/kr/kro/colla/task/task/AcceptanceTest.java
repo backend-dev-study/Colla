@@ -56,6 +56,9 @@ public class AcceptanceTest {
     private TaskProvider task;
 
     @Autowired
+    private TagProvider tag;
+
+    @Autowired
     private TaskStatusProvider taskStatus;
 
     @Autowired
@@ -438,6 +441,74 @@ public class AcceptanceTest {
         assertThat(response.size()).isEqualTo(3);
         IntStream.range(0, response.size() - 1)
                 .forEach(idx -> assertThat(response.get(idx).getPriority()).isGreaterThan(response.get(idx + 1).getPriority()));
+    }
+
+    @Test
+    void 사용자가_특정_태그들을_선택해_태스크들을_필터링한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        tag.를_생성한다(accessToken, createdProject.getId(), "backend");
+        tag.를_생성한다(accessToken, createdProject.getId(), "documentation");
+        tag.를_생성한다(accessToken, createdProject.getId(), "enhancement");
+        tag.를_생성한다(accessToken, createdProject.getId(), "bug fix");
+
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"backend\", \"bug fix\", \"enhancement\"]");
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"frontend\", \"refactoring\", \"bug fix\"]");
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"documentation\", \"backend\", \"bug fix\", \"refactoring\"]");
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"backend\"]");
+
+        List<ProjectTaskSimpleResponse> response = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/tags?tags=bug fix,backend")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response.get(0).getTags()).contains("bug fix", "backend");
+        assertThat(response.get(1).getTags()).contains("bug fix", "backend");
+    }
+
+    @Test
+    void 사용자가_아무_태스크도_가지고_있지_않은_태그를_선택해_필터링한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        tag.를_생성한다(accessToken, createdProject.getId(), "backend");
+        tag.를_생성한다(accessToken, createdProject.getId(), "documentation");
+        tag.를_생성한다(accessToken, createdProject.getId(), "enhancement");
+        tag.를_생성한다(accessToken, createdProject.getId(), "bug fix");
+
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"frontend\", \"refactoring\"]");
+        task.를_특정_태그와_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "[\"backend\", \"enhancement\", \"bug fix\"]");
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/tags?tags=documentation")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("size()", equalTo(0));
     }
 
 }

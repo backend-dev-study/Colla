@@ -1,10 +1,10 @@
 package kr.kro.colla.task.task.presentation;
 
 import kr.kro.colla.common.ControllerTest;
-import kr.kro.colla.common.fixture.ProjectProvider;
-import kr.kro.colla.common.fixture.TaskProvider;
-import kr.kro.colla.common.fixture.UserProvider;
+import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.task.tag.domain.Tag;
+import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
@@ -241,6 +241,50 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$[0].priority").value(5))
                 .andExpect(jsonPath("$[1].priority").value(2));
         verify(taskService, times(1)).getTasksOrderByPriority(projectId, false);
+    }
+
+    @Test
+    void 태그로_필터링_시_선택한_태그들을_포함하는_태스크들을_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        List<Tag> tags = List.of(
+                TagProvider.createTag("backend"),
+                TagProvider.createTag("enhancement"),
+                TagProvider.createTag("refactoring")
+        );
+
+        Task task1 = TaskProvider.createTask(null, project, null);
+        task1.addTags(List.of(
+                TaskTagProvider.createTaskTag(task1, tags.get(0)),
+                TaskTagProvider.createTaskTag(task1, tags.get(1))
+        ));
+        Task task2 = TaskProvider.createTask(null, project, null);
+        task2.addTags(List.of(
+                TaskTagProvider.createTaskTag(task2, tags.get(0)),
+                TaskTagProvider.createTaskTag(task2, tags.get(1)),
+                TaskTagProvider.createTaskTag(task2, tags.get(2))
+        ));
+
+        List<ProjectTaskSimpleResponse> taskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task1, null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task2, null)
+        );
+
+        given(taskService.getTasksFilteredByTags(eq(projectId), any(List.class)))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/tags?tags=backend, enhancement")
+                .cookie(new Cookie("accessToken", this.accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].tags").value(containsInAnyOrder("backend", "enhancement")))
+                .andExpect(jsonPath("$[1].tags").value(containsInAnyOrder("backend", "enhancement", "refactoring")));
+        verify(taskService, times(1)).getTasksFilteredByTags(anyLong(), any(List.class));
     }
 
 }

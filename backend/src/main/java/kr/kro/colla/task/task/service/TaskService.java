@@ -7,7 +7,6 @@ import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
-import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -140,7 +138,6 @@ public class TaskService {
     public List<ProjectTaskSimpleResponse> getTasksFilteredByTags(Long projectId, List<String> tags) {
         Project project = projectService.getAllProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
-        Collections.sort(tags);
 
         return taskList.stream()
                 .filter(task -> {
@@ -150,7 +147,7 @@ public class TaskService {
                             .sorted()
                             .collect(Collectors.toList());
 
-                    return taskTags.equals(tags);
+                    return taskTags.containsAll(tags);
                 }).map(task -> {
                     User manager = task.getManagerId() != null
                             ? userService.findUserById(task.getManagerId())
