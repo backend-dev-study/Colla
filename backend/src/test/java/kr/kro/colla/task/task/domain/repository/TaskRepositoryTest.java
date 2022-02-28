@@ -200,4 +200,28 @@ class TaskRepositoryTest {
                 .forEach(idx -> assertThat(result.get(idx).getPriority()).isGreaterThan(result.get(idx + 1).getPriority()));
     }
 
+    @Test
+    void 프로젝트의_테스크를_상태값으로_필터링해서_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(4253123L));
+        User user = userRepository.save(UserProvider.createUser2());
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("Status To Filtering"));
+        TaskStatus taskStatusDiff = taskStatusRepository.save(new TaskStatus("Status Not Wanted"));
+        List<Task> tasks = List.of(
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus))
+        );
+        taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatusDiff));
+
+        // when
+        List<Task> result = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        assertThat(result
+                .stream()
+                .filter(task -> !task.getTaskStatus().getName().equals(taskStatus.getName())).count()).isEqualTo(0);
+
+    }
+
 }
