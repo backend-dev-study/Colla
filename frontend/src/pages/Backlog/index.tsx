@@ -6,7 +6,7 @@ import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { SideBar } from '../../components/SideBar';
-import { StoryTaskType } from '../../types/task';
+import { SimpleTaskType, StoryTaskType } from '../../types/task';
 import { Container, Wrapper } from './style';
 
 interface StateType {
@@ -15,12 +15,12 @@ interface StateType {
 
 const Backlog = () => {
     const { state } = useLocation<StateType>();
-    const [storyTaskList, setStoryTaskList] = useState<Array<StoryTaskType>>([]);
+    const [backlogTaskList, setBacklogTaskList] = useState<Array<StoryTaskType | SimpleTaskType>>([]);
 
     useEffect(() => {
         (async () => {
             const res = await getTasksGroupByStory(state.projectId);
-            setStoryTaskList(res.data);
+            setBacklogTaskList(res.data);
         })();
     }, []);
 
@@ -28,17 +28,35 @@ const Backlog = () => {
         <>
             <Header />
             <SideBar />
-            <BacklogFeature />
+            <BacklogFeature setBacklogTaskList={setBacklogTaskList} />
             <Container>
                 <Wrapper>
-                    {storyTaskList.map(({ story, taskList }: StoryTaskType, idx) => (
-                        <>
-                            <Issue key={idx} title={story} story />
-                            {taskList.map(({ id, title, priority, managerAvatar, tags }: any) => (
-                                <Issue key={id} title={title} priority={priority} manager={managerAvatar} tags={tags} />
-                            ))}
-                        </>
-                    ))}
+                    {backlogTaskList.length > 0 && 'story' in backlogTaskList[0]
+                        ? (backlogTaskList as Array<StoryTaskType>).map(({ story, taskList }: StoryTaskType, idx) => (
+                              <>
+                                  <Issue key={idx} title={story} story />
+                                  {taskList.map(({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
+                                      <Issue
+                                          key={id}
+                                          title={title}
+                                          priority={priority}
+                                          manager={managerAvatar}
+                                          tags={tags}
+                                      />
+                                  ))}
+                              </>
+                          ))
+                        : (backlogTaskList as Array<SimpleTaskType>).map(
+                              ({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
+                                  <Issue
+                                      key={id}
+                                      title={title}
+                                      priority={priority}
+                                      manager={managerAvatar}
+                                      tags={tags}
+                                  />
+                              ),
+                          )}
                 </Wrapper>
             </Container>
         </>

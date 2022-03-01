@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
-
+import React, { FC, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+
+import CheckImg from '../../../../public/assets/images/down.png';
 import { getProjectMembers, getProjectStatus, getProjectTags } from '../../../apis/project';
+import { getTasksFilterByManager, getTasksFilterByStatus, getTasksFilterByTags } from '../../../apis/task';
 import { Avatar, Name } from '../../Task/style';
-import { Container, CriteriaElements, Element, FilterCriteria } from './style';
+import { CheckMark, Container, CriteriaElements, Element, FilterCriteria } from './style';
 
 interface StateType {
     projectId: number;
@@ -14,26 +16,49 @@ interface ElementType {
     avatar?: string;
 }
 
-export const Filter = () => {
+interface PropType {
+    setBacklogTaskList: Function;
+}
+
+export const Filter: FC<PropType> = ({ setBacklogTaskList }) => {
     const { state } = useLocation<StateType>();
+    const { projectId } = state;
     const criteriaList = ['Status', 'Manager', 'Tag'];
     const [selectedCriteria, setSelectedCriteria] = useState<number>(0);
-    const [criteriaElements, setCriteriaElements] = useState<Array<ElementType>>([]);
+    const [criteriaOptions, setCriteriaOptions] = useState<Array<ElementType>>([]);
+    const [selectedOptions, setSelectedOptions] = useState<Array<number>>([]);
 
     const changeCriteria = async (idx: number) => {
         let res = null;
-        if (idx === 0) res = await getProjectStatus(state.projectId);
-        else if (idx === 1) res = await getProjectMembers(state.projectId);
-        else res = await getProjectTags(state.projectId);
+        if (idx === 0) res = await getProjectStatus(projectId);
+        else if (idx === 1) res = await getProjectMembers(projectId);
+        else res = await getProjectTags(projectId);
+
+        setSelectedOptions([]);
 
         setSelectedCriteria(idx);
-        setCriteriaElements(res.data);
+        setCriteriaOptions(res.data);
+    };
+
+    const getTasksAboutCriteria = async (idx: number) => {
+        const list = selectedOptions.includes(idx)
+            ? selectedOptions.filter((el) => el !== idx)
+            : [...selectedOptions, idx];
+        setSelectedOptions(list);
+        const options = list.map((idx) => criteriaOptions[idx].name).join();
+
+        let res = null;
+        if (selectedCriteria === 0) res = await getTasksFilterByStatus(projectId, options);
+        else if (selectedCriteria === 1) res = await getTasksFilterByManager(projectId, options);
+        else res = await getTasksFilterByTags(projectId, options);
+
+        setBacklogTaskList(res.data);
     };
 
     useEffect(() => {
         (async () => {
             const res = await getProjectStatus(state.projectId);
-            setCriteriaElements(res.data);
+            setCriteriaOptions(res.data);
         })();
     }, []);
 
@@ -51,10 +76,11 @@ export const Filter = () => {
                 ))}
             </FilterCriteria>
             <CriteriaElements>
-                {criteriaElements.map(({ name, avatar }, idx) => (
-                    <Element key={idx}>
+                {criteriaOptions.map(({ name, avatar }, idx) => (
+                    <Element key={idx} onClick={() => getTasksAboutCriteria(idx)}>
                         {avatar ? <Avatar src={avatar} /> : null}
                         <Name>{name}</Name>
+                        {selectedOptions.includes(idx) ? <CheckMark src={CheckImg} /> : null}
                     </Element>
                 ))}
             </CriteriaElements>

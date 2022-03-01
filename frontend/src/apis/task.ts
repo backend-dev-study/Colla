@@ -1,4 +1,4 @@
-import { StoryTaskType, TaskResponseType } from '../types/task';
+import { SimpleTaskType, StoryTaskType, TaskResponseType } from '../types/task';
 import { client } from './common';
 
 export const createTask = async (data: FormData) => {
@@ -31,6 +31,26 @@ export const updateTaskStatus = async (taskId: number, statusName: string) => {
 
 export const getTasksGroupByStory = async (projectId: number) => {
     const response = await client.get<Array<StoryTaskType>>(`/projects/${projectId}/tasks/story`);
+
+    return response;
+};
+
+export const getTasksFilterByStatus = async (projectId: number, statuses: string) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/statuses?statuses=${statuses}`,
+    );
+
+    return response;
+};
+
+export const getTasksFilterByManager = async (projectId: number, managers: string) => {
+    const response = await client.get<Array<SimpleTaskType>>(`/projects/${projectId}/tasks/tags?managers=${managers}`);
+
+    return response;
+};
+
+export const getTasksFilterByTags = async (projectId: number, tags: string) => {
+    const response = await client.get<Array<SimpleTaskType>>(`/projects/${projectId}/tasks/tags?tags=${tags}`);
 
     return response;
 };
