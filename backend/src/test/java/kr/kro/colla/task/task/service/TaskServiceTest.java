@@ -1,9 +1,6 @@
 package kr.kro.colla.task.task.service;
 
-import kr.kro.colla.common.fixture.ProjectProvider;
-import kr.kro.colla.common.fixture.StoryProvider;
-import kr.kro.colla.common.fixture.TaskProvider;
-import kr.kro.colla.common.fixture.UserProvider;
+import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
@@ -13,10 +10,7 @@ import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
-import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -28,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -393,9 +388,9 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project,null)
         );
 
-        given(projectService.findProjectById(projectId))
+        given(projectService.getAllProjectInfo(projectId))
                 .willReturn(project);
-        given(taskRepository.findByProjectOrderByCreatedAtAsc(any(Project.class)))
+        given(taskRepository.findAllOrderByCreatedAtAsc(any(Project.class)))
                 .willReturn(tasks);
         given(userService.findUserById(managerId))
                 .willReturn(user);
@@ -411,8 +406,8 @@ class TaskServiceTest {
                 .collect(Collectors.toList());
 
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
-        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtAsc(any());
-        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtDesc(any());
+        verify(taskRepository, times(1)).findAllOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(0)).findAllOrderByCreatedAtDesc(any());
     }
 
     @Test
@@ -426,9 +421,9 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null)
         );
 
-        given(projectService.findProjectById(projectId))
+        given(projectService.getAllProjectInfo(projectId))
                 .willReturn(project);
-        given(taskRepository.findByProjectOrderByCreatedAtDesc(any(Project.class)))
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(tasks);
         given(userService.findUserById(managerId))
                 .willReturn(user);
@@ -444,8 +439,8 @@ class TaskServiceTest {
                 .collect(Collectors.toList());
 
         assertThat(names).containsExactlyInAnyOrder(user.getName(), null);
-        verify(taskRepository, times(0)).findByProjectOrderByCreatedAtAsc(any());
-        verify(taskRepository, times(1)).findByProjectOrderByCreatedAtDesc(any());
+        verify(taskRepository, times(0)).findAllOrderByCreatedAtAsc(any());
+        verify(taskRepository, times(1)).findAllOrderByCreatedAtDesc(any());
     }
 
     @Test
@@ -458,7 +453,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
-        given(projectService.findProjectById(eq(projectId)))
+        given(projectService.getAllProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
@@ -487,7 +482,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
 
-        given(projectService.findProjectById(eq(projectId)))
+        given(projectService.getAllProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -504,6 +499,129 @@ class TaskServiceTest {
         assertThat(taskList.get(0).getPriority()).isGreaterThan(taskList.get(1).getPriority());
         verify(taskRepository, never()).findAllOrderByPriorityAsc(any(Project.class));
         verify(taskRepository, times(1)).findAllOrderByPriorityDesc(any(Project.class));
+    }
+
+    @Test
+    void 태그로_필터링_시_선택한_태그들을_포함하는_태스크들만_조회한다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+        List<Tag> tags = List.of(
+                TagProvider.createTag("backend"),
+                TagProvider.createTag("frontend"),
+                TagProvider.createTag("refactoring"),
+                TagProvider.createTag("bug fix")
+        );
+
+        Task task1 = TaskProvider.createTask(memberId, project, null);
+        task1.addTags(List.of(
+                TaskTagProvider.createTaskTag(task1, tags.get(0)),
+                TaskTagProvider.createTaskTag(task1, tags.get(2)),
+                TaskTagProvider.createTaskTag(task1, tags.get(3))
+        ));
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+        task2.addTags(List.of(
+                TaskTagProvider.createTaskTag(task2, tags.get(1)),
+                TaskTagProvider.createTaskTag(task2, tags.get(2))
+        ));
+        Task task3 = TaskProvider.createTask(memberId, project, null);
+        task3.addTags(List.of(
+                TaskTagProvider.createTaskTag(task3, tags.get(0)),
+                TaskTagProvider.createTaskTag(task3, tags.get(1)),
+                TaskTagProvider.createTaskTag(task3, tags.get(2))
+        ));
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2, task3));
+
+        // when
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilteredByTags(projectId, new ArrayList<>(List.of("refactoring", "backend")));
+
+        // then
+        assertThat(taskList.size()).isEqualTo(2);
+        assertThat(taskList.get(0).getTags()).contains("refactoring", "backend");
+        assertThat(taskList.get(1).getTags()).contains("refactoring", "backend");
+    }
+
+    @Test
+    void 특정_태그들을_가진_태스크가_없다면_필터링된_결과도_없다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+        List<Tag> tags = List.of(
+                TagProvider.createTag("enhancement"),
+                TagProvider.createTag("bug fix"),
+                TagProvider.createTag("documentation")
+        );
+
+        Task task1 = TaskProvider.createTask(memberId, project, null);
+        task1.addTags(List.of(TaskTagProvider.createTaskTag(task1, tags.get(0))));
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+        task2.addTags(List.of(TaskTagProvider.createTaskTag(task2, tags.get(1))));
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2));
+
+        // when
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilteredByTags(projectId, new ArrayList<>(List.of("documentation")));
+
+        // then
+        assertThat(taskList.size()).isZero();
+    }
+
+    @Test
+    void 프로젝트의_태스크들을_스토리로_그룹핑한다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+        Story story = StoryProvider.createStory(project, "user can login with github");
+        ReflectionTestUtils.setField(project, "stories", List.of(story));
+
+        Task task1 = TaskProvider.createTask(memberId, project, story);
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+        Task task3 = TaskProvider.createTask(memberId, project, story);
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2, task3));
+
+        // when
+        List<ProjectStoryTaskResponse> storyTaskList = taskService.getTasksGroupByStory(projectId);
+
+        // then
+        assertThat(storyTaskList).hasSize(2);
+        assertThat(storyTaskList.get(0).getStory()).isEqualTo(story.getTitle());
+        assertThat(storyTaskList.get(0).getTaskList()).hasSize(2);
+        assertThat(storyTaskList.get(1).getStory()).isNull();
+        assertThat(storyTaskList.get(1).getTaskList()).hasSize(1);
+    }
+
+    @Test
+    void 프로젝트에_아무런_스토리가_없다면_모든_태스크는_스토리가_없는_그룹으로_묶인다() {
+        // given
+        Long projectId = 1L, memberId = 5L;
+        Project project = ProjectProvider.createProject(memberId);
+
+        Task task1 = TaskProvider.createTask(memberId, project, null);
+        Task task2 = TaskProvider.createTask(memberId, project, null);
+
+        given(projectService.getAllProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+                .willReturn(List.of(task1, task2));
+
+        // when
+        List<ProjectStoryTaskResponse> storyTaskList = taskService.getTasksGroupByStory(projectId);
+
+        // then
+        assertThat(storyTaskList).hasSize(1);
+        assertThat(storyTaskList.get(0).getStory()).isNull();
+        assertThat(storyTaskList.get(0).getTaskList()).hasSize(2);
     }
 
 }
