@@ -446,9 +446,8 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
+    void 사용자가_프로젝트의_테스크들을_상태값으로_필터링한다() {
         // given
-        Long statusId = 4L;
         String nameToFilter = "sTatuSToFiLteR", nameToIgnore = "sTatUStOiGNOre";
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
@@ -464,7 +463,6 @@ public class AcceptanceTest {
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(ContentType.JSON)
                 .cookie("accessToken", accessToken)
 
         // when
@@ -485,6 +483,27 @@ public class AcceptanceTest {
             });
         }
 
+    @Test
+    void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_필터링할_수_없다() {
+        // given
+        User loginUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+
+        given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/status")
+
+        // then
+        .then().log().all()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     void 사용자가_특정_태그들을_선택해_태스크들을_필터링한다() {
         // given
         User member = user.가_로그인을_한다1();
@@ -590,6 +609,72 @@ public class AcceptanceTest {
         assertThat(response.get(1).getTaskList()).hasSize(1);
         assertThat(response.get(2).getStory()).isNull();
         assertThat(response.get(2).getTaskList()).hasSize(1);
+    }
 
+    @Test
+    void 사용자가_프로젝트의_테스크들을_담당자로_필터링한다() {
+        // given
+        User loginUser = user.가_로그인을_한다2();
+        User taskManager = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
+
+        List<ProjectTaskSimpleResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/manager?managerId=" + taskManager.getId())
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(result.size()).isEqualTo(2);
+        result.forEach(task -> {
+            assertThat(task.getId()).isNotNull();
+            assertThat(task.getManagerName()).isEqualTo(taskManager.getName());
+            assertThat(task.getManagerAvatar()).isEqualTo(taskManager.getAvatar());
+        });
+    }
+
+    @Test
+    void 사용자가_프로젝트의_담당자_없는_테스크들을_필터링한다() {
+        // given
+        User loginUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, null, createdProject.getId(), null);
+        task.를_생성한다(accessToken, null, createdProject.getId(), null);
+
+        List<ProjectTaskSimpleResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/manager")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(result.size()).isEqualTo(2);
+        result.forEach(task -> {
+            assertThat(task.getId()).isNotNull();
+            assertThat(task.getManagerName()).isNull();
+            assertThat(task.getManagerAvatar()).isNull();
+        });
     }
 }
