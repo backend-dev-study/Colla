@@ -4,7 +4,8 @@ import { GRAY, WHITE } from '../../../styles/color';
 export const Container = styled.div`
     position: absolute;
     width: 300px;
-    top: 210px;
+    top: 30px;
+    left: -100px;
     border: 2px solid ${GRAY};
     border-radius: 10px;
     background-color: ${WHITE};

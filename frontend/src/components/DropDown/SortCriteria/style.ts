@@ -3,8 +3,8 @@ import { List, Work } from '../../../styles/dropdown';
 
 export const Container = styled.div`
     width: 92px;
-    top: 210px;
-    right: 910px;
+    top: 30px;
+    left: -30px;
     font-size: 16px;
     overflow-x: hidden;
     z-index: 10;
