@@ -173,6 +173,12 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
+    public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, Long managerId) {
+        Project project = projectService.getAllProjectInfo(projectId);
+
+        return taskRepository.findAllFilterByManager(project, managerId);
+    }
+
     public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {
         Project project = projectService.getAllProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
@@ -212,5 +218,6 @@ public class TaskService {
         return taskRepository.findById(taskId)
                 .orElseThrow(TaskNotFoundException::new);
     }
+
 
 }
