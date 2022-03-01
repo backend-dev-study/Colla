@@ -22,6 +22,7 @@ import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -178,4 +179,14 @@ public class ProjectService {
         return projectRepository.findById(projectId)
                 .orElseThrow(ProjectNotFoundException::new);
     }
+
+    public Project getAllProjectInfo(Long projectId) {
+        Project project = findProjectById(projectId);
+        Hibernate.initialize(project.getMembers());
+        Hibernate.initialize(project.getStories());
+        Hibernate.initialize(project.getTaskStatuses());
+
+        return project;
+    }
+
 }

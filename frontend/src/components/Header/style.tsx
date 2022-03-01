@@ -11,10 +11,11 @@ export const Container = styled.div`
 
 export const ProjectTitle = styled.div`
     overflow: hidden;
-    width: 220px;
+    min-width: 120px;
     white-space: nowrap;
     font-size: 36px;
     text-overflow: ellipsis;
+    margin-left: 20px;
 `;
 
 export const ProjectDesc = styled.div`
@@ -23,6 +24,7 @@ export const ProjectDesc = styled.div`
     font-size: 24px;
     visibility: hidden;
     width: 400px;
+    margin-left: 30px;
 
     ${WidthCenter}
 `;
@@ -51,10 +53,11 @@ export const ProjectManageButton = styled.button`
 `;
 
 export const LeftNav = styled.div`
+    display: flex;
+    justify-content: start;
+    align-items: center;
     flex: 10;
     height: 100%;
-
-    ${Center}
 `;
 
 export const RightNav = styled.div`

@@ -51,7 +51,7 @@ public class TaskController {
     }
 
     @GetMapping("/{projectId}/tasks/created-date")
-    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksSortByCreateDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksOrderByCreatedDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
         List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByCreatedDate(projectId, ascending);
 
         return ResponseEntity.ok(taskList);
@@ -67,6 +67,20 @@ public class TaskController {
     @GetMapping("/{projectId}/tasks/status/{statusId}")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatus(@PathVariable Long projectId, @PathVariable Long statusId) {
         List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statusId);
+
+        return ResponseEntity.ok(taskList);
+    }
+
+    @GetMapping("/{projectId}/tasks/tags")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByTags(@PathVariable Long projectId, @RequestParam List<String> tags) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByTags(projectId, tags);
+
+        return ResponseEntity.ok(taskList);
+    }
+
+    @GetMapping("/{projectId}/tasks/story")
+    public ResponseEntity<List<ProjectStoryTaskResponse>> getTasksGroupByStory(@PathVariable Long projectId) {
+        List<ProjectStoryTaskResponse> taskList = taskService.getTasksGroupByStory(projectId);
 
         return ResponseEntity.ok(taskList);
     }
