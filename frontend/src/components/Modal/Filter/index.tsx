@@ -4,12 +4,9 @@ import { useLocation } from 'react-router-dom';
 import CheckImg from '../../../../public/assets/images/down.png';
 import { getProjectMembers, getProjectStatus, getProjectTags } from '../../../apis/project';
 import { getTasksFilterByManager, getTasksFilterByStatus, getTasksFilterByTags } from '../../../apis/task';
+import { StateType } from '../../../types/project';
 import { Avatar, Name } from '../../Task/style';
 import { CheckMark, Container, CriteriaElements, Element, FilterCriteria } from './style';
-
-interface StateType {
-    projectId: number;
-}
 
 interface ElementType {
     name: string;

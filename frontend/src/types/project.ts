@@ -25,3 +25,7 @@ export interface ProjectMemberType {
     name: string;
     avatar: string;
 }
+
+export interface StateType {
+    projectId: number;
+}

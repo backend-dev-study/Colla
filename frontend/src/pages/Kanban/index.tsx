@@ -11,15 +11,12 @@ import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';
+import { StateType } from '../../types/project';
 import { Wrapper, Container, KanbanStatusAddButton, KanbanAddImage } from './style';
-
-interface stateType {
-    projectId: number;
-}
 
 const Kanban = () => {
     const history = useHistory();
-    const { state } = useLocation<stateType>();
+    const { state } = useLocation<StateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
     const [taskStatuses, setTaskStatuses] = useState<Array<string>>([]);
     const setProject = useSetRecoilState(projectState);

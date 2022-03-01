@@ -6,12 +6,9 @@ import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { SideBar } from '../../components/SideBar';
+import { StateType } from '../../types/project';
 import { SimpleTaskType, StoryTaskType } from '../../types/task';
 import { Container, Wrapper } from './style';
-
-interface StateType {
-    projectId: number;
-}
 
 const Backlog = () => {
     const { state } = useLocation<StateType>();
