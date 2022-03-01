@@ -3,11 +3,17 @@ package kr.kro.colla.task.task.presentation;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
+import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
+import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
+import kr.kro.colla.user.user.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +28,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -131,7 +138,7 @@ class TaskControllerTest extends ControllerTest {
     }
 
     @Test
-    void 테스크_목록을_생성_날짜_오름차순으로_조회한다() throws Exception {
+    void 프로젝트의_테스크들을_생성_날짜_오름차순으로_조회한다() throws Exception {
         // given
         Long projectId = 52494L;
         Project project = ProjectProvider.createProject(92348L);
@@ -164,7 +171,7 @@ class TaskControllerTest extends ControllerTest {
     }
 
     @Test
-    void 테스크_목록을_생성_날짜_내림차순으로_조회한다() throws Exception {
+    void 프로젝트의_테스크들을_생성_날짜_내림차순으로_조회한다() throws Exception {
         // given
         Long projectId = 52494L;
         Project project = ProjectProvider.createProject(92348L);
@@ -189,7 +196,7 @@ class TaskControllerTest extends ControllerTest {
     }
 
     @Test
-    void 프로젝트의_태스크를_우선순위_오름차순으로_조회한다() throws Exception {
+    void 프로젝트의_태스크들을_우선순위_오름차순으로_조회한다() throws Exception {
         // given
         Long projectId = 1L;
         Project project = ProjectProvider.createProject(5L);
@@ -216,7 +223,7 @@ class TaskControllerTest extends ControllerTest {
     }
 
     @Test
-    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() throws Exception {
+    void 프로젝트의_태스크들을_우선순위_내림차순으로_조회한다() throws Exception {
         // given
         Long projectId = 1L;
         Project project = ProjectProvider.createProject(5L);
@@ -237,9 +244,37 @@ class TaskControllerTest extends ControllerTest {
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(taskList.size()))
-                .andExpect(jsonPath("$[0].priority").value(5))
-                .andExpect(jsonPath("$[1].priority").value(2));
+                .andExpect(jsonPath("$[*].priority", contains(taskList.get(0).getPriority(), taskList.get(1).getPriority())));
         verify(taskService, times(1)).getTasksOrderByPriority(projectId, false);
+    }
+
+    @Test
+    void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() throws Exception {
+        // given
+        Long projectId = 23424L, statusId = 9501L;
+        Project project = ProjectProvider.createProject(3462L);
+        User user = UserProvider.createUser2();
+        TaskStatus taskStatus = new TaskStatus("status)_)to)_)filter");
+        List<ProjectTaskSimpleResponse> taskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus), user)
+        );
+
+        given(taskService.getTasksFilterByStatus(projectId, statusId))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/status/" + statusId)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(taskList.size()))
+                .andExpect(jsonPath("$[*].managerName", contains(null, user.getName())))
+                .andExpect(jsonPath("$[*].status", contains(taskStatus.getName(), taskStatus.getName())));
+        verify(taskService, times(1)).getTasksFilterByStatus(projectId, statusId);
     }
 
     @Test
@@ -270,7 +305,7 @@ class TaskControllerTest extends ControllerTest {
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(task2, null)
         );
 
-        given(taskService.getTasksFilteredByTags(eq(projectId), any(List.class)))
+        given(taskService.getTasksFilterByTags(eq(projectId), any(List.class)))
                 .willReturn(taskList);
 
         // when
@@ -283,7 +318,7 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tags").value(containsInAnyOrder("backend", "enhancement")))
                 .andExpect(jsonPath("$[1].tags").value(containsInAnyOrder("backend", "enhancement", "refactoring")));
-        verify(taskService, times(1)).getTasksFilteredByTags(anyLong(), any(List.class));
+        verify(taskService, times(1)).getTasksFilterByTags(anyLong(), any(List.class));
     }
 
     @Test

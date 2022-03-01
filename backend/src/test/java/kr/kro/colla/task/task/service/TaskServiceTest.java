@@ -378,7 +378,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void 테스크를_생성_날짜_오름차순으로_조회한다() {
+    void 프로젝트의_테스크들을_생성_날짜_오름차순으로_조회한다() {
         // given
         Long projectId = 132128L, managerId = 9283L;
         Project project = ProjectProvider.createProject(120394L);
@@ -411,7 +411,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void 테스크를_생성_날짜_내림차순으로_조회한다() {
+    void 프로젝트의_테스크들을_생성_날짜_내림차순으로_조회한다() {
         // given
         Long projectId = 132128L, managerId = 9283L;
         Project project = ProjectProvider.createProject(120394L);
@@ -444,7 +444,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void 프로젝트의_태스크를_우선순위_오름차순으로_조회한다() {
+    void 프로젝트의_태스크들을_우선순위_오름차순으로_조회한다() {
         // given
         Long projectId = 1L, memberId = 5L;
         User member = UserProvider.createUser();
@@ -473,7 +473,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void 프로젝트의_태스크를_우선순위_내림차순으로_조회한다() {
+    void 프로젝트의_태스크들을_우선순위_내림차순으로_조회한다() {
         // given
         Long projectId = 1L, memberId = 5L;
         User member = UserProvider.createUser();
@@ -499,6 +499,39 @@ class TaskServiceTest {
         assertThat(taskList.get(0).getPriority()).isGreaterThan(taskList.get(1).getPriority());
         verify(taskRepository, never()).findAllOrderByPriorityAsc(any(Project.class));
         verify(taskRepository, times(1)).findAllOrderByPriorityDesc(any(Project.class));
+    }
+
+    @Test
+    void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
+        // given
+        Long projectId = 25234L, statusId = 249394L, managerId = 6345L;
+        Project project = ProjectProvider.createProject(24525L);
+        User user = UserProvider.createUser2();
+        TaskStatus taskStatus = new TaskStatus("**task status to filter**");
+        List<Task> taskList = List.of(
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus),
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus)
+        );
+
+        given(projectService.getAllProjectInfo(projectId))
+                .willReturn(project);
+        given(taskStatusService.findTaskStatusById(statusId))
+                .willReturn(taskStatus);
+        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
+                .willReturn(taskList);
+        given(userService.findUserById(managerId))
+                .willReturn(user);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, statusId);
+
+        // then
+        assertThat(result.size()).isEqualTo(taskList.size());
+        result.forEach(response -> {
+                assertThat(response.getManagerName()).isEqualTo(user.getName());
+                assertThat(response.getStatus()).isEqualTo(taskStatus.getName());
+            });
+        verify(taskRepository, times(1)).findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class));
     }
 
     @Test
@@ -537,7 +570,7 @@ class TaskServiceTest {
                 .willReturn(List.of(task1, task2, task3));
 
         // when
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilteredByTags(projectId, new ArrayList<>(List.of("refactoring", "backend")));
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByTags(projectId, new ArrayList<>(List.of("refactoring", "backend")));
 
         // then
         assertThat(taskList.size()).isEqualTo(2);
@@ -567,7 +600,7 @@ class TaskServiceTest {
                 .willReturn(List.of(task1, task2));
 
         // when
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilteredByTags(projectId, new ArrayList<>(List.of("documentation")));
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByTags(projectId, new ArrayList<>(List.of("documentation")));
 
         // then
         assertThat(taskList.size()).isZero();

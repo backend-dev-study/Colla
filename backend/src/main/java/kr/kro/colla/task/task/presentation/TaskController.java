@@ -29,9 +29,9 @@ public class TaskController {
 
     @GetMapping("/tasks/{taskId}")
     public ResponseEntity<ProjectTaskResponse> getTask(@PathVariable Long taskId) {
-        ProjectTaskResponse projectTaskResponse = taskService.getTask(taskId);
+        ProjectTaskResponse task = taskService.getTask(taskId);
 
-        return ResponseEntity.ok(projectTaskResponse);
+        return ResponseEntity.ok(task);
     }
 
     @PutMapping("/tasks/{taskId}")
@@ -64,9 +64,16 @@ public class TaskController {
         return ResponseEntity.ok(taskList);
     }
 
+    @GetMapping("/{projectId}/tasks/status/{statusId}")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatus(@PathVariable Long projectId, @PathVariable Long statusId) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statusId);
+
+        return ResponseEntity.ok(taskList);
+    }
+
     @GetMapping("/{projectId}/tasks/tags")
-    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilteredByTags(@PathVariable Long projectId, @RequestParam List<String> tags) {
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilteredByTags(projectId, tags);
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByTags(@PathVariable Long projectId, @RequestParam List<String> tags) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByTags(projectId, tags);
 
         return ResponseEntity.ok(taskList);
     }

@@ -135,7 +135,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksFilteredByTags(Long projectId, List<String> tags) {
+    public List<ProjectTaskSimpleResponse> getTasksFilterByTags(Long projectId, List<String> tags) {
         Project project = projectService.getAllProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
 
@@ -197,4 +197,19 @@ public class TaskService {
                 .orElseThrow(TaskNotFoundException::new);
     }
 
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, Long statusId) {
+        Project project = projectService.getAllProjectInfo(projectId);
+
+        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
+        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
 }
