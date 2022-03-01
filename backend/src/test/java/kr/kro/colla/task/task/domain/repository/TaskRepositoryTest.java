@@ -2,6 +2,7 @@ package kr.kro.colla.task.task.domain.repository;
 
 import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskProvider;
+import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusNotFoundException;
 import kr.kro.colla.exception.exception.task.TaskNotFoundException;
 import kr.kro.colla.project.project.domain.Project;
@@ -9,6 +10,8 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.user.user.domain.User;
+import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -34,6 +37,9 @@ class TaskRepositoryTest {
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     void 프로젝트에_새로운_태스크를_등록한다() {
@@ -192,6 +198,30 @@ class TaskRepositoryTest {
         assertThat(result.size()).isEqualTo(taskList.size());
         IntStream.range(0, result.size() - 1)
                 .forEach(idx -> assertThat(result.get(idx).getPriority()).isGreaterThan(result.get(idx + 1).getPriority()));
+    }
+
+    @Test
+    void 프로젝트의_테스크를_상태값으로_필터링해서_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(4253123L));
+        User user = userRepository.save(UserProvider.createUser2());
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("Status To Filtering"));
+        TaskStatus taskStatusDiff = taskStatusRepository.save(new TaskStatus("Status Not Wanted"));
+        List<Task> tasks = List.of(
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus)),
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus))
+        );
+        taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatusDiff));
+
+        // when
+        List<Task> result = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        assertThat(result
+                .stream()
+                .filter(task -> !task.getTaskStatus().getName().equals(taskStatus.getName())).count()).isEqualTo(0);
+
     }
 
 }
