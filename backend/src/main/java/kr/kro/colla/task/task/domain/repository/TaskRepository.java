@@ -33,6 +33,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.taskStatus = :taskStatus")
     List<Task> findAllFilterByTaskStatus(@Param("project") Project project, @Param("taskStatus") TaskStatus taskStatus);
 
-    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.managerId = :managerId")
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and ((:managerId is null and t.managerId is null) or t.managerId = :managerId)")
     List<Task> findAllFilterByManager(@Param("project") Project project, @Param("managerId") Long managerId);
 }
