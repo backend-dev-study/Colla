@@ -469,7 +469,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/status/" + statusId)
+                .get("/api/projects/" + createdProject.getId() + "/tasks/status?status=" + nameToFilter)
 
         // then
         .then()

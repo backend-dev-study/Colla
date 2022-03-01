@@ -515,7 +515,7 @@ class TaskServiceTest {
 
         given(projectService.getAllProjectInfo(projectId))
                 .willReturn(project);
-        given(taskStatusService.findTaskStatusById(statusId))
+        given(taskStatusService.findTaskStatusByName(taskStatus.getName()))
                 .willReturn(taskStatus);
         given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
                 .willReturn(taskList);
@@ -523,7 +523,7 @@ class TaskServiceTest {
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, statusId);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, taskStatus.getName());
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
