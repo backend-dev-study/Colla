@@ -8,7 +8,7 @@ import { Container, Feature, FeatureContainer, SearchBar, SearchIcon, SearchInpu
 export const BacklogFeature = () => {
     const features = ['Story', 'Filter', 'Sort'];
     const [criteriaVisible, setCriteriaVisible] = useState<number>(0);
-
+    const [select, setSelect] = useState('');
     const showCriteria = (idx: number) => {
         setCriteriaVisible((prev) => (prev === idx ? 0 : idx));
     };
@@ -20,7 +20,9 @@ export const BacklogFeature = () => {
                     <Feature key={idx}>
                         <span onClick={() => showCriteria(idx)}>{feature}</span>
                         {feature === 'Filter' && criteriaVisible === idx ? <Filter /> : null}
-                        {feature === 'Sort' && criteriaVisible === idx ? <SortCriteria /> : null}
+                        {feature === 'Sort' && criteriaVisible === idx ? (
+                            <SortCriteria select={select} setSelect={setSelect} />
+                        ) : null}
                     </Feature>
                 ))}
                 <SearchBar>
