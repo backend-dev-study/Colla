@@ -175,8 +175,16 @@ public class TaskService {
 
     public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, Long managerId) {
         Project project = projectService.getAllProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findAllFilterByManager(project, managerId);
 
-        return taskRepository.findAllFilterByManager(project, managerId);
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
     }
 
     public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {

@@ -34,5 +34,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findAllFilterByTaskStatus(@Param("project") Project project, @Param("taskStatus") TaskStatus taskStatus);
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.managerId = :managerId")
-    List<ProjectTaskSimpleResponse> findAllFilterByManager(@Param("project") Project project, @Param("managerId") Long managerId);
+    List<Task> findAllFilterByManager(@Param("project") Project project, @Param("managerId") Long managerId);
 }
