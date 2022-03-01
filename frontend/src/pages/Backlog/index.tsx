@@ -1,60 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getTasksGroupByStory } from '../../apis/task';
 import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { SideBar } from '../../components/SideBar';
+import { StoryTaskType } from '../../types/task';
 import { Container, Wrapper } from './style';
 
-const dummy = [
-    {
-        title: 'story',
-        tasks: [
-            {
-                id: 1,
-                title: 'task1',
-                priority: 3,
-                tags: ['backend', 'frontend', 'etc'],
-            },
-            {
-                id: 2,
-                title: 'task2',
-                priority: 5,
-                manager: 'https://avatars.githubusercontent.com/u/69030160?v=4',
-                tags: ['bug'],
-            },
-            {
-                id: 3,
-                title: 'task3',
-                priority: 1,
-                tags: ['refactor'],
-            },
-        ],
-    },
-    {
-        title: 'another story',
-        tasks: [],
-    },
-];
+interface StateType {
+    projectId: number;
+}
 
-const Backlog = () => (
-    <>
-        <Header />
-        <SideBar />
-        <BacklogFeature />
-        <Container>
-            <Wrapper>
-                {dummy.map(({ title, tasks }: any, idx) => (
-                    <>
-                        <Issue key={idx} title={title} story />
-                        {tasks.map(({ id, title, priority, manager, tags }: any) => (
-                            <Issue key={id} title={title} priority={priority} manager={manager} tags={tags} />
-                        ))}
-                    </>
-                ))}
-            </Wrapper>
-        </Container>
-    </>
-);
+const Backlog = () => {
+    const { state } = useLocation<StateType>();
+    const [storyTaskList, setStoryTaskList] = useState<Array<StoryTaskType>>([]);
+
+    useEffect(() => {
+        (async () => {
+            const res = await getTasksGroupByStory(state.projectId);
+            setStoryTaskList(res.data);
+        })();
+    }, []);
+
+    return (
+        <>
+            <Header />
+            <SideBar />
+            <BacklogFeature />
+            <Container>
+                <Wrapper>
+                    {storyTaskList.map(({ story, taskList }: StoryTaskType, idx) => (
+                        <>
+                            <Issue key={idx} title={story} story />
+                            {taskList.map(({ id, title, priority, managerAvatar, tags }: any) => (
+                                <Issue key={id} title={title} priority={priority} manager={managerAvatar} tags={tags} />
+                            ))}
+                        </>
+                    ))}
+                </Wrapper>
+            </Container>
+        </>
+    );
+};
 
 export default Backlog;

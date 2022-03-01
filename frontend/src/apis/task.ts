@@ -1,4 +1,4 @@
-import { TaskResponseType } from '../types/task';
+import { StoryTaskType, TaskResponseType } from '../types/task';
 import { client } from './common';
 
 export const createTask = async (data: FormData) => {
@@ -25,6 +25,12 @@ export const updateTask = async (taskId: number, data: FormData) => {
 
 export const updateTaskStatus = async (taskId: number, statusName: string) => {
     const response = await client.patch(`/projects/tasks/${taskId}`, { statusName });
+
+    return response;
+};
+
+export const getTasksGroupByStory = async (projectId: number) => {
+    const response = await client.get<Array<StoryTaskType>>(`/projects/${projectId}/tasks/story`);
 
     return response;
 };
