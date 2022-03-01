@@ -388,7 +388,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project,null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtAsc(any(Project.class)))
                 .willReturn(tasks);
@@ -421,7 +421,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(tasks);
@@ -453,7 +453,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
@@ -482,7 +482,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -513,7 +513,7 @@ class TaskServiceTest {
             TaskProvider.createTaskForRepository(managerId, project, null, taskStatus)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskStatusService.findTaskStatusById(statusId))
                 .willReturn(taskStatus);
@@ -564,7 +564,7 @@ class TaskServiceTest {
                 TaskTagProvider.createTaskTag(task3, tags.get(2))
         ));
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2, task3));
@@ -594,7 +594,7 @@ class TaskServiceTest {
         Task task2 = TaskProvider.createTask(memberId, project, null);
         task2.addTags(List.of(TaskTagProvider.createTaskTag(task2, tags.get(1))));
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -618,7 +618,7 @@ class TaskServiceTest {
         Task task2 = TaskProvider.createTask(memberId, project, null);
         Task task3 = TaskProvider.createTask(memberId, project, story);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2, task3));
@@ -643,7 +643,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTask(memberId, project, null);
         Task task2 = TaskProvider.createTask(memberId, project, null);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
