@@ -1,5 +1,6 @@
 import { css } from '@emotion/react';
-import { GRAY } from './color';
+
+import { BLACK, GRAY, LIGHT_GRAY, WHITE } from './color';
 
 export const List = css`
     position: absolute;
@@ -9,7 +10,7 @@ export const List = css`
     border: 1px solid ${GRAY};
     border-radius: 10px;
     padding-left: 10px;
-    background-color: #fff;
+    background-color: ${WHITE};
     overflow-y: scroll;
 
     &::-webkit-scrollbar {
@@ -27,14 +28,14 @@ export const Work = css`
     justify-content: space-between;
     padding: 10px;
     margin-right: 10px;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid ${BLACK};
 
     :last-child {
         border: none;
     }
 
     :hover {
-        background-color: #f1f1f1;
+        background-color: ${LIGHT_GRAY};
         cursor: pointer;
     }
 `;
