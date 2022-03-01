@@ -64,6 +64,30 @@ public class TaskProvider {
         return formData;
     }
 
+    public Map<String, String> 를_특정_태그와_함께_생성한다(String accessToken, Long managerId, Long projectId, String story, String tags) {
+        Map<String, String> formData = new HashMap<>();
+        formData.put("title", "task title");
+        formData.put("description", "task description");
+        formData.put("managerId", managerId != null ? managerId.toString() : null);
+        formData.put("priority", "2");
+        formData.put("status", "To Do");
+        formData.put("tags", tags);
+        formData.put("projectId", projectId.toString());
+        formData.put("story", story);
+        formData.put("preTasks", "[]");
+
+        given()
+                .contentType(ContentType.URLENC)
+                .cookie("accessToken", accessToken)
+                .formParams(formData)
+                .when()
+                .post("/api/projects/tasks")
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        return formData;
+    }
+
     public static Task createTask(Long managerId, Project project, Story story) {
         return Task.builder()
                 .title("task title")
