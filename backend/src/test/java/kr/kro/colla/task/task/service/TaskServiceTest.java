@@ -504,7 +504,7 @@ class TaskServiceTest {
     @Test
     void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
         // given
-        Long projectId = 25234L, statusId = 249394L, managerId = 6345L;
+        Long projectId = 25234L, managerId = 6345L;
         Project project = ProjectProvider.createProject(24525L);
         User user = UserProvider.createUser2();
         TaskStatus taskStatus = new TaskStatus("**task status to filter**");
@@ -515,23 +515,20 @@ class TaskServiceTest {
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskStatusService.findTaskStatusById(statusId))
-                .willReturn(taskStatus);
-        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
+        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(taskList);
         given(userService.findUserById(managerId))
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, statusId);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, new ArrayList<>(List.of(taskStatus.getName())));
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
         result.forEach(response -> {
                 assertThat(response.getManagerName()).isEqualTo(user.getName());
                 assertThat(response.getStatus()).isEqualTo(taskStatus.getName());
-            });
-        verify(taskRepository, times(1)).findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class));
+        });
     }
 
     @Test

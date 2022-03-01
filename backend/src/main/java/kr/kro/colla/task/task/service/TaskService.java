@@ -194,13 +194,13 @@ public class TaskService {
         return projectStoryTaskResponseList;
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, Long statusId) {
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, List<String> statuses) {
         Project project = projectService.initializeProjectInfo(projectId);
-
-        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
-        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+        List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
+        Hibernate.initialize(project.getTaskStatuses());
 
         return taskList.stream()
+                .filter(task -> statuses.contains(task.getTaskStatus().getName()))
                 .map(task -> {
                     User manager = task.getManagerId() != null
                             ? userService.findUserById(task.getManagerId())
