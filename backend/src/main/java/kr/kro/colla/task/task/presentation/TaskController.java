@@ -92,4 +92,11 @@ public class TaskController {
         return ResponseEntity.ok(taskList);
     }
 
+    @GetMapping("{projectId}/tasks/search")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> searchTasksByKeyword(@PathVariable Long projectId, @RequestParam String keyword) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.searchTasksByKeyword(projectId, keyword);
+
+        return ResponseEntity.ok(taskList);
+    }
+
 }
