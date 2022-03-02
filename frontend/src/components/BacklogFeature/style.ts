@@ -17,6 +17,7 @@ export const FeatureContainer = styled.div`
 `;
 
 export const Feature = styled.div`
+    position: relative;
     font-size: 20px;
     margin-right: 30px;
 

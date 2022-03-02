@@ -158,6 +158,36 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, String statusName) {
+        Project project = projectService.initializeProjectInfo(projectId);
+
+        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
+        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
+    public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, Long managerId) {
+        Project project = projectService.initializeProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findAllFilterByManager(project, managerId);
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
     public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {
         Project project = projectService.initializeProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
@@ -192,22 +222,6 @@ public class TaskService {
         projectStoryTaskResponseList.add(new ProjectStoryTaskResponse(null, emptyStoryTaskList));
 
         return projectStoryTaskResponseList;
-    }
-
-    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, List<String> statuses) {
-        Project project = projectService.initializeProjectInfo(projectId);
-        List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
-        Hibernate.initialize(project.getTaskStatuses());
-
-        return taskList.stream()
-                .filter(task -> statuses.contains(task.getTaskStatus().getName()))
-                .map(task -> {
-                    User manager = task.getManagerId() != null
-                            ? userService.findUserById(task.getManagerId())
-                            : null;
-
-                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
-                }).collect(Collectors.toList());
     }
 
     public Task findTaskById(Long taskId) {
