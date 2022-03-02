@@ -27,3 +27,9 @@ export const Wrapper = styled.div`
 
     ${Column}
 `;
+
+export const TaskModalContainer = styled.div`
+    position: absolute;
+    top: 100px;
+    left: 300px;
+`;

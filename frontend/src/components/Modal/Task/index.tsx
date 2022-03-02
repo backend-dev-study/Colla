@@ -3,6 +3,7 @@ import React, { FC, useEffect } from 'react';
 import { getTask } from '../../../apis/task';
 import useInputTask from '../../../hooks/useInputTask';
 import { TaskType } from '../../../types/kanban';
+import { SimpleTaskType } from '../../../types/task';
 import { BasicInfoContainer } from './Basic';
 import { CommentContainer } from './Comment';
 import { DetailInfoContainer } from './Detail';
@@ -11,7 +12,7 @@ import { Container, ModalContainer, CancelButton, CompleteButton, ButtonContaine
 interface PropType {
     taskId: number | null;
     status: string;
-    taskList: TaskType[];
+    taskList: Array<TaskType | SimpleTaskType>;
     hideModal: Function;
 }
 
