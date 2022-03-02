@@ -14,7 +14,7 @@ interface PropType {
 const Issue: FC<PropType> = ({ story, title, priority, manager, tags }) => (
     <>
         <Wrapper story={story}>
-            {title}
+            {title ? title : '스토리에 속해있지 않은 태스크 목록'}
             {!story ? (
                 <Attributes>
                     <Tags>

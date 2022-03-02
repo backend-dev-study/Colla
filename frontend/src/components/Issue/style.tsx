@@ -1,27 +1,28 @@
 import styled from '@emotion/styled';
 
 import { GREEN, LIGHT_GRAY, WHITE } from '../../styles/color';
+import { LiftUp } from '../../styles/common';
 
 interface Props {
     story?: boolean;
 }
 
 const BASE = 900;
-const EXTRA = 100;
+const EXTRA = 150;
 
 export const Wrapper = styled.div<Props>`
     position: relative;
     display: flex;
     align-items: center;
-    padding-left: 20px;
+    padding: 15px 0 15px 20px;
     width: ${({ story }) => (story ? `${BASE + EXTRA}px` : `${BASE}px`)};
-    height: 50px;
     border-radius: 20px;
     background: ${({ story }) => (story ? GREEN : WHITE)};
-    margin-left: ${({ story }) => (story ? '0px' : `${EXTRA}px`)};
-    margin-top: 13px;
-    margin-bottom: 13px;
+    margin: 13px 40px 13px ${({ story }) => (story ? '0px' : `${EXTRA}px`)};
     font-size: 20px;
+    cursor: pointer;
+
+    ${LiftUp}
 `;
 
 export const Attributes = styled.div`

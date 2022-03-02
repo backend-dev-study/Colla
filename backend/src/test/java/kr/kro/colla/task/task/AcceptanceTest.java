@@ -448,7 +448,6 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
         // given
-        Long statusId = 4L;
         String nameToFilter = "sTatuSToFiLteR", nameToIgnore = "sTatUStOiGNOre";
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
@@ -469,7 +468,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/status/" + statusId)
+                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?statuses=" + nameToFilter)
 
         // then
         .then()
@@ -478,12 +477,12 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-            assertThat(result.size()).isEqualTo(filteredTasks.size());
-            result.forEach(task -> {
-                assertThat(task.getId()).isNotNull();
-                assertThat(task.getStatus()).isEqualTo(nameToFilter);
-            });
-        }
+        assertThat(result.size()).isEqualTo(filteredTasks.size());
+        result.forEach(task -> {
+            assertThat(task.getId()).isNotNull();
+            assertThat(task.getStatus()).isEqualTo(nameToFilter);
+        });
+    }
 
     void 사용자가_특정_태그들을_선택해_태스크들을_필터링한다() {
         // given

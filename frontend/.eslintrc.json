@@ -45,6 +45,7 @@
     "no-unused-vars": "error",
     "no-param-reassign": "off",
     "no-unused-expressions": "off",
+    "no-unneeded-ternary": "off",
     "dot-notation": "off",
     "no-use-before-define": ["error", { "variables": false }],
     "import/prefer-default-export": "off",

@@ -260,11 +260,11 @@ class TaskControllerTest extends ControllerTest {
                 TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus), user)
         );
 
-        given(taskService.getTasksFilterByStatus(projectId, statusId))
+        given(taskService.getTasksFilterByStatus(eq(projectId), any(List.class)))
                 .willReturn(taskList);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/status/" + statusId)
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/statuses?statuses=" +taskStatus.getName())
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -274,7 +274,7 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.length()").value(taskList.size()))
                 .andExpect(jsonPath("$[*].managerName", contains(null, user.getName())))
                 .andExpect(jsonPath("$[*].status", contains(taskStatus.getName(), taskStatus.getName())));
-        verify(taskService, times(1)).getTasksFilterByStatus(projectId, statusId);
+        verify(taskService, times(1)).getTasksFilterByStatus(anyLong(), any(List.class));
     }
 
     @Test

@@ -45,3 +45,7 @@ export const Element = styled.div`
         cursor: pointer;
     }
 `;
+
+export const CheckMark = styled.img`
+    margin-left: auto;
+`;

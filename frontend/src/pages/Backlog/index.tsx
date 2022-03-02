@@ -1,60 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getTasksGroupByStory } from '../../apis/task';
 import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { SideBar } from '../../components/SideBar';
+import { StateType } from '../../types/project';
+import { SimpleTaskType, StoryTaskType } from '../../types/task';
 import { Container, Wrapper } from './style';
 
-const dummy = [
-    {
-        title: 'story',
-        tasks: [
-            {
-                id: 1,
-                title: 'task1',
-                priority: 3,
-                tags: ['backend', 'frontend', 'etc'],
-            },
-            {
-                id: 2,
-                title: 'task2',
-                priority: 5,
-                manager: 'https://avatars.githubusercontent.com/u/69030160?v=4',
-                tags: ['bug'],
-            },
-            {
-                id: 3,
-                title: 'task3',
-                priority: 1,
-                tags: ['refactor'],
-            },
-        ],
-    },
-    {
-        title: 'another story',
-        tasks: [],
-    },
-];
+const Backlog = () => {
+    const { state } = useLocation<StateType>();
+    const [backlogTaskList, setBacklogTaskList] = useState<Array<StoryTaskType | SimpleTaskType>>([]);
 
-const Backlog = () => (
-    <>
-        <Header />
-        <SideBar />
-        <BacklogFeature />
-        <Container>
-            <Wrapper>
-                {dummy.map(({ title, tasks }: any, idx) => (
-                    <>
-                        <Issue key={idx} title={title} story />
-                        {tasks.map(({ id, title, priority, manager, tags }: any) => (
-                            <Issue key={id} title={title} priority={priority} manager={manager} tags={tags} />
-                        ))}
-                    </>
-                ))}
-            </Wrapper>
-        </Container>
-    </>
-);
+    useEffect(() => {
+        (async () => {
+            const res = await getTasksGroupByStory(state.projectId);
+            setBacklogTaskList(res.data);
+        })();
+    }, []);
+
+    return (
+        <>
+            <Header />
+            <SideBar />
+            <BacklogFeature setBacklogTaskList={setBacklogTaskList} />
+            <Container>
+                <Wrapper>
+                    {backlogTaskList.length > 0 && 'story' in backlogTaskList[0]
+                        ? (backlogTaskList as Array<StoryTaskType>).map(({ story, taskList }: StoryTaskType, idx) => (
+                              <>
+                                  <Issue key={idx} title={story} story />
+                                  {taskList.map(({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
+                                      <Issue
+                                          key={id}
+                                          title={title}
+                                          priority={priority}
+                                          manager={managerAvatar}
+                                          tags={tags}
+                                      />
+                                  ))}
+                              </>
+                          ))
+                        : (backlogTaskList as Array<SimpleTaskType>).map(
+                              ({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
+                                  <Issue
+                                      key={id}
+                                      title={title}
+                                      priority={priority}
+                                      manager={managerAvatar}
+                                      tags={tags}
+                                  />
+                              ),
+                          )}
+                </Wrapper>
+            </Container>
+        </>
+    );
+};
 
 export default Backlog;
