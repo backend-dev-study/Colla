@@ -36,3 +36,16 @@ export interface TaskResponseType {
     story: string;
     preTasks: string;
 }
+
+export interface SimpleTaskType {
+    id: number;
+    title: string;
+    priority: number;
+    managerAvatar: string;
+    tags: Array<string>;
+}
+
+export interface StoryTaskType {
+    story: string;
+    taskList: Array<SimpleTaskType>;
+}

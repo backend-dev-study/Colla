@@ -64,9 +64,9 @@ public class TaskController {
         return ResponseEntity.ok(taskList);
     }
 
-    @GetMapping("/{projectId}/tasks/status/{statusId}")
-    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatus(@PathVariable Long projectId, @PathVariable Long statusId) {
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statusId);
+    @GetMapping("/{projectId}/tasks/statuses")
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatus(@PathVariable Long projectId, @RequestParam List<String> statuses) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statuses);
 
         return ResponseEntity.ok(taskList);
     }

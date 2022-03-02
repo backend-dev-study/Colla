@@ -16,6 +16,7 @@ import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -102,7 +103,7 @@ public class TaskService {
     }
 
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
-        Project project = projectService.getAllProjectInfo(projectId);
+        Project project = projectService.initializeProjectInfo(projectId);
 
         List<Task> taskList = ascending
                 ? taskRepository.findAllOrderByCreatedAtAsc(project)
@@ -119,7 +120,7 @@ public class TaskService {
     }
 
     public List<ProjectTaskSimpleResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
-        Project project = projectService.getAllProjectInfo(projectId);
+        Project project = projectService.initializeProjectInfo(projectId);
 
         List<Task> taskList = ascending
                 ? taskRepository.findAllOrderByPriorityAsc(project)
@@ -136,7 +137,7 @@ public class TaskService {
     }
 
     public List<ProjectTaskSimpleResponse> getTasksFilterByTags(Long projectId, List<String> tags) {
-        Project project = projectService.getAllProjectInfo(projectId);
+        Project project = projectService.initializeProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
 
         return taskList.stream()
@@ -158,8 +159,9 @@ public class TaskService {
     }
 
     public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {
-        Project project = projectService.getAllProjectInfo(projectId);
+        Project project = projectService.initializeProjectInfo(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
+        Hibernate.initialize(project.getStories());
 
         List<ProjectStoryTaskResponse> projectStoryTaskResponseList = new ArrayList<>();
         Map<String, List<ProjectTaskSimpleResponse>> taskMap = new HashMap<>();
@@ -192,18 +194,13 @@ public class TaskService {
         return projectStoryTaskResponseList;
     }
 
-    public Task findTaskById(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(TaskNotFoundException::new);
-    }
-
-    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, Long statusId) {
-        Project project = projectService.getAllProjectInfo(projectId);
-
-        TaskStatus taskStatus = taskStatusService.findTaskStatusById(statusId);
-        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, List<String> statuses) {
+        Project project = projectService.initializeProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
+        Hibernate.initialize(project.getTaskStatuses());
 
         return taskList.stream()
+                .filter(task -> statuses.contains(task.getTaskStatus().getName()))
                 .map(task -> {
                     User manager = task.getManagerId() != null
                             ? userService.findUserById(task.getManagerId())
@@ -211,5 +208,10 @@ public class TaskService {
 
                     return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
                 }).collect(Collectors.toList());
+    }
+
+    public Task findTaskById(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(TaskNotFoundException::new);
     }
 }
