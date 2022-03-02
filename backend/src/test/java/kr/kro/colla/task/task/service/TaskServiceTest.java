@@ -515,13 +515,15 @@ class TaskServiceTest {
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
+        given(taskStatusService.findTaskStatusByName(taskStatus.getName()))
+                .willReturn(taskStatus);
+        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
                 .willReturn(taskList);
         given(userService.findUserById(managerId))
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, new ArrayList<>(List.of(taskStatus.getName())));
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, taskStatus.getName());
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
@@ -654,4 +656,62 @@ class TaskServiceTest {
         assertThat(storyTaskList.get(0).getTaskList()).hasSize(2);
     }
 
+    @Test
+    void 프로젝트의_테스크들을_담당자에_따라_필터링해_조회한다() {
+        // given
+        Long projectId = 3242L, managerId = 6933L;
+        Project project = ProjectProvider.createProject(25332L);
+        User user = UserProvider.createUser2();
+        List<Task> tasks = List.of(
+                TaskProvider.createTask(managerId, project, null),
+                TaskProvider.createTask(managerId, project, null),
+                TaskProvider.createTask(managerId, project, null)
+        );
+
+        given(projectService.initializeProjectInfo(projectId))
+                .willReturn(project);
+        given(taskRepository.findAllFilterByManager(any(Project.class), eq(managerId)))
+                .willReturn(tasks);
+        given(userService.findUserById(managerId))
+                .willReturn(user);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, managerId);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        result.forEach(task -> {
+            assertThat(task.getManagerName()).isEqualTo(user.getName());
+            assertThat(task.getManagerAvatar()).isEqualTo(user.getAvatar());
+        });
+        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), eq(managerId));
+    }
+
+    @Test
+    void 프로젝트의_담당자가_없는_테스크들을_조회한다() {
+        // given
+        Long projectId = 3242L;
+        Project project = ProjectProvider.createProject(25332L);
+        List<Task> tasks = List.of(
+                TaskProvider.createTask(null, project, null),
+                TaskProvider.createTask(null, project, null)
+        );
+
+        given(projectService.initializeProjectInfo(projectId))
+                .willReturn(project);
+        given(taskRepository.findAllFilterByManager(any(Project.class), isNull()))
+                .willReturn(tasks);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, null);
+
+        // then
+        assertThat(result.size()).isEqualTo(tasks.size());
+        result.forEach(task -> {
+            assertThat(task.getManagerName()).isNull();
+            assertThat(task.getManagerAvatar()).isNull();
+        });
+        verify(userService, never()).findUserById(anyLong());
+        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), isNull());
+    }
 }
