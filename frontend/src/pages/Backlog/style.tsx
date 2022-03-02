@@ -14,10 +14,15 @@ export const Wrapper = styled.div`
     border-radius: 20px;
     overflow-y: scroll;
     background: ${LIGHT_GRAY};
-    align-items: center;
+    align-items: end;
 
     &::-webkit-scrollbar {
-        display: none;
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #bbbbbb;
+        border-radius: 10px;
     }
 
     ${Column}

@@ -263,7 +263,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(taskList);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/status?status=" + taskStatus.getName())
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/statuses?status=" + taskStatus.getName())
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -375,7 +375,7 @@ class TaskControllerTest extends ControllerTest {
         given(taskService.getTasksFilterByManager(projectId, managerId))
                 .willReturn(taskList);
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/manager?managerId=" + managerId)
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/managers?managerId=" + managerId)
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -403,7 +403,7 @@ class TaskControllerTest extends ControllerTest {
         given(taskService.getTasksFilterByManager(projectId, null))
                 .willReturn(taskList);
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/manager")
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/managers")
                 .cookie(new Cookie("accessToken", this.accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 

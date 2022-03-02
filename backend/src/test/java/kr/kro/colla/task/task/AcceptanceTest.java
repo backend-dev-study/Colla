@@ -467,7 +467,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/status?status=" + nameToFilter)
+                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?status=" + nameToFilter)
 
         // then
         .then()
@@ -476,12 +476,12 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-            assertThat(result.size()).isEqualTo(filteredTasks.size());
-            result.forEach(task -> {
-                assertThat(task.getId()).isNotNull();
-                assertThat(task.getStatus()).isEqualTo(nameToFilter);
-            });
-        }
+        assertThat(result.size()).isEqualTo(filteredTasks.size());
+        result.forEach(task -> {
+            assertThat(task.getId()).isNotNull();
+            assertThat(task.getStatus()).isEqualTo(nameToFilter);
+        });
+    }
 
     @Test
     void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_필터링할_수_없다() {
@@ -496,7 +496,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/status")
+                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses")
 
         // then
         .then().log().all()
@@ -628,7 +628,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/manager?managerId=" + taskManager.getId())
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managerId=" + taskManager.getId())
 
         // then
         .then()
@@ -661,7 +661,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/manager")
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers")
 
         // then
         .then()

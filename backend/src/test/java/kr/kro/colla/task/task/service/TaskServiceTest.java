@@ -388,7 +388,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project,null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtAsc(any(Project.class)))
                 .willReturn(tasks);
@@ -421,7 +421,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(tasks);
@@ -453,7 +453,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 1);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityAsc(any(Project.class)))
                 .willReturn(List.of(task2, task1));
@@ -482,7 +482,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTaskWithPriority(memberId, project, null, 5);
         Task task2 = TaskProvider.createTaskWithPriority(memberId, project, null, 3);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByPriorityDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -504,7 +504,7 @@ class TaskServiceTest {
     @Test
     void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
         // given
-        Long projectId = 25234L, statusId = 249394L, managerId = 6345L;
+        Long projectId = 25234L, managerId = 6345L;
         Project project = ProjectProvider.createProject(24525L);
         User user = UserProvider.createUser2();
         TaskStatus taskStatus = new TaskStatus("**task status to filter**");
@@ -513,7 +513,7 @@ class TaskServiceTest {
             TaskProvider.createTaskForRepository(managerId, project, null, taskStatus)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskStatusService.findTaskStatusByName(taskStatus.getName()))
                 .willReturn(taskStatus);
@@ -530,8 +530,7 @@ class TaskServiceTest {
         result.forEach(response -> {
                 assertThat(response.getManagerName()).isEqualTo(user.getName());
                 assertThat(response.getStatus()).isEqualTo(taskStatus.getName());
-            });
-        verify(taskRepository, times(1)).findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class));
+        });
     }
 
     @Test
@@ -564,7 +563,7 @@ class TaskServiceTest {
                 TaskTagProvider.createTaskTag(task3, tags.get(2))
         ));
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2, task3));
@@ -594,7 +593,7 @@ class TaskServiceTest {
         Task task2 = TaskProvider.createTask(memberId, project, null);
         task2.addTags(List.of(TaskTagProvider.createTaskTag(task2, tags.get(1))));
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -618,7 +617,7 @@ class TaskServiceTest {
         Task task2 = TaskProvider.createTask(memberId, project, null);
         Task task3 = TaskProvider.createTask(memberId, project, story);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2, task3));
@@ -643,7 +642,7 @@ class TaskServiceTest {
         Task task1 = TaskProvider.createTask(memberId, project, null);
         Task task2 = TaskProvider.createTask(memberId, project, null);
 
-        given(projectService.getAllProjectInfo(eq(projectId)))
+        given(projectService.initializeProjectInfo(eq(projectId)))
                 .willReturn(project);
         given(taskRepository.findAllOrderByCreatedAtDesc(any(Project.class)))
                 .willReturn(List.of(task1, task2));
@@ -669,7 +668,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(managerId, project, null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllFilterByManager(any(Project.class), eq(managerId)))
                 .willReturn(tasks);
@@ -698,7 +697,7 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null)
         );
 
-        given(projectService.getAllProjectInfo(projectId))
+        given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
         given(taskRepository.findAllFilterByManager(any(Project.class), isNull()))
                 .willReturn(tasks);
