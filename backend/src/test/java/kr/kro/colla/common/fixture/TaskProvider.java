@@ -125,6 +125,19 @@ public class TaskProvider {
                 .build();
     }
 
+    public static Task createTaskWithTitle(Long managerId, Project project, Story story, String title) {
+        return Task.builder()
+                .title(title)
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(new TaskStatus("To Do"))
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
     public static Task createTaskWithPriority(Long managerId, Project project, Story story, int priority) {
         return Task.builder()
                 .title("task title")
