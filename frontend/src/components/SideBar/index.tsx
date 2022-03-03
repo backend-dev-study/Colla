@@ -1,10 +1,10 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import EmptySrc from '../../../public/assets/images/empty.png';
 import { projectState } from '../../stores/projectState';
-import { ProjectType } from '../../types/project';
+import { ProjectType, StateType } from '../../types/project';
 import {
     ProjectIcon,
     VerticalBar,
@@ -34,7 +34,8 @@ const MENU = [
 
 export const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
-    const [currentProjectState, setProjectState] = useRecoilState(projectState);
+    const { state } = useLocation<StateType>();
+    const setProjectState = useSetRecoilState(projectState);
 
     const enterProject = (project: ProjectType) => {
         const { id, name, description, thumbnail } = project;
@@ -54,7 +55,7 @@ export const SideBar = ({ props, project }: Props) => {
     const handleClickSideBar = (path: string) => {
         history.push({
             pathname: path,
-            state: { projectId: currentProjectState.id },
+            state: { projectId: state.projectId },
         });
     };
 
