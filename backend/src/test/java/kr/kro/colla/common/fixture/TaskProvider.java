@@ -151,6 +151,19 @@ public class TaskProvider {
                 .build();
     }
 
+    public static Task createTaskWithTitleForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus, String title) {
+        return Task.builder()
+                .title(title)
+                .managerId(managerId)
+                .description("task description")
+                .priority(4)
+                .project(project)
+                .taskStatus(taskStatus)
+                .story(story)
+                .preTasks("[]")
+                .build();
+    }
+
     public static Task createTaskWithPriorityForRepository(Long managerId, Project project, Story story, TaskStatus taskStatus, int priority) {
         return Task.builder()
                 .title("task title")
