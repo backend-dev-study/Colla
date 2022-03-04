@@ -19,7 +19,7 @@ const useInputTask = () => {
     });
     const { title, description, managerId, priority, status, selectedTags, story, preTasks } = taskInput;
 
-    const handleCompleteButton = async (taskId: number | null) => {
+    const handleCompleteButton = async (taskId: number | null, page: string) => {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
@@ -32,7 +32,7 @@ const useInputTask = () => {
         formData.append('preTasks', JSON.stringify(preTasks));
 
         taskId ? await updateTask(taskId!, formData) : await createTask(formData);
-        window.location.replace('/kanban');
+        window.location.replace(`/${page}`);
     };
 
     const handleChangeTitle = (e: React.ChangeEvent) => {

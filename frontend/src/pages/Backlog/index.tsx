@@ -97,6 +97,7 @@ const Backlog = () => {
                             status={taskInfo!.status}
                             taskList={preTaskList}
                             hideModal={setModal}
+                            page="backlog"
                         />
                     ) : null}
                 </Modal>

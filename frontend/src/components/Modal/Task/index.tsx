@@ -14,9 +14,10 @@ interface PropType {
     status: string;
     taskList: Array<TaskType | SimpleTaskType>;
     hideModal: Function;
+    page: string;
 }
 
-export const TaskModal: FC<PropType> = ({ taskId, status, taskList, hideModal }) => {
+export const TaskModal: FC<PropType> = ({ taskId, status, taskList, hideModal, page }) => {
     const { basicInfoInput, detailInfoInput, handleCompleteButton, setSelectedTask } = useInputTask();
 
     useEffect(() => {
@@ -39,7 +40,9 @@ export const TaskModal: FC<PropType> = ({ taskId, status, taskList, hideModal })
             {taskId ? <CommentContainer taskId={taskId} /> : null}
             <ButtonContainer>
                 <CancelButton onClick={() => hideModal()}>취소</CancelButton>
-                <CompleteButton onClick={() => handleCompleteButton(taskId)}>{taskId ? '수정' : '완료'}</CompleteButton>
+                <CompleteButton onClick={() => handleCompleteButton(taskId, page)}>
+                    {taskId ? '수정' : '완료'}
+                </CompleteButton>
             </ButtonContainer>
         </ModalContainer>
     );
