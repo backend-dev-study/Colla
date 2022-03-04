@@ -158,11 +158,10 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, String statusName) {
+    public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, List<String> statuses) {
         Project project = projectService.initializeProjectInfo(projectId);
 
-        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
-        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+        List<Task> taskList = taskRepository.findAllFilterByTaskStatus(project, statuses);
 
         return taskList.stream()
                 .map(task -> {
