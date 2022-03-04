@@ -248,22 +248,23 @@ class TaskControllerTest extends ControllerTest {
     }
 
     @Test
-    void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() throws Exception {
+    void 프로젝트의_테스크들을_상태값들으로_필터링해_조회한다() throws Exception {
         // given
         Long projectId = 23424L, statusId = 9501L;
         Project project = ProjectProvider.createProject(3462L);
         User user = UserProvider.createUser2();
-        TaskStatus taskStatus = new TaskStatus("status)_)to)_)filter");
+        TaskStatus taskStatus1 = new TaskStatus("To Do");
+        TaskStatus taskStatus2 = new TaskStatus("Done");
         List<ProjectTaskSimpleResponse> taskList = List.of(
-                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus), null),
-                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus), user)
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus1), null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(TaskProvider.createTaskForRepository(null, project, null, taskStatus2), user)
         );
 
-        given(taskService.getTasksFilterByStatus(projectId, taskStatus.getName()))
+        given(taskService.getTasksFilterByStatus(eq(projectId), any(List.class)))
                 .willReturn(taskList);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/statuses?status=" + taskStatus.getName())
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/statuses?statuses=To Do, Done")
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -272,8 +273,8 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(taskList.size()))
                 .andExpect(jsonPath("$[*].managerName", contains(null, user.getName())))
-                .andExpect(jsonPath("$[*].status", contains(taskStatus.getName(), taskStatus.getName())));
-        verify(taskService, times(1)).getTasksFilterByStatus(projectId, taskStatus.getName());
+                .andExpect(jsonPath("$[*].status", contains(taskStatus1.getName(), taskStatus2.getName())));
+        verify(taskService, times(1)).getTasksFilterByStatus(eq(projectId), any(List.class));
     }
 
     @Test

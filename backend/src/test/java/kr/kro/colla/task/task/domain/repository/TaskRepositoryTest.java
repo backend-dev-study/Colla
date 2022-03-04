@@ -19,6 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -200,27 +201,49 @@ class TaskRepositoryTest {
     }
 
     @Test
-    void 프로젝트의_테스크를_상태값으로_필터링해서_조회한다() {
+    void 프로젝트의_테스크를_상태값들로_필터링해서_조회한다() {
         // given
         Project project = projectRepository.save(ProjectProvider.createProject(4253123L));
         User user = userRepository.save(UserProvider.createUser2());
-        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("Status To Filtering"));
-        TaskStatus taskStatusDiff = taskStatusRepository.save(new TaskStatus("Status Not Wanted"));
-        List<Task> tasks = List.of(
-                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus)),
-                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus))
+        List<TaskStatus> filterStatus = List.of(
+                taskStatusRepository.save(new TaskStatus("Status To Filter1")),
+                taskStatusRepository.save(new TaskStatus("Status To Filter2"))
         );
-        taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatusDiff));
+
+        TaskStatus notFilterStatus = taskStatusRepository.save(new TaskStatus("Status Not Wanted"));
+        List<Task> tasks = List.of(
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, filterStatus.get(0))),
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, filterStatus.get(1))),
+                taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, filterStatus.get(1)))
+        );
+        taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, notFilterStatus));
+
+        List<String> statuses = filterStatus.stream()
+                .map(taskStatus -> taskStatus.getName())
+                .collect(Collectors.toList());
 
         // when
-        List<Task> result = taskRepository.findAllFilterByTaskStatus(project, taskStatus);
+        List<Task> result = taskRepository.findAllFilterByTaskStatus(project, statuses);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
         assertThat(result
                 .stream()
-                .filter(task -> !task.getTaskStatus().getName().equals(taskStatus.getName())).count()).isEqualTo(0);
+                .filter(task -> !statuses.contains(task.getTaskStatus().getName())).count()).isEqualTo(0);
+    }
 
+    @Test
+    void 해당하는_상태값의_테스크가_없을시_빈_배열이_반환된다() {
+        Project project = projectRepository.save(ProjectProvider.createProject(4253123L));
+        User user = userRepository.save(UserProvider.createUser2());
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("Status Not Wanted"));
+        taskRepository.save(TaskProvider.createTaskForRepository(user.getId(), project, null, taskStatus));
+
+        // when
+        List<Task> result = taskRepository.findAllFilterByTaskStatus(project, List.of("Not", "Exist", "Status"));
+
+        // then
+        assertThat(result.size()).isEqualTo(0);
     }
 
     @Test

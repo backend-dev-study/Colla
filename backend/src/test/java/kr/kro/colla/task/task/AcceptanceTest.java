@@ -446,19 +446,21 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트의_테스크들을_상태값으로_필터링한다() {
+    void 사용자가_프로젝트의_테스크들을_상태값들로_필터링한다() {
         // given
-        String nameToFilter = "sTatuSToFiLteR", nameToIgnore = "sTatUStOiGNOre";
+        String nameToFilter1 = "sTatuSToFiLteR", nameToFilter2 = "mUltiPleStaTuS", nameToIgnore = "sTatUStOiGNOre";
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter1);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter2);
         taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToIgnore);
 
         task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToIgnore);
         List<Map<String, String>> filteredTasks = List.of(
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter),
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter));
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter1),
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter2)
+        );
         task.를_생성한다(accessToken, null, createdProject.getId(), null, nameToIgnore);
 
         List<ProjectTaskSimpleResponse> result = given()
@@ -467,7 +469,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?status=" + nameToFilter)
+                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?statuses="+nameToFilter1+", "+nameToFilter2)
 
         // then
         .then()
@@ -479,12 +481,12 @@ public class AcceptanceTest {
         assertThat(result.size()).isEqualTo(filteredTasks.size());
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getStatus()).isEqualTo(nameToFilter);
+            assertThat(List.of(nameToFilter1, nameToFilter2).contains(task.getStatus()));
         });
     }
 
     @Test
-    void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_필터링할_수_없다() {
+    void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_상태값들로_필터링할_수_없다() {
         // given
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
@@ -499,7 +501,7 @@ public class AcceptanceTest {
                 .get("/api/projects/" + createdProject.getId() + "/tasks/statuses")
 
         // then
-        .then().log().all()
+        .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 

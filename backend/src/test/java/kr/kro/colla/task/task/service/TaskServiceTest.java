@@ -502,34 +502,38 @@ class TaskServiceTest {
     }
 
     @Test
-    void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
+    void 프로젝트의_테스크들을_상태값들로_필터링해_조회한다() {
         // given
         Long projectId = 25234L, managerId = 6345L;
         Project project = ProjectProvider.createProject(24525L);
         User user = UserProvider.createUser2();
-        TaskStatus taskStatus = new TaskStatus("**task status to filter**");
-        List<Task> taskList = List.of(
-            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus),
-            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus)
+        List<TaskStatus> taskStatusList = List.of(
+            new TaskStatus("**task status to filter**"),
+            new TaskStatus("**multiple status can be selected**")
         );
+        List<Task> taskList = List.of(
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatusList.get(0)),
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatusList.get(1))
+        );
+        List<String> statuses = taskStatusList.stream()
+                .map(taskStatus -> taskStatus.getName())
+                .collect(Collectors.toList());
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskStatusService.findTaskStatusByName(taskStatus.getName()))
-                .willReturn(taskStatus);
-        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
+        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(List.class)))
                 .willReturn(taskList);
         given(userService.findUserById(managerId))
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, taskStatus.getName());
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, List.of());
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
         result.forEach(response -> {
                 assertThat(response.getManagerName()).isEqualTo(user.getName());
-                assertThat(response.getStatus()).isEqualTo(taskStatus.getName());
+                assertThat(statuses.contains(response.getStatus()));
         });
     }
 
