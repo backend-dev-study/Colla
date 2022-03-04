@@ -56,3 +56,19 @@ export const getTasksFilterByTags = async (projectId: number, tags: string) => {
 
     return response;
 };
+
+export const getTasksOrderByCreatedDate = async (projectId: number, ascending: boolean) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/created-date?ascending=${ascending}`,
+    );
+
+    return response;
+};
+
+export const getTasksOrderByPriority = async (projectId: number, ascending: boolean) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/priority?ascending=${ascending}`,
+    );
+
+    return response;
+};

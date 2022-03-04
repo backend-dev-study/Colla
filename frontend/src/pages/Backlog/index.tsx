@@ -30,8 +30,8 @@ const Backlog = () => {
                 <Wrapper>
                     {backlogTaskList.length > 0 && 'story' in backlogTaskList[0]
                         ? (backlogTaskList as Array<StoryTaskType>).map(({ story, taskList }: StoryTaskType, idx) => (
-                              <>
-                                  <Issue key={idx} title={story} story />
+                              <div key={idx}>
+                                  <Issue title={story} story />
                                   {taskList.map(({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
                                       <Issue
                                           key={id}
@@ -41,7 +41,7 @@ const Backlog = () => {
                                           tags={tags}
                                       />
                                   ))}
-                              </>
+                              </div>
                           ))
                         : (backlogTaskList as Array<SimpleTaskType>).map(
                               ({ id, title, priority, managerAvatar, tags }: SimpleTaskType) => (
