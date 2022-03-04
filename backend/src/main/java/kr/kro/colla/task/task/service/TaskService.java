@@ -20,10 +20,7 @@ import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -173,9 +170,10 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, Long managerId) {
+    public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, List<Long> managers, Boolean notSelected) {
         Project project = projectService.initializeProjectInfo(projectId);
-        List<Task> taskList = taskRepository.findAllFilterByManager(project, managerId);
+
+        List<Task> taskList = taskRepository.findAllFilterByManager(project, managers, notSelected);
 
         return taskList.stream()
                 .map(task -> {
