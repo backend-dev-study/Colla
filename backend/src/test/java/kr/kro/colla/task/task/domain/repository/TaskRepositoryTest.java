@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -249,39 +250,44 @@ class TaskRepositoryTest {
     @Test
     void 프로젝트의_테스크들을_담당자로_필터링해서_조회한다() {
         // given
-        Long targetManagerId = 4325L, otherManagerId = 2943L;
+        Long managerId1 = 4325L, managerId2 = 2943L, justUserId = 23942L;
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("test-ing task repository"));
-        Project project = projectRepository.save(ProjectProvider.createProject(243920L));
-        taskRepository.save(TaskProvider.createTaskForRepository(targetManagerId, project, null, taskStatus));
-        taskRepository.save(TaskProvider.createTaskForRepository(otherManagerId, project, null, taskStatus));
-        taskRepository.save(TaskProvider.createTaskForRepository(targetManagerId, project, null, taskStatus));
+        Project project = projectRepository.save(ProjectProvider.createProject(justUserId));
+        taskRepository.save(TaskProvider.createTaskForRepository(justUserId, project, null, taskStatus));
+        taskRepository.save(TaskProvider.createTaskForRepository(managerId1, project, null, taskStatus));
+        taskRepository.save(TaskProvider.createTaskForRepository(managerId2, project, null, taskStatus));
+        List<Long> managers = List.of(managerId1, managerId2);
 
         // when
-        List<Task> result = taskRepository.findAllFilterByManager(project, targetManagerId);
+        List<Task> result = taskRepository.findAllFilterByManager(project, managers, false);
 
         // then
         assertThat(result.size()).isEqualTo(2);
         result.forEach(task -> {
-            assertThat(task.getManagerId().equals(targetManagerId));
+            assertThat(managers.contains(task.getManagerId()));
             assertThat(task.getProject().getId().equals(project.getId()));
         });
     }
 
     @Test
-    void 프로젝트의_테스크들_중_담당자가_없는_테스크들을_필터링해서_조회한다() {
+    void 프로젝트의_테스크들_중_담당자가_없는_테스크들도_필터링에_포함할_수_있다() {
         // given
-        Project project = projectRepository.save(ProjectProvider.createProject(234234L));
+        Long managerId = 234243L, userId = 239201L;
+        Project project = projectRepository.save(ProjectProvider.createProject(userId));
         TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("test-ing for task not having manager"));
         TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("test-ing for null managerId"));
         taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus1));
         taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus2));
-        taskRepository.save(TaskProvider.createTaskForRepository(23456L, project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(managerId, project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(userId, project, null, taskStatus2));
 
         // when
-        List<Task> result = taskRepository.findAllFilterByManager(project, null);
+        List<Task> result = taskRepository.findAllFilterByManager(project, Arrays.asList(managerId, null), true);
 
         // then
-        assertThat(result.size()).isEqualTo(2);
-        result.forEach(task -> assertThat(task.getManagerId()).isNull());
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.stream()
+                .filter(task -> task.getManagerId()==null)
+                .count()).isEqualTo(2);
     }
 }

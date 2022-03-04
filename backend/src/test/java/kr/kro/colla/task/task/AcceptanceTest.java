@@ -616,13 +616,13 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트의_테스크들을_담당자로_필터링한다() {
         // given
-        User loginUser = user.가_로그인을_한다2();
-        User taskManager = user.가_로그인을_한다1();
-        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        User manager1 = user.가_로그인을_한다2();
+        User manager2 = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(manager1.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
-        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
-        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager1.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager2.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager2.getId(), createdProject.getId(), null);
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -630,7 +630,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managerId=" + taskManager.getId())
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managers=" + manager1.getId() + ", " + manager2.getId())
 
         // then
         .then()
@@ -639,23 +639,25 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(3);
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getManagerName()).isEqualTo(taskManager.getName());
-            assertThat(task.getManagerAvatar()).isEqualTo(taskManager.getAvatar());
+            assertThat(List.of(manager1.getName(), manager2.getName()).contains(task.getManagerName()));
+            assertThat(List.of(manager1.getAvatar(), manager2.getAvatar()).contains(task.getManagerAvatar()));
         });
     }
 
     @Test
-    void 사용자가_프로젝트의_담당자_없는_테스크들을_필터링한다() {
+    void 사용자가_프로젝트의_담당자_없는_테스크를_포함해_담당자들로_필터링한다() {
         // given
         User loginUser = user.가_로그인을_한다2();
+        User manager = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
         task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
         task.를_생성한다(accessToken, null, createdProject.getId(), null);
         task.를_생성한다(accessToken, null, createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager.getId(), createdProject.getId(), null);
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -663,7 +665,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/managers")
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managers=" + manager.getId() + "&notSelected=true")
 
         // then
         .then()
@@ -672,11 +674,14 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.stream()
+                .filter(task->task.getManagerName()==null)
+                .count()).isNotZero();
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getManagerName()).isNull();
-            assertThat(task.getManagerAvatar()).isNull();
+            assertThat(Arrays.asList(null, manager.getName()).contains(task.getManagerName()));
+            assertThat(Arrays.asList(null, manager.getAvatar()).contains(task.getManagerAvatar()));
         });
     }
 }
