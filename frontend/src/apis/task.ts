@@ -54,3 +54,9 @@ export const getTasksFilterByTags = async (projectId: number, tags: string) => {
 
     return response;
 };
+
+export const searchTasksByKeyword = async (projectId: number, keyword: string) => {
+    const response = await client.get(`/projects/${projectId}/tasks/search?keyword=${keyword}`);
+
+    return response;
+};

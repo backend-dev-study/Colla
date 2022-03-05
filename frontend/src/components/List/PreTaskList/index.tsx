@@ -3,13 +3,14 @@ import React, { FC } from 'react';
 import DeleteIconSrc from '../../../../public/assets/images/delete.png';
 import StarImgSrc from '../../../../public/assets/images/star.png';
 import { TaskType } from '../../../types/kanban';
+import { SimpleTaskType } from '../../../types/task';
 import { Task, TaskTitle } from '../../DropDown/PreTask/style';
 import { Star } from '../../Task/style';
 import { Container, DeleteButton, PreTask } from './style';
 
 interface PropType {
     preTaskList: Array<number>;
-    taskList: Array<TaskType>;
+    taskList: Array<TaskType | SimpleTaskType>;
     handleDeletePreTask: Function;
 }
 

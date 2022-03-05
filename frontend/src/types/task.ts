@@ -43,6 +43,7 @@ export interface SimpleTaskType {
     priority: number;
     managerAvatar: string;
     tags: Array<string>;
+    status: string;
 }
 
 export interface StoryTaskType {

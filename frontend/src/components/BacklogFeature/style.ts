@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Center } from '../../styles/common';
+import { Center, LiftUp } from '../../styles/common';
 
 export const Container = styled.div`
     flex-direction: column;
@@ -46,4 +46,6 @@ export const SearchIcon = styled.img`
     width: 24px;
     height: 24px;
     margin: 10px 0 0 -35px;
+
+    ${LiftUp}
 `;

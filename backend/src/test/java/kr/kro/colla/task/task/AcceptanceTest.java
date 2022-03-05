@@ -31,7 +31,6 @@ import java.util.stream.IntStream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 
@@ -677,4 +676,65 @@ public class AcceptanceTest {
             assertThat(task.getManagerAvatar()).isNull();
         });
     }
+
+    @Test
+    void 사용자가_특정_키워드로_태스크들을_조회한다() {
+        // given
+        String keyword = "api documentation";
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "Write api documentation");
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "Improving query performance");
+        task.를_특정_제목과_함께_생성한다(accessToken, null, createdProject.getId(), null, "Decorate api documentation");
+
+        List<ProjectTaskSimpleResponse> response = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/search?keyword=" + keyword)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(response).hasSize(2);
+        response.forEach(task -> assertThat(task.getTitle()).contains(keyword));
+    }
+
+    @Test
+    void 사용자가_존재하지_않는_키워드로_태스크를_검색하면_아무것도_반환하지_않는다() {
+        // given
+        String keyword = "documentation";
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), null, "implement backlog task search api");
+        task.를_특정_제목과_함께_생성한다(accessToken, null, createdProject.getId(), null, "refactor backlog filter api");
+
+        List<ProjectTaskSimpleResponse> response = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/search?keyword=" + keyword)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
+
+        assertThat(response.size()).isZero();
+    }
+
 }

@@ -84,7 +84,7 @@ const KanbanCol: FC<PropType> = ({ statuses, status, taskList, tasks, changeColu
                 </KanbanIssue>
             </Wrapper>
             <Modal>
-                <TaskModal taskId={taskId} status={status} taskList={taskList} hideModal={setModal} />
+                <TaskModal taskId={taskId} status={status} taskList={taskList} hideModal={setModal} page="kanban" />
             </Modal>
             <StatusModal>
                 <DeleteTaskStatusModal statuses={statuses} status={status} />

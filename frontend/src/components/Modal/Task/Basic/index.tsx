@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 
 import DownIconSrc from '../../../../../public/assets/images/down.png';
 import { TaskType } from '../../../../types/kanban';
-import { BasicInputType } from '../../../../types/task';
+import { BasicInputType, SimpleTaskType } from '../../../../types/task';
 import { PreTaskDropDown } from '../../../DropDown/PreTask';
 import { StoryDropDown } from '../../../DropDown/Story';
 import { PreTaskList } from '../../../List/PreTaskList';
@@ -11,7 +11,7 @@ import { DownIcon } from '../style';
 import { AddButton, DescriptionArea, DropDown, TaskComponent, TaskContainer, Title, TitleInput } from './style';
 
 interface PropType {
-    taskList: Array<TaskType>;
+    taskList: Array<TaskType | SimpleTaskType>;
     basicInfoInput: BasicInputType;
 }
 

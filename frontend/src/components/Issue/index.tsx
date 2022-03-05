@@ -5,15 +5,18 @@ import { Attributes, Manager, Priority, Star, Tag, Tags, Wrapper } from './style
 
 interface PropType {
     story?: boolean;
+    id?: number;
     title: string;
     priority?: number;
     manager?: string;
     tags?: Array<string>;
+    status?: string;
+    showTaskModal?: Function;
 }
 
-const Issue: FC<PropType> = ({ story, title, priority, manager, tags }) => (
+const Issue: FC<PropType> = ({ story, id, title, priority, manager, tags, status, showTaskModal }) => (
     <>
-        <Wrapper story={story}>
+        <Wrapper story={story} onClick={story ? () => {} : (event) => showTaskModal!(event, id, status)}>
             {title ? title : '스토리에 속해있지 않은 태스크 목록'}
             {!story ? (
                 <Attributes>
