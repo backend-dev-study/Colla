@@ -2,11 +2,12 @@ import React, { FC } from 'react';
 
 import StarImgSrc from '../../../../public/assets/images/star.png';
 import { TaskType } from '../../../types/kanban';
+import { SimpleTaskType } from '../../../types/task';
 import { Star } from '../../Task/style';
 import { Priority, Task, TaskList, TaskTitle } from './style';
 
 interface PropType {
-    taskList: TaskType[];
+    taskList: Array<TaskType | SimpleTaskType>;
     handleChangePreTasks: Function;
     setPreTaskVisible: Function;
 }

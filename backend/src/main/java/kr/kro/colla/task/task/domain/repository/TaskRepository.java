@@ -3,8 +3,6 @@ package kr.kro.colla.task.task.domain.repository;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.user.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +33,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and ((:managerId is null and t.managerId is null) or t.managerId = :managerId)")
     List<Task> findAllFilterByManager(@Param("project") Project project, @Param("managerId") Long managerId);
+
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.title like %:keyword%")
+    List<Task> findTasksSearchByKeyword(@Param("project") Project project, @Param("keyword") String keyword);
 }

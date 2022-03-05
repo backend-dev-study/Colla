@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -347,7 +348,7 @@ class TaskControllerTest extends ControllerTest {
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/story")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -376,7 +377,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(taskList);
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/managers?managerId=" + managerId)
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -404,7 +405,7 @@ class TaskControllerTest extends ControllerTest {
                 .willReturn(taskList);
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/managers")
-                .cookie(new Cookie("accessToken", this.accessToken))
+                .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -415,5 +416,35 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$[*].managerAvatar", contains(null, null)))
                 .andExpect(jsonPath("$[*].managerName", contains(null, null)));
         verify(taskService, times(1)).getTasksFilterByManager(projectId, null);
+    }
+
+    @Test
+    void 검색한_키워드를_포함하는_제목을_가진_태스크를_조회한다() throws Exception {
+        // given
+        Long projectId = 1L;
+        String keyword = "refactor";
+        Project project = ProjectProvider.createProject(5L);
+        Task task1 = TaskProvider.createTaskWithTitle(null, project, null, "refactor kanban ui");
+        Task task2 = TaskProvider.createTaskWithTitle(null, project, null, "refactor backlog task filter query");
+
+        List<ProjectTaskSimpleResponse> taskList = List.of(
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task1, null),
+                TaskResponseConverter.convertToProjectTaskSimpleResponse(task2, null)
+        );
+
+        given(taskService.searchTasksByKeyword(eq(projectId), eq(keyword)))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/search?keyword=" + keyword)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(taskList.size()))
+                .andExpect(jsonPath("$[0].title", containsString(keyword)))
+                .andExpect(jsonPath("$[1].title", containsString(keyword)));
     }
 }
