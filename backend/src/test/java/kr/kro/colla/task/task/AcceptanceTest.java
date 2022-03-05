@@ -445,19 +445,21 @@ public class AcceptanceTest {
     }
 
     @Test
-    void 사용자가_프로젝트의_테스크들을_상태값으로_필터링한다() {
+    void 사용자가_프로젝트의_테스크들을_상태값들로_필터링한다() {
         // given
-        String nameToFilter = "sTatuSToFiLteR", nameToIgnore = "sTatUStOiGNOre";
+        String nameToFilter1 = "sTatuSToFiLteR", nameToFilter2 = "mUltiPleStaTuS", nameToIgnore = "sTatUStOiGNOre";
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter1);
+        taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter2);
         taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToIgnore);
 
         task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToIgnore);
         List<Map<String, String>> filteredTasks = List.of(
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter),
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter));
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter1),
+                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter2)
+        );
         task.를_생성한다(accessToken, null, createdProject.getId(), null, nameToIgnore);
 
         List<ProjectTaskSimpleResponse> result = given()
@@ -466,7 +468,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?status=" + nameToFilter)
+                .get("/api/projects/" + createdProject.getId() + "/tasks/statuses?statuses="+nameToFilter1+", "+nameToFilter2)
 
         // then
         .then()
@@ -478,12 +480,12 @@ public class AcceptanceTest {
         assertThat(result.size()).isEqualTo(filteredTasks.size());
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getStatus()).isEqualTo(nameToFilter);
+            assertThat(List.of(nameToFilter1, nameToFilter2).contains(task.getStatus()));
         });
     }
 
     @Test
-    void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_필터링할_수_없다() {
+    void 사용자는_상태값_이름_없이_프로젝트의_테스크들을_상태값들로_필터링할_수_없다() {
         // given
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
@@ -498,7 +500,7 @@ public class AcceptanceTest {
                 .get("/api/projects/" + createdProject.getId() + "/tasks/statuses")
 
         // then
-        .then().log().all()
+        .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -613,13 +615,13 @@ public class AcceptanceTest {
     @Test
     void 사용자가_프로젝트의_테스크들을_담당자로_필터링한다() {
         // given
-        User loginUser = user.가_로그인을_한다2();
-        User taskManager = user.가_로그인을_한다1();
-        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        User manager1 = user.가_로그인을_한다2();
+        User manager2 = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(manager1.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
-        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
-        task.를_생성한다(accessToken, taskManager.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager1.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager2.getId(), createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager2.getId(), createdProject.getId(), null);
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -627,7 +629,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managerId=" + taskManager.getId())
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managers=" + manager1.getId() + ", " + manager2.getId())
 
         // then
         .then()
@@ -636,23 +638,25 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(3);
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getManagerName()).isEqualTo(taskManager.getName());
-            assertThat(task.getManagerAvatar()).isEqualTo(taskManager.getAvatar());
+            assertThat(List.of(manager1.getName(), manager2.getName()).contains(task.getManagerName()));
+            assertThat(List.of(manager1.getAvatar(), manager2.getAvatar()).contains(task.getManagerAvatar()));
         });
     }
 
     @Test
-    void 사용자가_프로젝트의_담당자_없는_테스크들을_필터링한다() {
+    void 사용자가_프로젝트의_담당자_없는_테스크를_포함해_담당자들로_필터링한다() {
         // given
         User loginUser = user.가_로그인을_한다2();
+        User manager = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
         task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
         task.를_생성한다(accessToken, null, createdProject.getId(), null);
         task.를_생성한다(accessToken, null, createdProject.getId(), null);
+        task.를_생성한다(accessToken, manager.getId(), createdProject.getId(), null);
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -660,7 +664,7 @@ public class AcceptanceTest {
 
         // when
         .when()
-                .get("/api/projects/" + createdProject.getId() + "/tasks/managers")
+                .get("/api/projects/" + createdProject.getId() + "/tasks/managers?managers=" + manager.getId() + "&notSelected=true")
 
         // then
         .then()
@@ -669,11 +673,14 @@ public class AcceptanceTest {
                 .body()
                 .as(new TypeRef<List<ProjectTaskSimpleResponse>>() {});
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.stream()
+                .filter(task->task.getManagerName()==null)
+                .count()).isNotZero();
         result.forEach(task -> {
             assertThat(task.getId()).isNotNull();
-            assertThat(task.getManagerName()).isNull();
-            assertThat(task.getManagerAvatar()).isNull();
+            assertThat(Arrays.asList(null, manager.getName()).contains(task.getManagerName()));
+            assertThat(Arrays.asList(null, manager.getAvatar()).contains(task.getManagerAvatar()));
         });
     }
 

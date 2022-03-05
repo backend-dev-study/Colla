@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-
 import { useLocation } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+
+import { getProject } from '../../apis/project';
 import { getTasksGroupByStory } from '../../apis/task';
 import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
@@ -8,6 +10,7 @@ import Issue from '../../components/Issue';
 import { TaskModal } from '../../components/Modal/Task';
 import { SideBar } from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
+import { projectState } from '../../stores/projectState';
 import { StateType } from '../../types/project';
 import { SimpleTaskType, StoryTaskType } from '../../types/task';
 import { Container, TaskModalContainer, Wrapper } from './style';
@@ -23,6 +26,7 @@ const Backlog = () => {
     const { Modal, setModal } = useModal();
     const [taskInfo, setTaskInfo] = useState<TaskInfoType | null>(null);
     const [preTaskList, setPreTaskList] = useState<Array<SimpleTaskType>>([]);
+    const setProject = useSetRecoilState(projectState);
 
     const showTaskModal = (event: React.MouseEventHandler, taskId: number, status: string) => {
         setTaskInfo({
@@ -34,6 +38,9 @@ const Backlog = () => {
 
     useEffect(() => {
         (async () => {
+            const response = await getProject(state.projectId);
+            setProject(response.data);
+
             const res = await getTasksGroupByStory(state.projectId);
             const storyTasks = res.data;
 
@@ -55,8 +62,8 @@ const Backlog = () => {
                 <Wrapper>
                     {backlogTaskList.length > 0 && 'story' in backlogTaskList[0]
                         ? (backlogTaskList as Array<StoryTaskType>).map(({ story, taskList }: StoryTaskType, idx) => (
-                              <>
-                                  <Issue key={idx} title={story} story />
+                              <div key={idx}>
+                                  <Issue title={story} story />
                                   {taskList.map(
                                       ({ id, title, priority, managerAvatar, tags, status }: SimpleTaskType) => (
                                           <Issue
@@ -71,7 +78,7 @@ const Backlog = () => {
                                           />
                                       ),
                                   )}
-                              </>
+                              </div>
                           ))
                         : (backlogTaskList as Array<SimpleTaskType>).map(
                               ({ id, title, priority, managerAvatar, tags, status }: SimpleTaskType) => (

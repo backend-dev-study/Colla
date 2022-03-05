@@ -8,8 +8,11 @@ import { StateType } from '../../../types/project';
 import { Avatar, Name } from '../../Task/style';
 import { CheckMark, Container, CriteriaElements, Element, FilterCriteria } from './style';
 
+const NO_MANAGER = '매니저 없음';
+
 interface ElementType {
     name: string;
+    id?: number;
     avatar?: string;
 }
 
@@ -28,8 +31,10 @@ export const Filter: FC<PropType> = ({ setBacklogTaskList }) => {
     const changeCriteria = async (idx: number) => {
         let res = null;
         if (idx === 0) res = await getProjectStatus(projectId);
-        else if (idx === 1) res = await getProjectMembers(projectId);
-        else res = await getProjectTags(projectId);
+        else if (idx === 1) {
+            res = await getProjectMembers(projectId);
+            res.data = [...res.data, { name: NO_MANAGER }];
+        } else res = await getProjectTags(projectId);
 
         setSelectedOptions([]);
 
@@ -42,11 +47,18 @@ export const Filter: FC<PropType> = ({ setBacklogTaskList }) => {
             ? selectedOptions.filter((el) => el !== idx)
             : [...selectedOptions, idx];
         setSelectedOptions(list);
-        const options = list.map((idx) => criteriaOptions[idx].name).join();
+        const options = list
+            .map((idx) => (selectedCriteria === 1 ? criteriaOptions[idx].id : criteriaOptions[idx].name))
+            .join();
 
         let res = null;
         if (selectedCriteria === 0) res = await getTasksFilterByStatus(projectId, options);
-        else if (selectedCriteria === 1) res = await getTasksFilterByManager(projectId, options);
+        else if (selectedCriteria === 1)
+            res = await getTasksFilterByManager(
+                projectId,
+                options,
+                list.map((idx) => criteriaOptions[idx]).some(({ name }) => name === NO_MANAGER),
+            );
         else res = await getTasksFilterByTags(projectId, options);
 
         setBacklogTaskList(res.data);

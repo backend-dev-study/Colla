@@ -15,9 +15,8 @@ interface PropType {
 export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
     const { state } = useLocation<StateType>();
     const features = ['Story', 'Filter', 'Sort'];
-    const [select, setSelect] = useState('');
-    const [searchKeyword, setSearchKeyword] = useState('');
     const [criteriaVisible, setCriteriaVisible] = useState<number>(0);
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     const showCriteria = (idx: number) => {
         setCriteriaVisible((prev) => (prev === idx ? 0 : idx));
@@ -51,7 +50,7 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
                             <Filter setBacklogTaskList={setBacklogTaskList} />
                         ) : null}
                         {feature === 'Sort' && criteriaVisible === idx ? (
-                            <SortCriteria select={select} setSelect={setSelect} />
+                            <SortCriteria setBacklogTaskList={setBacklogTaskList} />
                         ) : null}
                     </Feature>
                 ))}

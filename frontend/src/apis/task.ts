@@ -43,8 +43,10 @@ export const getTasksFilterByStatus = async (projectId: number, statuses: string
     return response;
 };
 
-export const getTasksFilterByManager = async (projectId: number, managers: string) => {
-    const response = await client.get<Array<SimpleTaskType>>(`/projects/${projectId}/tasks/tags?managers=${managers}`);
+export const getTasksFilterByManager = async (projectId: number, managers: string, includeNoManager: boolean) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/managers?managers=${managers}&notSelected=${includeNoManager}`,
+    );
 
     return response;
 };
@@ -52,6 +54,21 @@ export const getTasksFilterByManager = async (projectId: number, managers: strin
 export const getTasksFilterByTags = async (projectId: number, tags: string) => {
     const response = await client.get<Array<SimpleTaskType>>(`/projects/${projectId}/tasks/tags?tags=${tags}`);
 
+    return response;
+};
+
+export const getTasksOrderByCreatedDate = async (projectId: number, ascending: boolean) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/created-date?ascending=${ascending}`,
+    );
+
+    return response;
+};
+
+export const getTasksOrderByPriority = async (projectId: number, ascending: boolean) => {
+    const response = await client.get<Array<SimpleTaskType>>(
+        `/projects/${projectId}/tasks/priority?ascending=${ascending}`,
+    );
     return response;
 };
 
