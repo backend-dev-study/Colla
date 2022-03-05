@@ -28,11 +28,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.priority desc")
     List<Task> findAllOrderByPriorityDesc(@Param("project") Project project);
 
-    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.taskStatus = :taskStatus")
-    List<Task> findAllFilterByTaskStatus(@Param("project") Project project, @Param("taskStatus") TaskStatus taskStatus);
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.taskStatus.name in :taskStatuses")
+    List<Task> findAllFilterByTaskStatus(@Param("project") Project project, @Param("taskStatuses") List<String> taskStatuses);
 
-    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and ((:managerId is null and t.managerId is null) or t.managerId = :managerId)")
-    List<Task> findAllFilterByManager(@Param("project") Project project, @Param("managerId") Long managerId);
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and ((:canNull = true and t.managerId is null) or t.managerId in :managers)")
+    List<Task> findAllFilterByManager(@Param("project") Project project, @Param("managers") List<Long> managers, @Param("canNull") Boolean canNull);
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project and t.title like %:keyword%")
     List<Task> findTasksSearchByKeyword(@Param("project") Project project, @Param("keyword") String keyword);

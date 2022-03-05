@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -502,34 +503,38 @@ class TaskServiceTest {
     }
 
     @Test
-    void 프로젝트의_테스크들을_상태값으로_필터링해_조회한다() {
+    void 프로젝트의_테스크들을_상태값들로_필터링해_조회한다() {
         // given
         Long projectId = 25234L, managerId = 6345L;
         Project project = ProjectProvider.createProject(24525L);
         User user = UserProvider.createUser2();
-        TaskStatus taskStatus = new TaskStatus("**task status to filter**");
-        List<Task> taskList = List.of(
-            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus),
-            TaskProvider.createTaskForRepository(managerId, project, null, taskStatus)
+        List<TaskStatus> taskStatusList = List.of(
+            new TaskStatus("**task status to filter**"),
+            new TaskStatus("**multiple status can be selected**")
         );
+        List<Task> taskList = List.of(
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatusList.get(0)),
+            TaskProvider.createTaskForRepository(managerId, project, null, taskStatusList.get(1))
+        );
+        List<String> statuses = taskStatusList.stream()
+                .map(taskStatus -> taskStatus.getName())
+                .collect(Collectors.toList());
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskStatusService.findTaskStatusByName(taskStatus.getName()))
-                .willReturn(taskStatus);
-        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(TaskStatus.class)))
+        given(taskRepository.findAllFilterByTaskStatus(any(Project.class), any(List.class)))
                 .willReturn(taskList);
         given(userService.findUserById(managerId))
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, taskStatus.getName());
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByStatus(projectId, List.of());
 
         // then
         assertThat(result.size()).isEqualTo(taskList.size());
         result.forEach(response -> {
                 assertThat(response.getManagerName()).isEqualTo(user.getName());
-                assertThat(response.getStatus()).isEqualTo(taskStatus.getName());
+                assertThat(statuses.contains(response.getStatus()));
         });
     }
 
@@ -659,24 +664,26 @@ class TaskServiceTest {
     @Test
     void 프로젝트의_테스크들을_담당자에_따라_필터링해_조회한다() {
         // given
-        Long projectId = 3242L, managerId = 6933L;
+        Long projectId = 3242L, managerId1 = 6933L, managerId2 = 5263L;
         Project project = ProjectProvider.createProject(25332L);
         User user = UserProvider.createUser2();
         List<Task> tasks = List.of(
-                TaskProvider.createTask(managerId, project, null),
-                TaskProvider.createTask(managerId, project, null),
-                TaskProvider.createTask(managerId, project, null)
+                TaskProvider.createTask(managerId1, project, null),
+                TaskProvider.createTask(managerId1, project, null),
+                TaskProvider.createTask(managerId2, project, null)
         );
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskRepository.findAllFilterByManager(any(Project.class), eq(managerId)))
+        given(taskRepository.findAllFilterByManager(any(Project.class), anyList(), eq(false)))
                 .willReturn(tasks);
-        given(userService.findUserById(managerId))
+        given(userService.findUserById(managerId1))
+                .willReturn(user);
+        given(userService.findUserById(managerId2))
                 .willReturn(user);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, managerId);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, List.of(managerId1, managerId2), false);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -684,7 +691,7 @@ class TaskServiceTest {
             assertThat(task.getManagerName()).isEqualTo(user.getName());
             assertThat(task.getManagerAvatar()).isEqualTo(user.getAvatar());
         });
-        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), eq(managerId));
+        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), any(List.class), eq(false));
     }
 
     @Test
@@ -696,14 +703,16 @@ class TaskServiceTest {
                 TaskProvider.createTask(null, project, null),
                 TaskProvider.createTask(null, project, null)
         );
+        List<Long> managers = new ArrayList<>();
+        managers.add(null);
 
         given(projectService.initializeProjectInfo(projectId))
                 .willReturn(project);
-        given(taskRepository.findAllFilterByManager(any(Project.class), isNull()))
+        given(taskRepository.findAllFilterByManager(any(Project.class), anyList(), eq(true)))
                 .willReturn(tasks);
 
         // when
-        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, null);
+        List<ProjectTaskSimpleResponse> result = taskService.getTasksFilterByManager(projectId, managers, true);
 
         // then
         assertThat(result.size()).isEqualTo(tasks.size());
@@ -712,7 +721,7 @@ class TaskServiceTest {
             assertThat(task.getManagerAvatar()).isNull();
         });
         verify(userService, never()).findUserById(anyLong());
-        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), isNull());
+        verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), anyList(), eq(true));
     }
 
     @Test

@@ -65,15 +65,15 @@ public class TaskController {
     }
 
     @GetMapping("/{projectId}/tasks/statuses")
-    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatuses(@PathVariable Long projectId, @RequestParam String status) {
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, status);
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByStatuses(@PathVariable Long projectId, @RequestParam List<String> statuses) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByStatus(projectId, statuses);
 
         return ResponseEntity.ok(taskList);
     }
 
     @GetMapping("/{projectId}/tasks/managers")
-    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByManagers(@PathVariable Long projectId, @RequestParam(required = false) Long managerId) {
-        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByManager(projectId, managerId);
+    public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksFilterByManagers(@PathVariable Long projectId, @RequestParam(defaultValue ="") List<Long> managers, @RequestParam(defaultValue = "false") Boolean notSelected) {
+        List<ProjectTaskSimpleResponse> taskList = taskService.getTasksFilterByManager(projectId, managers, notSelected);
 
         return ResponseEntity.ok(taskList);
     }
