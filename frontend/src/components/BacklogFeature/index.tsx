@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import SearchButtonImg from '../../../public/assets/images/search-button.svg';
-import { getTasksGroupByStory } from '../../apis/task';
+import { getTasksGroupByStory, searchTasksByKeyword } from '../../apis/task';
 import { StateType } from '../../types/project';
 import { SortCriteria } from '../DropDown/SortCriteria';
 import { Filter } from '../Modal/Filter';
@@ -16,12 +16,25 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
     const { state } = useLocation<StateType>();
     const features = ['Story', 'Filter', 'Sort'];
     const [criteriaVisible, setCriteriaVisible] = useState<number>(0);
+    const [searchKeyword, setSearchKeyword] = useState('');
+
     const showCriteria = (idx: number) => {
         setCriteriaVisible((prev) => (prev === idx ? 0 : idx));
     };
 
     const getTasksAboutStory = async () => {
         const res = await getTasksGroupByStory(state.projectId);
+        setBacklogTaskList(res.data);
+    };
+
+    const changeSearchKeyword = (e: React.ChangeEvent) => {
+        setSearchKeyword((e.target as HTMLInputElement).value);
+    };
+
+    const searchTasks = async (e: React.KeyboardEvent) => {
+        if (e.key !== 'Enter') return;
+
+        const res = await searchTasksByKeyword(state.projectId, searchKeyword);
         setBacklogTaskList(res.data);
     };
 
@@ -42,7 +55,11 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
                     </Feature>
                 ))}
                 <SearchBar>
-                    <SearchInput />
+                    <SearchInput
+                        value={searchKeyword}
+                        onChange={(e) => changeSearchKeyword(e)}
+                        onKeyPress={(e) => searchTasks(e)}
+                    />
                     <SearchIcon src={SearchButtonImg} />
                 </SearchBar>
             </FeatureContainer>

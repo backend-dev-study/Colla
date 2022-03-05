@@ -723,4 +723,30 @@ class TaskServiceTest {
         verify(userService, never()).findUserById(anyLong());
         verify(taskRepository, times(1)).findAllFilterByManager(any(Project.class), anyList(), eq(true));
     }
+
+    @Test
+    void 검색한_키워드를_포함하는_제목을_가진_태스크를_조회한다() {
+        // given
+        Long projectId = 1L;
+        String keyword = "api";
+        Project project = ProjectProvider.createProject(5L);
+        List<Task> taskList = List.of(
+                TaskProvider.createTaskWithTitle(null, project, null, "implement backlog task search api"),
+                TaskProvider.createTaskWithTitle(null, project, null, "refactor backlog filter api")
+        );
+
+        given(projectService.initializeProjectInfo(eq(projectId)))
+                .willReturn(project);
+        given(taskRepository.findTasksSearchByKeyword(any(Project.class), eq(keyword)))
+                .willReturn(taskList);
+
+        // when
+        List<ProjectTaskSimpleResponse> result = taskService.searchTasksByKeyword(projectId, keyword);
+
+        // then
+        assertThat(result).hasSize(2);
+        result.forEach(task -> assertThat(task.getTitle().contains(keyword)));
+        verify(taskRepository, times(1)).findTasksSearchByKeyword(any(Project.class), anyString());
+    }
+
 }

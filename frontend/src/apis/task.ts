@@ -69,6 +69,11 @@ export const getTasksOrderByPriority = async (projectId: number, ascending: bool
     const response = await client.get<Array<SimpleTaskType>>(
         `/projects/${projectId}/tasks/priority?ascending=${ascending}`,
     );
+    return response;
+};
+
+export const searchTasksByKeyword = async (projectId: number, keyword: string) => {
+    const response = await client.get(`/projects/${projectId}/tasks/search?keyword=${keyword}`);
 
     return response;
 };

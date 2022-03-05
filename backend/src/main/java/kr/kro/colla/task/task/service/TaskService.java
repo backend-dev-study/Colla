@@ -221,6 +221,20 @@ public class TaskService {
         return projectStoryTaskResponseList;
     }
 
+    public List<ProjectTaskSimpleResponse> searchTasksByKeyword(Long projectId, String keyword) {
+        Project project = projectService.initializeProjectInfo(projectId);
+        List<Task> taskList = taskRepository.findTasksSearchByKeyword(project, keyword);
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToProjectTaskSimpleResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
     public Task findTaskById(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(TaskNotFoundException::new);

@@ -290,4 +290,39 @@ class TaskRepositoryTest {
                 .filter(task -> task.getManagerId()==null)
                 .count()).isEqualTo(2);
     }
+
+    @Test
+    void 검색한_키워드를_포함하는_제목을_가진_태스크를_조회한다() {
+        // given
+        String keyword = "dropdown";
+        Project project = projectRepository.save(ProjectProvider.createProject(1L));
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("To Do"));
+        taskRepository.save(TaskProvider.createTaskWithTitleForRepository(null, project, null, taskStatus, "implement filtering dropdown"));
+        taskRepository.save(TaskProvider.createTaskWithTitleForRepository(null, project, null, taskStatus, "Decorate README.md"));
+        taskRepository.save(TaskProvider.createTaskWithTitleForRepository(null, project, null, taskStatus, "refactor task dropdown"));
+
+        // when
+        List<Task> taskList = taskRepository.findTasksSearchByKeyword(project, keyword);
+
+        // then
+        assertThat(taskList).hasSize(2);
+        taskList.forEach(task -> assertThat(task.getTitle()).contains(keyword));
+    }
+
+    @Test
+    void 검색한_키워드를_포함하고_있는_태스크가_없다면_아무것도_반환하지_않는다() {
+        // given
+        String keyword = "api";
+        Project project = projectRepository.save(ProjectProvider.createProject(1L));
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("To Do"));
+        taskRepository.save(TaskProvider.createTaskWithTitleForRepository(null, project, null, taskStatus, "Set up CI/CD"));
+        taskRepository.save(TaskProvider.createTaskWithTitleForRepository(null, project, null, taskStatus, "Write test code"));
+
+        // when
+        List<Task> taskList = taskRepository.findTasksSearchByKeyword(project, keyword);
+
+        // then
+        assertThat(taskList.size()).isZero();
+    }
+
 }
