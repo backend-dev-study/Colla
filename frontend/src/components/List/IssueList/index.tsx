@@ -5,11 +5,20 @@ import { TaskList } from '../TaskList';
 import { Container } from './style';
 
 export const IssueList = () => {
-    const [showStory, setShowStory] = useState(true);
+    const [story, setStory] = useState<number>(-1);
+    const [showStory, setShowStory] = useState<boolean>(true);
 
     const handleStoryVisible = () => {
         setShowStory((prev) => !prev);
     };
 
-    return <Container>{showStory ? <StoryList /> : <TaskList showStory={handleStoryVisible} />}</Container>;
+    return (
+        <Container>
+            {showStory ? (
+                <StoryList handleStoryVisible={handleStoryVisible} setStory={setStory} />
+            ) : (
+                <TaskList handleStoryVisible={handleStoryVisible} story={story} />
+            )}
+        </Container>
+    );
 };

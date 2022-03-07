@@ -8,6 +8,7 @@ export const Container = styled.div`
     margin-left: auto;
     background-color: ${GREEN};
     overflow-y: scroll;
+    padding-bottom: 10px;
 
     &::-webkit-scrollbar {
         width: 8px;

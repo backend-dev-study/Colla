@@ -1,9 +1,18 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { Title } from './style';
 
 interface PropType {
-    showStory: Function;
+    handleStoryVisible: Function;
+    story: number;
 }
 
-export const TaskList: FC<PropType> = ({ showStory }) => <Title onClick={() => showStory()}> 스토리 목록 보기</Title>;
+export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
+    useEffect(() => {
+        (async () => {
+            // TODO: story에 해당하는 태스크 목록 조회하기
+        })();
+    }, []);
+
+    return <Title onClick={() => handleStoryVisible()}>스토리 목록 보기</Title>;
+};
