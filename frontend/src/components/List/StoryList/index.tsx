@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { List, Story, StoryContents, Title } from './style';
+import { Issue, List, IssueContents, Title } from './style';
 
 interface StoryType {
     id: number;
@@ -42,18 +42,18 @@ export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
     };
 
     return (
-        <div>
+        <>
             <Title>스토리 목록</Title>
             <List>
                 {dummy.map(({ id, title, startAt, endAt }, idx) => (
-                    <Story key={idx} onClick={() => handleStoryClick(id)}>
-                        <StoryContents>{title}</StoryContents>
-                        <StoryContents>
+                    <Issue key={idx} onClick={() => handleStoryClick(id)}>
+                        <IssueContents>{title}</IssueContents>
+                        <IssueContents>
                             {startAt} ~ {endAt}
-                        </StoryContents>
-                    </Story>
+                        </IssueContents>
+                    </Issue>
                 ))}
             </List>
-        </div>
+        </>
     );
 };

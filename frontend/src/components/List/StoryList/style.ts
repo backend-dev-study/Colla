@@ -19,7 +19,7 @@ export const List = styled.div`
     ${Column}
 `;
 
-export const Story = styled.div`
+export const Issue = styled.div`
     justify-content: space-around;
     width: 250px;
     min-height: 70px;
@@ -32,6 +32,6 @@ export const Story = styled.div`
     ${LiftUp}
 `;
 
-export const StoryContents = styled.div`
-    padding: 10px;
+export const IssueContents = styled.div`
+    padding: 10px 10px 10px 20px;
 `;
