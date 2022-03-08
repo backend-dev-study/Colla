@@ -16,9 +16,9 @@ public class StoryController {
 
     private final StoryService storyService;
 
-    @GetMapping("/{projectId}/stories")
+    @GetMapping("/{projectId}/all-stories")
     public ResponseEntity<List<ProjectStoryResponse>> getProjectStories(@PathVariable Long projectId) {
-        List<ProjectStoryResponse> storyList = storyService.findProjectStories(projectId);
+        List<ProjectStoryResponse> storyList = storyService.getProjectStories(projectId);
 
         return ResponseEntity.ok(storyList);
     }

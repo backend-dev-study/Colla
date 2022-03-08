@@ -39,7 +39,7 @@ public class StoryService {
         story.updatePeriod(updateStoryPeriodRequest);
     }
 
-    public List<ProjectStoryResponse> findProjectStories(Long projectId) {
+    public List<ProjectStoryResponse> getProjectStories(Long projectId) {
         Project project = projectService.findProjectById(projectId);
         List<Story> storyList = storyRepository.findProjectStories(project);
 
