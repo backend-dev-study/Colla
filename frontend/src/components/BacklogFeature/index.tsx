@@ -6,7 +6,7 @@ import { getTasksGroupByStory, searchTasksByKeyword } from '../../apis/task';
 import { StateType } from '../../types/project';
 import { SortCriteria } from '../DropDown/SortCriteria';
 import { Filter } from '../Modal/Filter';
-import { Container, Feature, FeatureContainer, SearchBar, SearchIcon, SearchInput } from './style';
+import { Container, Feature, FeatureContainer, Features, SearchBar, SearchIcon, SearchInput } from './style';
 
 interface PropType {
     setBacklogTaskList: Function;
@@ -41,27 +41,29 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
     return (
         <Container>
             <FeatureContainer>
-                {features.map((feature, idx) => (
-                    <Feature key={idx}>
-                        <span onClick={feature === 'Story' ? () => getTasksAboutStory() : () => showCriteria(idx)}>
-                            {feature}
-                        </span>
-                        {feature === 'Filter' && criteriaVisible === idx ? (
-                            <Filter setBacklogTaskList={setBacklogTaskList} />
-                        ) : null}
-                        {feature === 'Sort' && criteriaVisible === idx ? (
-                            <SortCriteria setBacklogTaskList={setBacklogTaskList} />
-                        ) : null}
-                    </Feature>
-                ))}
-                <SearchBar>
-                    <SearchInput
-                        value={searchKeyword}
-                        onChange={(e) => changeSearchKeyword(e)}
-                        onKeyPress={(e) => searchTasks(e)}
-                    />
-                    <SearchIcon src={SearchButtonImg} />
-                </SearchBar>
+                <Features>
+                    {features.map((feature, idx) => (
+                        <Feature key={idx}>
+                            <span onClick={feature === 'Story' ? () => getTasksAboutStory() : () => showCriteria(idx)}>
+                                {feature}
+                            </span>
+                            {feature === 'Filter' && criteriaVisible === idx ? (
+                                <Filter setBacklogTaskList={setBacklogTaskList} />
+                            ) : null}
+                            {feature === 'Sort' && criteriaVisible === idx ? (
+                                <SortCriteria setBacklogTaskList={setBacklogTaskList} />
+                            ) : null}
+                        </Feature>
+                    ))}
+                    <SearchBar>
+                        <SearchInput
+                            value={searchKeyword}
+                            onChange={(e) => changeSearchKeyword(e)}
+                            onKeyPress={(e) => searchTasks(e)}
+                        />
+                        <SearchIcon src={SearchButtonImg} />
+                    </SearchBar>
+                </Features>
             </FeatureContainer>
         </Container>
     );

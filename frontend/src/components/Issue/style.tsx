@@ -18,7 +18,7 @@ export const Wrapper = styled.div<Props>`
     width: ${({ story }) => (story ? `${BASE + EXTRA}px` : `${BASE}px`)};
     border-radius: 20px;
     background: ${({ story }) => (story ? GREEN : WHITE)};
-    margin: 13px 40px 13px ${({ story }) => (story ? '0px' : `${EXTRA}px`)};
+    margin: 13px 40px 13px ${({ story }) => (story ? '40px' : `${EXTRA}px`)};
     font-size: 20px;
     cursor: pointer;
 

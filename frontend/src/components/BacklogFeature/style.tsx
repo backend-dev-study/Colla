@@ -4,15 +4,22 @@ import { Center, LiftUp } from '../../styles/common';
 export const Container = styled.div`
     flex-direction: column;
     align-items: center;
+
     ${Center}
 `;
 
 export const FeatureContainer = styled.div`
     display: flex;
-    flex-direction: row;
-    width: 500px;
+    width: 80vw;
     height: 50px;
-    margin: 50px 0 10px 670px;
+    margin-top: 50px;
+    justify-content: right;
+`;
+
+export const Features = styled.div`
+    display: flex;
+    width: 600px;
+    justify-content: flex-end;
     align-items: center;
 `;
 
