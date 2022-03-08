@@ -11,6 +11,11 @@ export const WidthCenter = css`
     justify-content: center;
 `;
 
+export const HeightCenter = css`
+    display: flex;
+    align-items: center;
+`;
+
 export const WidthAround = css`
     display: flex;
     justify-content: space-around;
