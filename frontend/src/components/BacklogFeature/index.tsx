@@ -31,12 +31,17 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
         setSearchKeyword((e.target as HTMLInputElement).value);
     };
 
-    const searchTasks = async (e: React.KeyboardEvent) => {
-        if (e.key !== 'Enter') return;
-
+    const searchTasks = async () => {
         const res = await searchTasksByKeyword(state.projectId, searchKeyword);
         setBacklogTaskList(res.data);
     };
+
+    const handleEnter = (e: React.KeyboardEvent) => {
+        if (e.key !== 'Enter') return;
+        searchTasks();
+    };
+
+    const handleClick = () => searchTasks();
 
     return (
         <Container>
@@ -59,9 +64,9 @@ export const BacklogFeature: FC<PropType> = ({ setBacklogTaskList }) => {
                         <SearchInput
                             value={searchKeyword}
                             onChange={(e) => changeSearchKeyword(e)}
-                            onKeyPress={(e) => searchTasks(e)}
+                            onKeyPress={handleEnter}
                         />
-                        <SearchIcon src={SearchButtonImg} />
+                        <SearchIcon src={SearchButtonImg} onClick={handleClick} />
                     </SearchBar>
                 </Features>
             </FeatureContainer>

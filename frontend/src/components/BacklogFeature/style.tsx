@@ -12,7 +12,7 @@ export const FeatureContainer = styled.div`
     display: flex;
     width: 80vw;
     height: 50px;
-    margin-top: 50px;
+    margin-top: 30px;
     justify-content: right;
 `;
 
