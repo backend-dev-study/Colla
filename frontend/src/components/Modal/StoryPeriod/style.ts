@@ -33,4 +33,8 @@ export const DatePicker = styled.input`
     width: 140px;
     background-color: transparent;
     outline: none;
+
+    &::-webkit-calendar-picker-indicator {
+        margin: 0;
+    }
 `;
