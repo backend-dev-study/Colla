@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 
 import { YYYYMMDDToDate } from '../../utils/common';
-import { Story } from './style';
+import TextWithHover from '../TextWithHover';
+import { Story, StoryTitle, Wrapper } from './style';
 
 interface PropType {
     title: string;
@@ -33,11 +34,18 @@ const datesToWidth = (start: string, end: string) => {
 
 const RoadmapStory: FC<PropType> = ({ title, start, end }) => {
     const story = datesToWidth(start, end);
-    return story!.width ? (
-        <Story width={story!.width} left={story!.beforeStart}>
-            {title}
-        </Story>
-    ) : null;
+    return (
+        <Wrapper>
+            <StoryTitle>
+                <TextWithHover text={title} hover={title} />
+            </StoryTitle>
+            {story!.width ? (
+                <Story width={story!.width} left={story!.beforeStart}>
+                    <TextWithHover text={title} hover={title} />
+                </Story>
+            ) : null}
+        </Wrapper>
+    );
 };
 
 export default RoadmapStory;
