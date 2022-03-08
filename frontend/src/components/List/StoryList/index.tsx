@@ -1,12 +1,13 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
-import { Issue, List, IssueContents, Title } from './style';
+import { StoryPeriod } from '../../Modal/StoryPeriod';
+import { Issue, List, IssueContents, Title, IssueDetail } from './style';
 
 interface StoryType {
     id: number;
     title: string;
-    startAt: string;
-    endAt: string;
+    startAt: string | null;
+    endAt: string | null;
 }
 
 const dummy: Array<StoryType> = [
@@ -19,8 +20,8 @@ const dummy: Array<StoryType> = [
     {
         id: 2,
         title: 'user can login with github',
-        startAt: '2022-03-08',
-        endAt: '2022-03-09',
+        startAt: null,
+        endAt: null,
     },
     {
         id: 3,
@@ -36,9 +37,15 @@ interface PropType {
 }
 
 export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
+    const [storyPeriod, setStoryPeriod] = useState<boolean>(false);
+
     const handleStoryClick = (id: number) => {
         handleStoryVisible();
         setStory(id);
+    };
+
+    const showStoryPeriodModal = () => {
+        setStoryPeriod((prev) => !prev);
     };
 
     return (
@@ -46,14 +53,17 @@ export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
             <Title>스토리 목록</Title>
             <List>
                 {dummy.map(({ id, title, startAt, endAt }, idx) => (
-                    <Issue key={idx} onClick={() => handleStoryClick(id)}>
+                    <Issue key={idx}>
                         <IssueContents>{title}</IssueContents>
-                        <IssueContents>
-                            {startAt} ~ {endAt}
-                        </IssueContents>
+                        <IssueContents>{startAt ? `${startAt} ~ ${endAt}` : ''}</IssueContents>
+                        <IssueDetail>
+                            <div onClick={showStoryPeriodModal}>기간 설정하기</div>
+                            <div onClick={() => handleStoryClick(id)}>태스크 확인하기</div>
+                        </IssueDetail>
                     </Issue>
                 ))}
             </List>
+            {storyPeriod ? <StoryPeriod showStoryPeriodModal={showStoryPeriodModal} /> : null}
         </>
     );
 };

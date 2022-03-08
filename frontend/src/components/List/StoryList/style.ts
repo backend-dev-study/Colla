@@ -35,3 +35,14 @@ export const Issue = styled.div`
 export const IssueContents = styled.div`
     padding: 10px 10px 10px 20px;
 `;
+
+export const IssueDetail = styled.div`
+    display: flex;
+    padding: 10px 10px 10px 20px;
+    justify-content: space-between;
+
+    div:hover {
+        cursor: pointer;
+        text-decoration: 3px solid #000 underline;
+    }
+`;
