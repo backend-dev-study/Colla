@@ -15,3 +15,5 @@ export const Wrapper = styled.div`
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
+
+export const RoadmapArea = styled.div``;
