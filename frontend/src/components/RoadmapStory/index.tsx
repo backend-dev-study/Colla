@@ -19,17 +19,25 @@ const datesToWidth = (start: string, end: string) => {
 
     let startDate = YYYYMMDDToDate(start);
     let endDate = YYYYMMDDToDate(end);
-    if (startDate.getTime() > limitDate.getTime()) return undefined;
+    if (startDate.getTime() > limitDate.getTime()) return {};
     if (startDate.getTime() < currentDate.getTime()) startDate = currentDate;
     if (endDate.getTime() > limitDate.getTime()) endDate = limitDate;
 
-    const betweenDays = Math.ceil((endDate.getTime() - startDate.getTime()) / MS_DAY);
-    return betweenDays >= 0 ? betweenDays + 1 : undefined;
+    const daysToStart = Math.round((startDate.getTime() - currentDate.getTime()) / MS_DAY);
+    const daysBetween = Math.round((endDate.getTime() - startDate.getTime()) / MS_DAY);
+    return {
+        width: daysBetween >= 0 ? daysBetween + 1 : undefined,
+        beforeStart: daysToStart,
+    };
 };
 
 const RoadmapStory: FC<PropType> = ({ title, start, end }) => {
-    const width = datesToWidth(start, end);
-    return width ? <Story width={width}>{title}</Story> : null;
+    const story = datesToWidth(start, end);
+    return story!.width ? (
+        <Story width={story!.width} left={story!.beforeStart}>
+            {title}
+        </Story>
+    ) : null;
 };
 
 export default RoadmapStory;
