@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class StoryController {
     }
 
     @PatchMapping("/stories/{storyId}/period")
-    public ResponseEntity<Void> updateStoryPeriod(@PathVariable Long storyId, UpdateStoryPeriodRequest updateStoryPeriodRequest) {
+    public ResponseEntity<Void> updateStoryPeriod(@PathVariable Long storyId, @Valid UpdateStoryPeriodRequest updateStoryPeriodRequest) {
         storyService.updateStoryPeriod(storyId, updateStoryPeriodRequest);
 
         return ResponseEntity.ok()

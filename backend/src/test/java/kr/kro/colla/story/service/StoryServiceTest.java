@@ -9,6 +9,7 @@ import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.story.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.story.presentation.dto.UpdateStoryPeriodRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,6 +128,26 @@ class StoryServiceTest {
         assertThat(result.get(1).getTitle()).isEqualTo(storyList.get(1).getTitle());
         verify(projectService, times(1)).findProjectById(anyLong());
         verify(storyRepository, times(1)).findProjectStories(any(Project.class));
+    }
+
+    @Test
+    void 스토리의_진행_기간을_설정한다() {
+        // given
+        Long storyId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        Story story = StoryProvider.createStory(project, "story title");
+        UpdateStoryPeriodRequest updateStoryPeriodRequest = new UpdateStoryPeriodRequest(LocalDate.of(2022, 3, 9), LocalDate.of(2022, 3, 12));
+
+        given(storyRepository.findById(eq(storyId)))
+                .willReturn(Optional.of(story));
+
+        // when
+        storyService.updateStoryPeriod(storyId, updateStoryPeriodRequest);
+
+        // then
+        assertThat(story.getStartAt()).isEqualTo(updateStoryPeriodRequest.getStartAt());
+        assertThat(story.getEndAt()).isEqualTo(updateStoryPeriodRequest.getEndAt());
+        verify(storyRepository, times(1)).findById(anyLong());
     }
 
 }
