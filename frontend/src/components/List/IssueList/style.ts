@@ -3,9 +3,8 @@ import { GREEN } from '../../../styles/color';
 
 export const Container = styled.div`
     width: 300px;
-    height: 600px;
+    height: 590px;
     border-radius: 20px;
-    margin-left: auto;
     background-color: ${GREEN};
     overflow-y: scroll;
     padding-bottom: 10px;

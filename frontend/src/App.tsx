@@ -12,7 +12,7 @@ import Kanban from './pages/Kanban';
 import Login from './pages/Login';
 import LoginProcessing from './pages/LoginProcessing';
 import NotFound from './pages/NotFound';
-import { Roadmap } from './pages/Roadmap';
+import Roadmap from './pages/Roadmap';
 import GlobalStyle from './styles/global';
 
 const App = () => (
