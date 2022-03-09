@@ -9,7 +9,6 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
-import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
@@ -98,10 +97,10 @@ public class ProjectService {
                 .build();
     }
 
-    public List<ProjectStoryResponse> getProjectStories(Long projectId) {
+    public List<ProjectStorySimpleResponse> getProjectStories(Long projectId) {
         return findProjectById(projectId).getStories()
                 .stream()
-                .map(ProjectStoryResponse::new)
+                .map(ProjectStorySimpleResponse::new)
                 .collect(Collectors.toList());
     }
 

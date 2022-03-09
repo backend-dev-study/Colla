@@ -6,7 +6,7 @@ import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStorySimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectStoryTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskRequest;
@@ -135,7 +135,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), createdStory.getTitle());
 
         given()
@@ -187,7 +187,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
         task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), createdStory.getTitle());
 
         Map<String, String> formData = new HashMap<>();
@@ -222,7 +222,7 @@ public class AcceptanceTest {
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
 
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
         createdTask.put("story", createdStory.getTitle());
 
         given()
@@ -246,10 +246,10 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse oldStory = story.를_생성한다(createdProject.getId(), accessToken, "old story");
+        ProjectStorySimpleResponse oldStory = story.를_생성한다(createdProject.getId(), accessToken, "old story");
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), oldStory.getTitle());
 
-        ProjectStoryResponse newStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        ProjectStorySimpleResponse newStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
         createdTask.put("story", newStory.getTitle());
 
         given()
@@ -579,8 +579,8 @@ public class AcceptanceTest {
         String accessToken = auth.토큰을_발급한다(member.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
 
-        ProjectStoryResponse story1 = story.를_생성한다(createdProject.getId(), accessToken, "user can login with github");
-        ProjectStoryResponse story2 = story.를_생성한다(createdProject.getId(), accessToken, "set up CI/CD");
+        ProjectStorySimpleResponse story1 = story.를_생성한다(createdProject.getId(), accessToken, "user can login with github");
+        ProjectStorySimpleResponse story2 = story.를_생성한다(createdProject.getId(), accessToken, "set up CI/CD");
 
         task.를_생성한다(accessToken, member.getId(), createdProject.getId(), story1.getTitle());
         task.를_생성한다(accessToken, member.getId(), createdProject.getId(), null);

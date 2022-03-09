@@ -3,7 +3,7 @@ package kr.kro.colla.common.fixture;
 import io.restassured.http.ContentType;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.presentation.dto.CreateStoryRequest;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
+import kr.kro.colla.project.project.presentation.dto.ProjectStorySimpleResponse;
 import kr.kro.colla.story.domain.Story;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +14,7 @@ import static io.restassured.RestAssured.given;
 @Component
 public class StoryProvider {
 
-    public ProjectStoryResponse 를_생성한다(Long projectId, String accessToken, String title) {
+    public ProjectStorySimpleResponse 를_생성한다(Long projectId, String accessToken, String title) {
         CreateStoryRequest createStoryRequest = new CreateStoryRequest(title);
 
         return given()
@@ -27,7 +27,7 @@ public class StoryProvider {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
-                .as(ProjectStoryResponse.class);
+                .as(ProjectStorySimpleResponse.class);
     }
 
     public static Story createStory(Project project, String title) {

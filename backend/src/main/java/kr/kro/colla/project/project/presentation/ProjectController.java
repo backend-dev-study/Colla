@@ -50,15 +50,15 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectId}/stories")
-    public ResponseEntity<ProjectStoryResponse> createStory(@PathVariable Long projectId, @Valid @RequestBody CreateStoryRequest createStoryRequest) {
+    public ResponseEntity<ProjectStorySimpleResponse> createStory(@PathVariable Long projectId, @Valid @RequestBody CreateStoryRequest createStoryRequest) {
         Story story = storyService.createStory(projectId, createStoryRequest);
 
-        return ResponseEntity.ok(new ProjectStoryResponse(story));
+        return ResponseEntity.ok(new ProjectStorySimpleResponse(story));
     }
 
     @GetMapping("/{projectId}/stories")
-    public ResponseEntity<List<ProjectStoryResponse>> getProjectStories(@PathVariable Long projectId) {
-        List<ProjectStoryResponse> projectStories = projectService.getProjectStories(projectId);
+    public ResponseEntity<List<ProjectStorySimpleResponse>> getProjectStories(@PathVariable Long projectId) {
+        List<ProjectStorySimpleResponse> projectStories = projectService.getProjectStories(projectId);
 
         return ResponseEntity.ok(projectStories);
     }

@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class ProjectStoryResponse {
+public class ProjectStorySimpleResponse {
 
     private String title;
 
-    public ProjectStoryResponse(Story story) {
+    public ProjectStorySimpleResponse(Story story) {
         this.title = story.getTitle();
     }
 
