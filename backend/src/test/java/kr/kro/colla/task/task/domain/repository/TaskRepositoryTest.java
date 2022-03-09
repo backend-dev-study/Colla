@@ -1,6 +1,7 @@
 package kr.kro.colla.task.task.domain.repository;
 
 import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.common.fixture.StoryProvider;
 import kr.kro.colla.common.fixture.TaskProvider;
 import kr.kro.colla.common.fixture.UserProvider;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusNotFoundException;
@@ -9,6 +10,8 @@ import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
+import kr.kro.colla.story.domain.Story;
+import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
@@ -32,6 +35,9 @@ class TaskRepositoryTest {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private StoryRepository storyRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -115,45 +121,66 @@ class TaskRepositoryTest {
     }
 
     @Test
-    void 프로젝트의_테스크들을_생성_날짜_오름차순으로_정렬해_조회한다() {
+    void 스토리에_속한_태스크들을_조회한다() {
         // given
+        Project project = projectRepository.save(ProjectProvider.createProject(5L));
+        TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("In Progress"));
+        Story story = storyRepository.save(StoryProvider.createStory(project, "story title"));
+        List<Task> taskList = taskRepository.saveAll(List.of(
+                TaskProvider.createTaskWithTitleForRepository(null, project, story, taskStatus, "first task"),
+                TaskProvider.createTaskWithTitleForRepository(null, project, story, taskStatus, "second task")
+        ));
+
+        // when
+        List<Task> result = taskRepository.findStoryTasks(story);
+
+        // then
+        assertThat(result).hasSize(2);
+        IntStream.range(0, result.size())
+                .forEach(idx -> {
+                    assertThat(result.get(idx).getTitle()).isEqualTo(taskList.get(idx).getTitle());
+                    assertThat(result.get(idx).getStory().getTitle()).isEqualTo(story.getTitle());
+                });
+    }
+
+    @Test
+    void 프로젝트의_테스크들을_생성_날짜_오름차순으로_정렬해_조회한다() throws InterruptedException {
+        // given
+        int taskCount = 3;
         Project project = projectRepository.save(ProjectProvider.createProject(234234L));
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
-        List<Task> taskList = taskRepository.saveAll(List.of(
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus)
-        ));
+        for (int i = 0; i < taskCount; i++) {
+            taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus));
+            Thread.sleep(1);
+        }
 
         // when
         List<Task> result = taskRepository.findAllOrderByCreatedAtAsc(project);
 
         // then
-        assertThat(result.size()).isEqualTo(taskList.size());
-        IntStream.range(0, result.size())
-                .filter(idx -> idx != 0)
-                .forEach(idx -> assertThat(result.get(idx).getCreatedAt().isBefore(result.get(idx - 1).getCreatedAt())));
+        assertThat(result.size()).isEqualTo(taskCount);
+        IntStream.range(0, result.size() - 1)
+                .forEach(idx -> assertThat(result.get(idx).getCreatedAt()).isBefore(result.get(idx + 1).getCreatedAt()));
     }
 
     @Test
-    void 프로젝트의_테스크들을_생성_날짜_내림차순으로_정렬해_조회한다() {
+    void 프로젝트의_테스크들을_생성_날짜_내림차순으로_정렬해_조회한다() throws InterruptedException {
         // given
+        int taskCount = 3;
         Project project = projectRepository.save(ProjectProvider.createProject(234234L));
         TaskStatus taskStatus = taskStatusRepository.save(new TaskStatus("new TaskStatus for Test"));
-        List<Task> taskList = taskRepository.saveAll(List.of(
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus),
-                TaskProvider.createTaskForRepository(null, project, null, taskStatus)
-        ));
+        for (int i = 0; i < taskCount; i++) {
+            taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus));
+            Thread.sleep(1);
+        }
 
         // when
         List<Task> result = taskRepository.findAllOrderByCreatedAtDesc(project);
 
         // then
-        assertThat(result.size()).isEqualTo(taskList.size());
-        IntStream.range(0, result.size())
-                .filter(idx -> idx != 0)
-                .forEach(idx -> assertThat(result.get(idx).getCreatedAt().isAfter(result.get(idx - 1).getCreatedAt())));
+        assertThat(result.size()).isEqualTo(taskCount);
+        IntStream.range(0, result.size() - 1)
+                .forEach(idx -> assertThat(result.get(idx).getCreatedAt()).isAfter(result.get(idx + 1).getCreatedAt()));
     }
 
     @Test
@@ -264,8 +291,8 @@ class TaskRepositoryTest {
         // then
         assertThat(result.size()).isEqualTo(2);
         result.forEach(task -> {
-            assertThat(managers.contains(task.getManagerId()));
-            assertThat(task.getProject().getId().equals(project.getId()));
+            assertThat(managers).contains(task.getManagerId());
+            assertThat(task.getProject().getId()).isEqualTo(project.getId());
         });
     }
 

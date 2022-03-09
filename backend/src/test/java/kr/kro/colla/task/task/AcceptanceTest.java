@@ -7,10 +7,7 @@ import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.presentation.dto.ProjectStorySimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectStoryTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -341,6 +338,37 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", equalTo("statusName : 널이어서는 안됩니다"));
+    }
+
+    @Test
+    void 사용자가_스토리에_속한_태스크들을_조회한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), createdStory.getTitle(), "first task");
+        task.를_특정_제목과_함께_생성한다(accessToken, null, createdProject.getId(), null, "second task");
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), createdStory.getTitle(), "third task");
+
+        List<RoadmapTaskResponse> response = given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/stories/" + 1L + "/tasks")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<RoadmapTaskResponse>>() {});
+
+        assertThat(response).hasSize(2);
+        assertThat(response.get(0).getTitle()).isEqualTo("first task");
+        assertThat(response.get(1).getTitle()).isEqualTo("third task");
     }
 
     @Test

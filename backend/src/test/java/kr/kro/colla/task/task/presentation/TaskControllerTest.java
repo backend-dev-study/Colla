@@ -106,7 +106,7 @@ class TaskControllerTest extends ControllerTest {
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(statusNameToUpdate);
 
         // when
-        ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
+        ResultActions perform = mockMvc.perform(patch("/projects/tasks/" + taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -124,7 +124,7 @@ class TaskControllerTest extends ControllerTest {
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
 
         // when
-        ResultActions perform = mockMvc.perform(patch("/projects/tasks/"+taskId)
+        ResultActions perform = mockMvc.perform(patch("/projects/tasks/" + taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -135,6 +135,36 @@ class TaskControllerTest extends ControllerTest {
                     .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.message").value("statusName : must not be null"));
         verify(taskService, times(0)).updateTaskStatus(eq(taskId), anyString());
+    }
+
+    @Test
+    void 스토리에_속한_태스크들을_조회한다() throws Exception {
+        // given
+        Long projectId = 1L, storyId = 5L;
+        Project project = ProjectProvider.createProject(7L);
+        Story story = StoryProvider.createStory(project, "story title");
+        List<RoadmapTaskResponse> taskList = List.of(
+                TaskResponseConverter.convertToRoadmapTaskResponse(TaskProvider.createTaskWithTitle(null, project, story, "first task"), null),
+                TaskResponseConverter.convertToRoadmapTaskResponse(TaskProvider.createTaskWithTitle(null, project, story, "second task"), null)
+        );
+
+        given(taskService.getStoryTasks(eq(projectId), eq(storyId)))
+                .willReturn(taskList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/stories/" + storyId + "/tasks")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(taskList.size()))
+                .andExpect(jsonPath("$[*].title").value(containsInAnyOrder(
+                        taskList.stream()
+                                .map(RoadmapTaskResponse::getTitle)
+                                .toArray()))
+                );
     }
 
     @Test
