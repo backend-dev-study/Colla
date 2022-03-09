@@ -12,6 +12,8 @@ const WEEK = 14;
 const PER_DAY = 90 / (WEEK + 1);
 
 export const Wrapper = styled.div`
+    margin-left: 5px;
+    margin-right: 5px;
     ${HeightCenter}
 `;
 

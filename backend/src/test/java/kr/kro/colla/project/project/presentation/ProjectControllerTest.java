@@ -244,10 +244,10 @@ class ProjectControllerTest extends ControllerTest {
                 .title("story title")
                 .preStories("[]")
                 .build();
-        List<ProjectStoryResponse> projectStoryResponses = List.of(new ProjectStoryResponse(story));
+        List<ProjectStorySimpleResponse> projectStorySimpleRespons = List.of(new ProjectStorySimpleResponse(story));
 
         given(projectService.getProjectStories(projectId))
-                .willReturn(projectStoryResponses);
+                .willReturn(projectStorySimpleRespons);
 
         // when
         ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/stories")
@@ -257,13 +257,13 @@ class ProjectControllerTest extends ControllerTest {
         // then
         MvcResult result = perform.andReturn();
         CollectionType collectionType = objectMapper.getTypeFactory()
-                .constructCollectionType(List.class, ProjectStoryResponse.class);
-        List<ProjectStoryResponse> projectStoryResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
+                .constructCollectionType(List.class, ProjectStorySimpleResponse.class);
+        List<ProjectStorySimpleResponse> projectStorySimpleResponseList = objectMapper.readValue(result.getResponse().getContentAsString(), collectionType);
 
         perform
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value(story.getTitle()));
-        assertThat(projectStoryResponseList.size()).isEqualTo(1);
+        assertThat(projectStorySimpleResponseList.size()).isEqualTo(1);
     }
 
     @Test

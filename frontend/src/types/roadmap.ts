@@ -1,5 +1,12 @@
 export interface StoryType {
+    id: number;
     title: string;
-    start?: string;
-    end?: string;
+    startAt?: string;
+    endAt?: string;
+}
+
+export interface TaskType {
+    title: string;
+    manager: string;
+    tags: Array<string>;
 }

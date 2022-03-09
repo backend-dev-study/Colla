@@ -99,6 +99,22 @@ public class TaskService {
         task.updateTaskStatus(taskStatus);
     }
 
+    public List<RoadmapTaskResponse> getStoryTasks(Long projectId, Long storyId) {
+        Project project = projectService.findProjectById(projectId);
+        Story story = storyService.findStoryById(storyId);
+        List<Task> taskList = taskRepository.findStoryTasks(story);
+        Hibernate.initialize(project.getMembers());
+
+        return taskList.stream()
+                .map(task -> {
+                    User manager = task.getManagerId() != null
+                            ? userService.findUserById(task.getManagerId())
+                            : null;
+
+                    return TaskResponseConverter.convertToRoadmapTaskResponse(task, manager);
+                }).collect(Collectors.toList());
+    }
+
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
         Project project = projectService.initializeProjectInfo(projectId);
 

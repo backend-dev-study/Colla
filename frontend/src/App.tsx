@@ -24,10 +24,10 @@ const App = () => (
                 <Switch>
                     <Route exact path="/" component={Login} />
                     <Route exact path="/login" component={LoginProcessing} />
+                    <ValidationRoute exact path="/home" component={Home} />
                     <ValidationRoute exact path="/kanban" component={Kanban} />
                     <ValidationRoute exact path="/backlog" component={Backlog} />
                     <ValidationRoute exact path="/roadmap" component={Roadmap} />
-                    <ValidationRoute exact path="/home" component={Home} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>

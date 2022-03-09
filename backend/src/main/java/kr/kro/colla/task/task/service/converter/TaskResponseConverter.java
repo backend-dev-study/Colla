@@ -3,6 +3,7 @@ package kr.kro.colla.task.task.service.converter;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
+import kr.kro.colla.task.task.presentation.dto.RoadmapTaskResponse;
 import kr.kro.colla.user.user.domain.User;
 
 import java.util.stream.Collectors;
@@ -34,6 +35,17 @@ public class TaskResponseConverter {
                 .manager(user != null ? user.getName() : null)
                 .status(task.getTaskStatus().getName())
                 .priority(task.getPriority())
+                .tags(task.getTaskTags()
+                        .stream()
+                        .map(taskTag -> taskTag.getTag().getName())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public static RoadmapTaskResponse convertToRoadmapTaskResponse(Task task, User user) {
+        return RoadmapTaskResponse.builder()
+                .title(task.getTitle())
+                .manager(user != null ? user.getName() : null)
                 .tags(task.getTaskTags()
                         .stream()
                         .map(taskTag -> taskTag.getTag().getName())

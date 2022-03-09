@@ -1,38 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
+import { getProjectStories } from '../../apis/story';
 import Header from '../../components/Header';
+import { IssueList } from '../../components/List/IssueList';
 import RoadmapStory from '../../components/RoadmapStory';
 import { SideBar } from '../../components/SideBar';
+import { StateType } from '../../types/project';
 import { StoryType } from '../../types/roadmap';
-import { Container, RoadmapArea, Wrapper } from './style';
+import { Container, Wrapper, RoadmapArea } from './style';
 
-const dummyData: StoryType[] = [
-    {
-        title: 'before start story',
-        start: '2022/02/08',
-        end: '2022/03/12',
-    },
-    { title: 'after end story', start: '2022/03/23', end: '2022/05/06' },
-    { title: 'short story', start: '2022/03/11', end: '2022/03/13' },
-    { title: 'long story', start: '2022/03/15', end: '2022/04/18' },
-    { title: 'after start story', start: '2022/05/04', end: '2022/06/18' },
-    { title: 'before end story', start: '2022/02/04', end: '2022/02/18' },
-];
+const Roadmap = () => {
+    const { state } = useLocation<StateType>();
+    const [storyList, setStoryList] = useState<Array<StoryType>>([]);
 
-const Roadmap = () => (
-    <>
-        <Header />
-        <SideBar />
-        <Container>
-            <Wrapper>
-                <RoadmapArea>
-                    {dummyData.map(({ start, end, title }, index) =>
-                        start && end ? <RoadmapStory key={index} title={title} start={start} end={end} /> : null,
-                    )}
-                </RoadmapArea>
-            </Wrapper>
-        </Container>
-    </>
-);
+    useEffect(() => {
+        (async () => {
+            const res = await getProjectStories(state.projectId);
+            setStoryList(res.data);
+        })();
+    }, []);
+
+    return (
+        <>
+            <Header />
+            <SideBar />
+            <Container>
+                <Wrapper>
+                    <RoadmapArea>
+                        {storyList.map(({ startAt, endAt, title }, index) =>
+                            startAt && endAt ? (
+                                <RoadmapStory key={index} title={title} start={startAt} end={endAt} />
+                            ) : null,
+                        )}
+                    </RoadmapArea>
+                    <IssueList storyList={storyList} />
+                </Wrapper>
+            </Container>
+        </>
+    );
+};
 
 export default Roadmap;
