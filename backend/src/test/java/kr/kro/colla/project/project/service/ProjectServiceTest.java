@@ -11,11 +11,9 @@ import kr.kro.colla.project.project.domain.profile.ProjectProfileStorage;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.project.presentation.dto.*;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
-import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.tag.service.TagService;
-import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.notice.service.NoticeService;
@@ -174,10 +172,10 @@ class ProjectServiceTest {
                 .willReturn(Optional.of(project));
 
         // when
-        List<ProjectStoryResponse> result = projectService.getProjectStories(id);
+        List<ProjectStorySimpleResponse> result = projectService.getProjectStories(id);
 
         // then
-        ProjectStoryResponse response = result.get(0);
+        ProjectStorySimpleResponse response = result.get(0);
         assertThat(result.size()).isEqualTo(1);
         assertThat(response.getTitle()).isEqualTo(story.getTitle());
         verify(projectRepository, times(1)).findById(1L);

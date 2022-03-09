@@ -2,6 +2,7 @@ package kr.kro.colla.task.task.domain.repository;
 
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task.domain.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,6 +16,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Task t set t.taskStatus = :to where t.taskStatus = :from")
     void bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
+
+    @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.story = :story")
+    List<Task> findStoryTasks(@Param("story") Story story);
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.project = :project order by t.createdAt asc")
     List<Task> findAllOrderByCreatedAtAsc(@Param("project") Project project);

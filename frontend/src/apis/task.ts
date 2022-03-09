@@ -1,3 +1,4 @@
+import { TaskType } from '../types/roadmap';
 import { SimpleTaskType, StoryTaskType, TaskResponseType } from '../types/task';
 import { client } from './common';
 
@@ -25,6 +26,12 @@ export const updateTask = async (taskId: number, data: FormData) => {
 
 export const updateTaskStatus = async (taskId: number, statusName: string) => {
     const response = await client.patch(`/projects/tasks/${taskId}`, { statusName });
+
+    return response;
+};
+
+export const getStoryTasks = async (projectId: number, storyId: number) => {
+    const response = await client.get<Array<TaskType>>(`/projects/${projectId}/stories/${storyId}/tasks`);
 
     return response;
 };

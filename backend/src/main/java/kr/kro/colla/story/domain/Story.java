@@ -1,6 +1,7 @@
 package kr.kro.colla.story.domain;
 
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.story.presentation.dto.UpdateStoryPeriodRequest;
 import kr.kro.colla.task.task.domain.Task;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,12 @@ public class Story {
     @Column
     private String preStories;
 
+    @Column
+    private LocalDate startAt;
+
+    @Column
+    private LocalDate endAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
@@ -38,6 +46,11 @@ public class Story {
         this.title = title;
         this.preStories = preStories;
         this.project = project;
+    }
+
+    public void updatePeriod(UpdateStoryPeriodRequest updateStoryPeriodRequest) {
+        this.startAt = updateStoryPeriodRequest.getStartAt();
+        this.endAt = updateStoryPeriodRequest.getEndAt();
     }
 
 }

@@ -23,10 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -376,6 +376,37 @@ class TaskServiceTest {
 
         // then
         assertThat(task.getTaskStatus().getName()).isEqualTo(after.getName());
+    }
+
+    @Test
+    void 스토리에_속한_태스크들을_조회한다() {
+        // given
+        Long memberId = 1L, projectId = 5L, storyId = 7L;
+        User member = UserProvider.createUser();
+        Project project = ProjectProvider.createProject(memberId);
+        Story story = StoryProvider.createStory(project, "story title");
+        List<Task> taskList = List.of(
+                TaskProvider.createTaskWithTitle(memberId, project, story, "first task"),
+                TaskProvider.createTaskWithTitle(null, project, story, "second task")
+        );
+
+        given(projectService.findProjectById(anyLong()))
+                .willReturn(project);
+        given(storyService.findStoryById(anyLong()))
+                .willReturn(story);
+        given(taskRepository.findStoryTasks(any(Story.class)))
+                .willReturn(taskList);
+        given(userService.findUserById(eq(memberId)))
+                .willReturn(member);
+
+        // when
+        List<RoadmapTaskResponse> result = taskService.getStoryTasks(projectId, storyId);
+
+        // then
+        assertThat(result).hasSize(taskList.size());
+        IntStream.range(0, result.size())
+                .forEach(idx -> assertThat(result.get(idx).getTitle()).isEqualTo(taskList.get(idx).getTitle()));
+        assertThat(result.get(0).getManager()).isEqualTo(member.getName());
     }
 
     @Test

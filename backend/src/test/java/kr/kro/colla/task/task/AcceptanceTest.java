@@ -6,11 +6,8 @@ import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
-import kr.kro.colla.project.project.presentation.dto.ProjectStoryResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectStoryTaskResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
-import kr.kro.colla.task.task.presentation.dto.ProjectTaskRequest;
-import kr.kro.colla.task.task.presentation.dto.UpdateTaskStatusRequest;
+import kr.kro.colla.project.project.presentation.dto.ProjectStorySimpleResponse;
+import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,7 +132,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), createdStory.getTitle());
 
         given()
@@ -187,7 +184,7 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
         task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), createdStory.getTitle());
 
         Map<String, String> formData = new HashMap<>();
@@ -222,7 +219,7 @@ public class AcceptanceTest {
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
 
-        ProjectStoryResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
         createdTask.put("story", createdStory.getTitle());
 
         given()
@@ -246,10 +243,10 @@ public class AcceptanceTest {
         User registeredUser = user.가_로그인을_한다1();
         String accessToken = auth.토큰을_발급한다(registeredUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        ProjectStoryResponse oldStory = story.를_생성한다(createdProject.getId(), accessToken, "old story");
+        ProjectStorySimpleResponse oldStory = story.를_생성한다(createdProject.getId(), accessToken, "old story");
         Map<String, String> createdTask = task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), oldStory.getTitle());
 
-        ProjectStoryResponse newStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
+        ProjectStorySimpleResponse newStory = story.를_생성한다(createdProject.getId(), accessToken, "new story");
         createdTask.put("story", newStory.getTitle());
 
         given()
@@ -341,6 +338,37 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("status", equalTo(HttpStatus.BAD_REQUEST.value()))
                 .body("message", equalTo("statusName : 널이어서는 안됩니다"));
+    }
+
+    @Test
+    void 사용자가_스토리에_속한_태스크들을_조회한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        ProjectStorySimpleResponse createdStory = story.를_생성한다(createdProject.getId(), accessToken, "story title");
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), createdStory.getTitle(), "first task");
+        task.를_특정_제목과_함께_생성한다(accessToken, null, createdProject.getId(), null, "second task");
+        task.를_특정_제목과_함께_생성한다(accessToken, member.getId(), createdProject.getId(), createdStory.getTitle(), "third task");
+
+        List<RoadmapTaskResponse> response = given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/stories/" + 1L + "/tasks")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<RoadmapTaskResponse>>() {});
+
+        assertThat(response).hasSize(2);
+        assertThat(response.get(0).getTitle()).isEqualTo("first task");
+        assertThat(response.get(1).getTitle()).isEqualTo("third task");
     }
 
     @Test
@@ -579,8 +607,8 @@ public class AcceptanceTest {
         String accessToken = auth.토큰을_발급한다(member.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
 
-        ProjectStoryResponse story1 = story.를_생성한다(createdProject.getId(), accessToken, "user can login with github");
-        ProjectStoryResponse story2 = story.를_생성한다(createdProject.getId(), accessToken, "set up CI/CD");
+        ProjectStorySimpleResponse story1 = story.를_생성한다(createdProject.getId(), accessToken, "user can login with github");
+        ProjectStorySimpleResponse story2 = story.를_생성한다(createdProject.getId(), accessToken, "set up CI/CD");
 
         task.를_생성한다(accessToken, member.getId(), createdProject.getId(), story1.getTitle());
         task.를_생성한다(accessToken, member.getId(), createdProject.getId(), null);
