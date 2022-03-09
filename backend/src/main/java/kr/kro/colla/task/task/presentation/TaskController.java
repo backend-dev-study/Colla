@@ -50,6 +50,13 @@ public class TaskController {
                 .build();
     }
 
+    @GetMapping("/{projectId}/stories/{storyId}/tasks")
+    public ResponseEntity<List<RoadmapTaskResponse>> getStoryTasks(@PathVariable("projectId") Long projectId, @PathVariable("storyId") Long storyId) {
+        List<RoadmapTaskResponse> taskList = taskService.getStoryTasks(projectId, storyId);
+
+        return ResponseEntity.ok(taskList);
+    }
+
     @GetMapping("/{projectId}/tasks/created-date")
     public ResponseEntity<List<ProjectTaskSimpleResponse>> getTasksOrderByCreatedDate(@PathVariable Long projectId, @RequestParam(defaultValue = "false") Boolean ascending) {
         List<ProjectTaskSimpleResponse> taskList = taskService.getTasksOrderByCreatedDate(projectId, ascending);

@@ -211,7 +211,7 @@ public class AcceptanceTest {
         String storyTitle = "story title";
         story.를_생성한다(createdProject.getId(), accessToken, storyTitle);
 
-        List<ProjectStoryResponse> response = given()
+        List<ProjectStorySimpleResponse> response = given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
@@ -225,7 +225,7 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(new TypeRef<List<ProjectStoryResponse>>() {});
+                .as(new TypeRef<List<ProjectStorySimpleResponse>>() {});
 
         assertThat(response.size()).isEqualTo(1);
         assertThat(response.get(0).getTitle()).isEqualTo(storyTitle);
