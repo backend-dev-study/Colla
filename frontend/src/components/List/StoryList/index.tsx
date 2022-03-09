@@ -1,29 +1,11 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getProjectStories } from '../../../apis/story';
+import { StateType } from '../../../types/project';
 import { StoryType } from '../../../types/roadmap';
 import { StoryPeriod } from '../../Modal/StoryPeriod';
 import { Issue, List, IssueContents, Title, IssueDetail } from './style';
-
-const dummy: Array<StoryType> = [
-    {
-        id: 1,
-        title: 'user can',
-        startAt: '2022-03-08',
-        endAt: '2022-03-09',
-    },
-    {
-        id: 2,
-        title: 'user can login with github',
-        startAt: null,
-        endAt: null,
-    },
-    {
-        id: 3,
-        title: 'user can login with githubuser can login with github user can login with github',
-        startAt: '2022-03-08',
-        endAt: '2022-03-09',
-    },
-];
 
 interface PropType {
     handleStoryVisible: Function;
@@ -31,6 +13,8 @@ interface PropType {
 }
 
 export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
+    const { state } = useLocation<StateType>();
+    const [storyList, setStoryList] = useState<Array<StoryType>>([]);
     const [selectedStory, setSelectedStory] = useState<StoryType | null>(null);
     const [storyPeriod, setStoryPeriod] = useState<boolean>(false);
 
@@ -44,11 +28,18 @@ export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
         setSelectedStory(story);
     };
 
+    useEffect(() => {
+        (async () => {
+            const res = await getProjectStories(state.projectId);
+            setStoryList(res.data);
+        })();
+    }, []);
+
     return (
         <>
             <Title>스토리 목록</Title>
             <List>
-                {dummy.map((story: StoryType, idx) => {
+                {storyList.map((story: StoryType, idx) => {
                     const { id, title, startAt, endAt } = story;
 
                     return (

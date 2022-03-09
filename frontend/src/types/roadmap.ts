@@ -4,3 +4,9 @@ export interface StoryType {
     startAt: string | null;
     endAt: string | null;
 }
+
+export interface TaskType {
+    title: string;
+    manager: string;
+    tags: Array<string>;
+}

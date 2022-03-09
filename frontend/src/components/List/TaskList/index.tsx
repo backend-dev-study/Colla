@@ -1,5 +1,9 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getStoryTasks } from '../../../apis/task';
+import { StateType } from '../../../types/project';
+import { TaskType } from '../../../types/roadmap';
 import { Issue, IssueContents, List } from '../StoryList/style';
 import { Tag, Title } from './style';
 
@@ -8,32 +12,14 @@ interface PropType {
     story: number;
 }
 
-const dummy = [
-    {
-        title: 'task1',
-        manager: 'yeongkee',
-        tags: ['backend', 'refactoring', 'bug fix'],
-        priority: 5,
-    },
-    {
-        title: 'task2',
-        manager: null,
-        tags: ['backend', 'refactoring', 'bug fix', 'frontend', 'document'],
-        priority: 3,
-    },
-    {
-        title: 'task3',
-        manager: 'yeongkee',
-        tags: [],
-        priority: 2,
-    },
-];
-
 export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
+    const { state } = useLocation<StateType>();
+    const [taskList, setTaskList] = useState<Array<TaskType>>([]);
+
     useEffect(() => {
         (async () => {
-            // TODO: story에 해당하는 태스크 목록 조회하기
-            console.log(story);
+            const res = await getStoryTasks(state.projectId, story);
+            setTaskList(res.data);
         })();
     }, []);
 
@@ -41,7 +27,7 @@ export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
         <>
             <Title onClick={() => handleStoryVisible()}>스토리 목록 보기</Title>
             <List>
-                {dummy.map(({ title, manager, tags }, idx) => (
+                {taskList.map(({ title, manager, tags }, idx) => (
                     <Issue key={idx}>
                         <IssueContents>{title}</IssueContents>
                         <IssueContents>{manager ? manager : '담당자 없음'}</IssueContents>

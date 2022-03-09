@@ -11,8 +11,8 @@ interface PropType {
 }
 
 export const StoryPeriod: FC<PropType> = ({ story, showStoryPeriodModal }) => {
-    const [startAt, setStartAt] = useState<string>(story!.startAt ? story!.startAt : '');
-    const [endAt, setEndAt] = useState<string>(story!.endAt ? story!.endAt : '');
+    const [startAt, setStartAt] = useState<string | null>(story!.startAt ? story!.startAt : null);
+    const [endAt, setEndAt] = useState<string | null>(story!.endAt ? story!.endAt : null);
 
     const changeStartAt = (e: React.ChangeEvent) => {
         setStartAt((e.target as HTMLInputElement).value);
@@ -24,10 +24,11 @@ export const StoryPeriod: FC<PropType> = ({ story, showStoryPeriodModal }) => {
 
     const updatePeriod = async () => {
         const formData = new FormData();
-        formData.append('startAt', startAt);
-        formData.append('endAt', endAt);
+        formData.append('startAt', startAt!);
+        formData.append('endAt', endAt!);
 
         await updateStoryPeriod(story!.id, formData);
+        window.location.replace(`/roadmap`);
     };
 
     return (
@@ -35,9 +36,9 @@ export const StoryPeriod: FC<PropType> = ({ story, showStoryPeriodModal }) => {
             <Period>
                 <span>스토리 기간 등록</span>
                 <div>
-                    <DatePicker type="date" value={startAt} onChange={changeStartAt} />
+                    <DatePicker type="date" value={startAt ? startAt : ''} onChange={changeStartAt} />
                     <span>부터</span>
-                    <DatePicker type="date" value={endAt} onChange={changeEndAt} />
+                    <DatePicker type="date" value={endAt ? endAt : ''} onChange={changeEndAt} />
                     <span>까지</span>
                 </div>
             </Period>
