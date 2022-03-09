@@ -22,9 +22,6 @@ public class MeetingPlace {
     private String image;
 
     @Column
-    private String review;
-
-    @Column
     private String longitude;
 
     @Column
