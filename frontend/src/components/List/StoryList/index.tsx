@@ -1,8 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 
-import { useLocation } from 'react-router-dom';
-import { getProjectStories } from '../../../apis/story';
-import { StateType } from '../../../types/project';
 import { StoryType } from '../../../types/roadmap';
 import { StoryPeriod } from '../../Modal/StoryPeriod';
 import { Issue, List, IssueContents, Title, IssueDetail } from './style';
@@ -10,11 +7,10 @@ import { Issue, List, IssueContents, Title, IssueDetail } from './style';
 interface PropType {
     handleStoryVisible: Function;
     setStory: Function;
+    storyList: Array<StoryType>;
 }
 
-export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
-    const { state } = useLocation<StateType>();
-    const [storyList, setStoryList] = useState<Array<StoryType>>([]);
+export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory, storyList }) => {
     const [selectedStory, setSelectedStory] = useState<StoryType | null>(null);
     const [storyPeriod, setStoryPeriod] = useState<boolean>(false);
 
@@ -27,13 +23,6 @@ export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory }) => {
         setStoryPeriod((prev) => !prev);
         setSelectedStory(story);
     };
-
-    useEffect(() => {
-        (async () => {
-            const res = await getProjectStories(state.projectId);
-            setStoryList(res.data);
-        })();
-    }, []);
 
     return (
         <>

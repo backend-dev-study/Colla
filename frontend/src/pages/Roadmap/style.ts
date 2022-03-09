@@ -9,21 +9,15 @@ export const Container = styled.div`
 `;
 
 export const Wrapper = styled.div`
-    width: 1300px;
+    display: flex;
+    justify-content: space-between;
+    width: 80vw;
     height: 600px;
     border-radius: 20px;
-    overflow-y: scroll;
     background: ${LIGHT_GRAY};
     margin-top: 50px;
+`;
 
-    &::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: #bbbbbb;
-        border-radius: 10px;
-    }
-
-    ${Column}
+export const RoadmapArea = styled.div`
+    width: 65%;
 `;

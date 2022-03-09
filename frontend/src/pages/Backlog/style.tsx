@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+
 import { LIGHT_GRAY } from '../../styles/color';
 import { Column } from '../../styles/common';
 
@@ -9,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Wrapper = styled.div`
-    width: 1300px;
+    width: 80vw;
     height: 500px;
     border-radius: 20px;
     overflow-y: scroll;
