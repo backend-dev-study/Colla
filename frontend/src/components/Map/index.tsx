@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { MeetingPlaceType } from '../../types/meeting-place';
+import { InfoWindow } from './InfoWindow';
 import { MapContainer } from './style';
 
 const dummy: Array<MeetingPlaceType> = [
@@ -61,7 +62,7 @@ export const Map = () => {
             (meetingPlace, idx) =>
                 new naver.maps.InfoWindow({
                     position: markers[idx],
-                    content: `<div>장소정보</div>`,
+                    content: InfoWindow(meetingPlace),
                     borderWidth: 0,
                 }),
         );
