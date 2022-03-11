@@ -21,8 +21,7 @@ public class MeetingPlaceController {
     @PostMapping("/{projectId}/meeting-places")
     ResponseEntity<MeetingPlaceResponse> CreateMeetingPlace(@PathVariable Long projectId,
                                                             @Valid @RequestBody CreateMeetingPlaceRequest request) {
-        Project project = projectService.findProjectById(projectId);
-        MeetingPlaceResponse response = new MeetingPlaceResponse(meetingPlaceService.createMeetingPlace(project, request));
+        MeetingPlaceResponse response = new MeetingPlaceResponse(meetingPlaceService.createMeetingPlace(projectId, request));
 
         return ResponseEntity.ok(response);
     }

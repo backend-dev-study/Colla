@@ -59,6 +59,7 @@ public class Project {
     private List<TaskTag> taskTags = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "project_id")
     private List<MeetingPlace> meetingPlaces = new ArrayList<>();
 
     @Builder
