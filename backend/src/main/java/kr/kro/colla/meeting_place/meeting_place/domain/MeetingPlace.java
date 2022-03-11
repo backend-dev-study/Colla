@@ -1,32 +1,40 @@
 package kr.kro.colla.meeting_place.meeting_place.domain;
 
 import kr.kro.colla.meeting_place.mentioned_post.domain.MentionedPost;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MeetingPlace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column
     private String name;
 
     @Column
     private String image;
 
+    @NotNull
     @Column
-    private String longitude;
+    private Double longitude;
 
+    @NotNull
     @Column
-    private String latitude;
+    private Double latitude;
 
+    @NotNull
     @Column
     private String address;
 
@@ -34,4 +42,11 @@ public class MeetingPlace {
     @JoinColumn(name = "meeting_place_id")
     private List<MentionedPost> mentionedPosts = new ArrayList<>();
 
+    public MeetingPlace(String name, String image, Double longitude, Double latitude, String address) {
+        this.name = name;
+        this.image = image;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.address = address;
+    }
 }
