@@ -2,6 +2,7 @@ package kr.kro.colla.meeting_place.meeting_place.domain;
 
 import kr.kro.colla.meeting_place.mentioned_post.domain.MentionedPost;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,6 +43,7 @@ public class MeetingPlace {
     @JoinColumn(name = "meeting_place_id")
     private List<MentionedPost> mentionedPosts = new ArrayList<>();
 
+    @Builder
     public MeetingPlace(String name, String image, Double longitude, Double latitude, String address) {
         this.name = name;
         this.image = image;
