@@ -1,5 +1,6 @@
 package kr.kro.colla.project.project.domain;
 
+import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
@@ -57,6 +58,9 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<TaskTag> taskTags = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<MeetingPlace> meetingPlaces = new ArrayList<>();
+
     @Builder
     public Project(Long managerId, String name, String description, String thumbnail){
         this.managerId = managerId;
@@ -77,4 +81,6 @@ public class Project {
     }
 
     public void removeStatus(TaskStatus taskStatus) { this.taskStatuses.remove(taskStatus); }
+
+    public void addMeetingPlace(MeetingPlace meetingPlace) { this.meetingPlaces.add(meetingPlace); }
 }
