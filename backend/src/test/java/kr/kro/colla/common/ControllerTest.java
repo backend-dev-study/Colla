@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.kro.colla.auth.domain.LoginUser;
 import kr.kro.colla.auth.service.AuthService;
 import kr.kro.colla.comment.service.CommentService;
+import kr.kro.colla.meeting_place.meeting_place.service.MeetingPlaceService;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.service.TaskService;
@@ -56,6 +57,9 @@ public abstract class ControllerTest {
 
     @MockBean
     protected CommentService commentService;
+
+    @MockBean
+    protected MeetingPlaceService meetingPlaceService;
 
     protected String accessToken = "token";
     protected LoginUser loginUser;
