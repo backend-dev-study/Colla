@@ -1,0 +1,22 @@
+div.Container {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 260px;
+    border: 1px solid #bdbdbd;
+    border-radius: 10px;
+
+    div {
+        margin-left: 10px;
+    }
+}
+
+img.meeting-place-img {
+    width: 200px;
+    height: 180px;
+    margin-bottom: 10px;
+}
+
+div.meeting-place-info {
+    padding: 0 5px 5px 5px;
+}
