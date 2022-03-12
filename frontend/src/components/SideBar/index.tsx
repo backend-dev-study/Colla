@@ -29,7 +29,7 @@ const MENU = [
     },
     { name: '백로그', path: '/backlog' },
     { name: '대시보드', path: '/dashboard' },
-    { name: '지도', path: '/map' },
+    { name: '모임장소', path: '/meeting-place' },
 ];
 
 export const SideBar = ({ props, project }: Props) => {
