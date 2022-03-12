@@ -11,7 +11,8 @@ import Home from './pages/Home';
 import Kanban from './pages/Kanban';
 import Login from './pages/Login';
 import LoginProcessing from './pages/LoginProcessing';
-import Map from './pages/Map';
+
+import MeetingPlace from './pages/MeetingPlace';
 import NotFound from './pages/NotFound';
 import Roadmap from './pages/Roadmap';
 import GlobalStyle from './styles/global';
@@ -29,7 +30,7 @@ const App = () => (
                     <ValidationRoute exact path="/kanban" component={Kanban} />
                     <ValidationRoute exact path="/backlog" component={Backlog} />
                     <ValidationRoute exact path="/roadmap" component={Roadmap} />
-                    <ValidationRoute exact path="/map" component={Map} />
+                    <ValidationRoute exact path="/meeting-place" component={MeetingPlace} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>

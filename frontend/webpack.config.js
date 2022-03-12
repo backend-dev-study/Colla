@@ -40,6 +40,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './public/index.html',
+            apiUrl: `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.CLIENT_ID}`,
         }),
         new EslintWebpackPlugin({
             extensions: ['js', 'jsx', 'ts', 'tsx'],
