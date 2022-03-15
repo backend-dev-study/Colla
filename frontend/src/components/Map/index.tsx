@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getSpecificAreaMeetingPlace } from '../../apis/meeting-place';
 import { MeetingPlaceType } from '../../types/meeting-place';
+import { StateType } from '../../types/project';
 import { InfoWindow } from './InfoWindow';
 import { MapContainer } from './style';
 
@@ -35,6 +38,7 @@ export const Map = () => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];
     let timer: NodeJS.Timeout;
+    const { state } = useLocation<StateType>();
 
     const handleMarkerClick = (map: any, marker: any) => {
         const idx = markers.indexOf(marker);
@@ -74,9 +78,10 @@ export const Map = () => {
             clearTimeout(timer);
         }
 
-        timer = setTimeout(() => {
+        timer = setTimeout(async () => {
             const { _max, _min } = map.getBounds();
-            console.log(`${_min._lat} ${_min._lng} ${_max._lat} ${_max._lng}`);
+            const res = await getSpecificAreaMeetingPlace(state.projectId, _min._lng, _max._lng, _min._lat, _max._lat);
+            console.log(res.data); // TODO: 좌측 리스트와 연동
         }, 1000);
     };
 
