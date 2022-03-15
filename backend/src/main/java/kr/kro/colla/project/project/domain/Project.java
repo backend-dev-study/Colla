@@ -58,8 +58,7 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     private List<TaskTag> taskTags = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "project_id")
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MeetingPlace> meetingPlaces = new ArrayList<>();
 
     @Builder
@@ -83,5 +82,4 @@ public class Project {
 
     public void removeStatus(TaskStatus taskStatus) { this.taskStatuses.remove(taskStatus); }
 
-    public void addMeetingPlace(MeetingPlace meetingPlace) { this.meetingPlaces.add(meetingPlace); }
 }
