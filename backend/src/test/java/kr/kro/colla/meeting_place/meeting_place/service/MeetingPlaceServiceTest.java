@@ -23,26 +23,27 @@ import static org.mockito.Mockito.verify;
 class MeetingPlaceServiceTest {
 
     @Mock
-    MeetingPlaceRepository meetingPlaceRepository;
+    private MeetingPlaceRepository meetingPlaceRepository;
 
     @Mock
-    ProjectService projectService;
+    private ProjectService projectService;
 
     @InjectMocks
-    MeetingPlaceService meetingPlaceService;
+    private MeetingPlaceService meetingPlaceService;
 
     @Test
     void 프로젝트의_모임_장소를_생성한다() {
         // given
         Long projectId = 32492L;
         Project project = ProjectProvider.createProject(234912L);
-        MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace();
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest();
+        MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace(project);
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("이번 회의 장소", null, 132.234, 23.234, "서울특별시 강남구 ~~로 ~~번길");
 
         given(projectService.findProjectById(projectId))
                 .willReturn(project);
         given(meetingPlaceRepository.save(any(MeetingPlace.class)))
                 .willReturn(meetingPlace);
+
         // when
         MeetingPlace result = meetingPlaceService.createMeetingPlace(projectId, request);
 

@@ -2,6 +2,7 @@ package kr.kro.colla.meeting_place.meeting_place.presentation;
 
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.MeetingPlaceProvider;
+import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class MeetingPlaceControllerTest extends ControllerTest {
         // given
         Long projectId = 82425L, meetingPlaceId = 234241L;
         CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("meeting place name", "preview image", 23.23, 3.5, "address to go!");
-        MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace();
+        MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace(ProjectProvider.createProject(1L));
         ReflectionTestUtils.setField(meetingPlace, "id", meetingPlaceId);
 
         given(meetingPlaceService.createMeetingPlace(eq(projectId), any(CreateMeetingPlaceRequest.class)))

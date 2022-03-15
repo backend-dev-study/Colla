@@ -53,11 +53,11 @@ public class AcceptanceTest {
     void 사용자는_프로젝트의_모임_장소를_추가할_수_있다() {
         // given
         String placeName = "새로운 만날 장소 이름", placeImage = "https://image/url/of/place", placeAddress = "SeongNam";
-        Double placeLong = 23.4141, placeLa = 194.145;
+        Double placeLng = 23.4141, placeLat = 194.145;
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest(placeName, placeImage, placeLong, placeLa, placeAddress);
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest(placeName, placeImage, placeLng, placeLat, placeAddress);
 
         given()
                 .contentType(ContentType.JSON)
@@ -75,8 +75,8 @@ public class AcceptanceTest {
                 .body("name", equalTo(placeName))
                 .body("image", equalTo(placeImage))
                 .body("address", equalTo(placeAddress))
-                .body("longitude", equalTo(placeLong.floatValue()))
-                .body("latitude", equalTo(placeLa.floatValue()));
+                .body("longitude", equalTo(placeLng.floatValue()))
+                .body("latitude", equalTo(placeLat.floatValue()));
     }
 
     @Test
