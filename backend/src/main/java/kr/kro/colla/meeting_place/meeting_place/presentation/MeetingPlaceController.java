@@ -29,7 +29,7 @@ public class MeetingPlaceController {
 
     @GetMapping({"/{projectId}/meeting-places"})
     public ResponseEntity<List<MeetingPlaceResponse>> getSpecificAreaMeetingPlace(@PathVariable Long projectId,
-                                                                                  @Valid @RequestParam SearchByMapBoundaryRequest request) {
+                                                                                  @Valid SearchByMapBoundaryRequest request) {
         List<MeetingPlaceResponse> meetingPlaceList = meetingPlaceService.getSpecificAreaMeetingPlace(projectId, request);
 
         return ResponseEntity.ok(meetingPlaceList);

@@ -2,25 +2,23 @@ package kr.kro.colla.meeting_place.meeting_place.presentation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 public class SearchByMapBoundaryRequest {
 
     @NotNull
-    private Double minLongitude;
+    private Double minLng;
 
     @NotNull
-    private Double maxLongitude;
+    private Double maxLng;
 
     @NotNull
-    private Double minLatitude;
+    private Double minLat;
 
     @NotNull
-    private Double maxLatitude;
+    private Double maxLat;
 
 }
