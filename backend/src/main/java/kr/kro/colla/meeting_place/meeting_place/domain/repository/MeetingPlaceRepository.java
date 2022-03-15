@@ -13,8 +13,8 @@ public interface MeetingPlaceRepository extends JpaRepository<MeetingPlace, Long
 
     @Query("select m from MeetingPlace m " +
             "where m.project = :project " +
-            "and :#{#boundary.minLongitude} <= m.longitude and m.longitude <= :#{#boundary.maxLongitude} " +
-            "and :#{#boundary.minLatitude} <= m.latitude and m.latitude <= :#{#boundary.maxLatitude}")
+            "and :#{#boundary.minLng} <= m.longitude and m.longitude <= :#{#boundary.maxLng} " +
+            "and :#{#boundary.minLat} <= m.latitude and m.latitude <= :#{#boundary.maxLat}")
     List<MeetingPlace> findMeetingPlacesByBoundary(@Param("project") Project project, @Param("boundary")SearchByMapBoundaryRequest request);
 
 }
