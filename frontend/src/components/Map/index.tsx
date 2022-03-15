@@ -34,6 +34,7 @@ const dummy: Array<MeetingPlaceType> = [
 export const Map = () => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];
+    let timer: NodeJS.Timeout;
 
     const handleMarkerClick = (map: any, marker: any) => {
         const idx = markers.indexOf(marker);
@@ -68,6 +69,17 @@ export const Map = () => {
         );
     };
 
+    const searchSpecificAreaMeetingPlace = (map: any) => {
+        if (timer) {
+            clearTimeout(timer);
+        }
+
+        timer = setTimeout(() => {
+            const { _max, _min } = map.getBounds();
+            console.log(`${_min._lat} ${_min._lng} ${_max._lat} ${_max._lng}`);
+        }, 1000);
+    };
+
     useEffect(() => {
         const mapOptions = {
             center: new naver.maps.LatLng(37.511337, 127.012084),
@@ -83,6 +95,7 @@ export const Map = () => {
         markMeetingPlace(map);
         createInfoWindows();
         naver.maps.Event.addListener(map, 'click', () => handleClickOtherArea());
+        naver.maps.Event.addListener(map, 'drag', () => searchSpecificAreaMeetingPlace(map));
     }, []);
 
     return (
