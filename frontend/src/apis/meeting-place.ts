@@ -6,3 +6,9 @@ export const createMeetingPlace = async (projectId: number, place: SearchPlaceTy
 
     return response;
 };
+
+export const getMeetingPlaces = async (projectId: number) => {
+    const response = await client.get<Array<MeetingPlaceType>>(`/projects/${projectId}/meeting-places`);
+
+    return response;
+};
