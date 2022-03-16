@@ -48,6 +48,7 @@
     "no-unneeded-ternary": "off",
     "dot-notation": "off",
     "no-new": "off",
+    "no-underscore-dangle": "off",
     "no-use-before-define": ["error", { "variables": false }],
     "import/prefer-default-export": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
