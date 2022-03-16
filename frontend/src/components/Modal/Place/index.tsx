@@ -27,7 +27,6 @@ const PlaceModal = () => {
     const ps = new kakao.maps.services.Places();
 
     const searchKeyword = () => {
-        console.log(keyword);
         if (keyword === '') return;
 
         ps.keywordSearch(keyword, handleSearchResult);
