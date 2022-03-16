@@ -1,5 +1,6 @@
 package kr.kro.colla.meeting_place.meeting_place.presentation;
 
+import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.MeetingPlaceResponse;
 import kr.kro.colla.meeting_place.meeting_place.service.MeetingPlaceService;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,5 +26,12 @@ public class MeetingPlaceController {
         MeetingPlaceResponse response = new MeetingPlaceResponse(meetingPlaceService.createMeetingPlace(projectId, request));
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{projectId}/meeting-places")
+    ResponseEntity<List<MeetingPlaceResponse>> getMeetingPlaces(@PathVariable Long projectId) {
+        List<MeetingPlaceResponse> meetingPlaceList = meetingPlaceService.getMeetingPlaces(projectId);
+
+        return ResponseEntity.ok(meetingPlaceList);
     }
 }
