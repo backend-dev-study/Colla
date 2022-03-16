@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { SearchPlaceType } from '../../../types/meeting-place';
 import Place from '../../Place';
@@ -13,7 +13,11 @@ interface KakaoPlaceType {
     y: number;
 }
 
-const PlaceModal = () => {
+interface PropType {
+    updatePlaces: Function;
+}
+
+const PlaceModal: FC<PropType> = ({ updatePlaces }) => {
     const [keyword, setKeyword] = useState('');
     const [places, setPlaces] = useState<SearchPlaceType[]>([]);
 
@@ -53,7 +57,7 @@ const PlaceModal = () => {
             <SearchInput value={keyword} onChange={handleInput} onKeyPress={handleKeyPress} />
             <SearchList>
                 {places.map((place, idx) => (
-                    <Place key={idx} info={place} />
+                    <Place key={idx} info={place} updatePlaces={updatePlaces} />
                 ))}
             </SearchList>
         </Wrapper>
