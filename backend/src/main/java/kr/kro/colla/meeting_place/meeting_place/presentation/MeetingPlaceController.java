@@ -5,6 +5,7 @@ import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPl
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.MeetingPlaceResponse;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.SearchByMapBoundaryRequest;
 import kr.kro.colla.meeting_place.meeting_place.service.MeetingPlaceService;
+import kr.kro.colla.project.project.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,14 @@ public class MeetingPlaceController {
         return ResponseEntity.ok(new MeetingPlaceResponse(meetingPlace));
     }
 
-    @GetMapping({"/{projectId}/meeting-places"})
+    @GetMapping("/{projectId}/meeting-places")
+    ResponseEntity<List<MeetingPlaceResponse>> getMeetingPlaces(@PathVariable Long projectId) {
+        List<MeetingPlaceResponse> meetingPlaceList = meetingPlaceService.getMeetingPlaces(projectId);
+
+        return ResponseEntity.ok(meetingPlaceList);
+    }
+
+    @GetMapping({"/{projectId}/meeting-places/boundary"})
     public ResponseEntity<List<MeetingPlaceResponse>> getSpecificAreaMeetingPlace(@PathVariable Long projectId,
                                                                                   @Valid SearchByMapBoundaryRequest request) {
         List<MeetingPlaceResponse> meetingPlaceList = meetingPlaceService.getSpecificAreaMeetingPlace(projectId, request);

@@ -47,4 +47,11 @@ public class MeetingPlaceService {
                 .collect(Collectors.toList());
     }
 
+    public List<MeetingPlaceResponse> getMeetingPlaces(Long projectId) {
+        Project project = projectService.findProjectById(projectId);
+
+       return project.getMeetingPlaces().stream()
+                .map(MeetingPlaceResponse::new)
+                .collect(Collectors.toList());
+    }
 }

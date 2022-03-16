@@ -40,7 +40,8 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './public/index.html',
-            apiUrl: `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.CLIENT_ID}`,
+            naverApiUrl: `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NAVER_CLIENT_ID}`,
+            kakaoApiUrl: `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.KAKAO_CLIENT_ID}&libraries=services`,
         }),
         new EslintWebpackPlugin({
             extensions: ['js', 'jsx', 'ts', 'tsx'],

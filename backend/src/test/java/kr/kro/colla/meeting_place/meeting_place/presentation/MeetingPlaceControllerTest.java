@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.*;
+
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -96,7 +99,7 @@ class MeetingPlaceControllerTest extends ControllerTest {
                 .willReturn(meetingPlaceList);
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/meeting-places?minLng=" + minLng + "&maxLng=" + maxLng + "&minLat=" + minLat + "&maxLat=" + maxLat)
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/meeting-places/boundary?minLng=" + minLng + "&maxLng=" + maxLng + "&minLat=" + minLat + "&maxLat=" + maxLat)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
@@ -112,12 +115,37 @@ class MeetingPlaceControllerTest extends ControllerTest {
     }
 
     @Test
+    void 프로젝트의_모임_장소들을_조회한다() throws Exception {
+        // given
+        Long projectId = 82425L;
+        List<String> placeNames = List.of("모임장소__", "테스트__", "짜는 중__");
+        List<MeetingPlaceResponse> places = placeNames.stream()
+                        .map(name-> new MeetingPlaceResponse(MeetingPlaceProvider.createMeetingPlaceWithName(name)))
+                        .collect(Collectors.toList());
+
+        given(meetingPlaceService.getMeetingPlaces(projectId))
+                .willReturn(places);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/meeting-places")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(placeNames.size()))
+                .andExpect(jsonPath("$[*].name").value(containsInAnyOrder(placeNames.get(0), placeNames.get(1), placeNames.get(2))));
+        verify(meetingPlaceService, times(1)).getMeetingPlaces(anyLong());;
+    }
+
+    @Test
     void 지도_바운더리의_정보가_모두_오지_않으면_모임_장소를_조회할_수_없다() throws Exception {
         // given
         Long projectId = 1L;
 
         // when
-        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/meeting-places?minLng=" + 127.052)
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/meeting-places/boundary?minLng=" + 127.052)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
@@ -127,4 +155,5 @@ class MeetingPlaceControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message", containsString("must not be null")));
     }
+
 }
