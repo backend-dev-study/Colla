@@ -1,6 +1,5 @@
 package kr.kro.colla.meeting_place.meeting_place.presentation;
 
-import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.MeetingPlaceResponse;
 import kr.kro.colla.meeting_place.meeting_place.service.MeetingPlaceService;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
