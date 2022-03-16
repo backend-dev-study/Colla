@@ -7,7 +7,7 @@ import { getProject } from '../../apis/project';
 import Header from '../../components/Header';
 import KanbanCol from '../../components/KanbanCol';
 import CreateTaskStatusModal from '../../components/Modal/TaskStatus/Create';
-import { SideBar } from '../../components/SideBar';
+import SideBar from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { TaskType } from '../../types/kanban';

@@ -8,7 +8,7 @@ import { BacklogFeature } from '../../components/BacklogFeature';
 import Header from '../../components/Header';
 import Issue from '../../components/Issue';
 import { TaskModal } from '../../components/Modal/Task';
-import { SideBar } from '../../components/SideBar';
+import SideBar from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { projectState } from '../../stores/projectState';
 import { StateType } from '../../types/project';

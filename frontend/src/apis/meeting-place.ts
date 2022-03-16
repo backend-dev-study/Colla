@@ -1,4 +1,4 @@
-import { MeetingPlaceType } from '../types/meeting-place';
+import { MeetingPlaceType, SearchPlaceType } from '../types/meeting-place';
 import { client } from './common';
 
 export const getSpecificAreaMeetingPlace = async (
@@ -9,8 +9,20 @@ export const getSpecificAreaMeetingPlace = async (
     maxLat: number,
 ) => {
     const response = await client.get<Array<MeetingPlaceType>>(
-        `/projects/${projectId}/meeting-places?minLng=${minLng}&maxLng=${maxLng}&minLat=${minLat}&maxLat=${maxLat}`,
+        `/projects/${projectId}/meeting-places/boundary?minLng=${minLng}&maxLng=${maxLng}&minLat=${minLat}&maxLat=${maxLat}`,
     );
+
+    return response;
+};
+
+export const createMeetingPlace = async (projectId: number, place: SearchPlaceType) => {
+    const response = await client.post<MeetingPlaceType>(`/projects/${projectId}/meeting-places`, place);
+
+    return response;
+};
+
+export const getMeetingPlaces = async (projectId: number) => {
+    const response = await client.get<Array<MeetingPlaceType>>(`/projects/${projectId}/meeting-places`);
 
     return response;
 };

@@ -4,7 +4,7 @@ import HomeImageSrc from '../../../public/assets/images/home-image.png';
 import { getUserProjects } from '../../apis/user';
 import Header from '../../components/Header';
 import ProjectModal from '../../components/Modal/Project';
-import { SideBar } from '../../components/SideBar';
+import SideBar from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { Container, HomeImage, ProjectNotice } from './style';
 
