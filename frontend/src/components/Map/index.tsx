@@ -34,7 +34,7 @@ const dummy: Array<MeetingPlaceType> = [
     },
 ];
 
-export const Map = () => {
+const Map = () => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];
     let timer: NodeJS.Timeout;
@@ -109,3 +109,5 @@ export const Map = () => {
         </MapContainer>
     );
 };
+
+export default Map;

@@ -1,15 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
+import { getMeetingPlaces } from '../../apis/meeting-place';
 import Header from '../../components/Header';
-import { Map } from '../../components/Map';
+import Map from '../../components/Map';
 import PlaceModal from '../../components/Modal/Place';
-import { SideBar } from '../../components/SideBar';
+import Place from '../../components/Place';
+import SideBar from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
-import { Container, Wrapper, AddPlace, Place, PlaceList, PlaceContainer } from './style';
+import { MeetingPlaceType } from '../../types/meeting-place';
+import { StateType } from '../../types/project';
+import { Container, Wrapper, AddPlace, PlaceList, PlaceContainer } from './style';
 
 const MeetingPlace = () => {
+    const { state } = useLocation<StateType>();
     const { Modal, setModal } = useModal();
+    const [meetingPlaces, setMeetingPlaces] = useState<Array<MeetingPlaceType>>([]);
 
+    const updateMeetingPlaces = async (projectId: number) => {
+        const response = await getMeetingPlaces(projectId);
+        setMeetingPlaces(response.data);
+    };
+
+    useEffect(() => {
+        updateMeetingPlaces(state.projectId);
+    }, []);
     return (
         <>
             <Header />
@@ -19,15 +34,13 @@ const MeetingPlace = () => {
                     <PlaceContainer>
                         <AddPlace onClick={setModal}>모임 장소 추가</AddPlace>
                         <PlaceList>
-                            <Place>장소1</Place>
-                            <Place>장소2</Place>
-                            <Place>장소3</Place>
-                            <Place>장소3</Place>
-                            <Place>장소3</Place>
+                            {meetingPlaces.map((place: MeetingPlaceType, idx: number) => (
+                                <Place meetingPlace key={idx} info={place} />
+                            ))}
                         </PlaceList>
                     </PlaceContainer>
                     <Modal>
-                        <PlaceModal />
+                        <PlaceModal updatePlaces={updateMeetingPlaces} />
                     </Modal>
                     <Map />
                 </Wrapper>
