@@ -32,7 +32,7 @@ const MENU = [
     { name: '모임장소', path: '/meeting-place' },
 ];
 
-export const SideBar = ({ props, project }: Props) => {
+const SideBar = ({ props, project }: Props) => {
     const history = useHistory();
     const { state } = useLocation<StateType>();
     const setProjectState = useSetRecoilState(projectState);
@@ -87,3 +87,5 @@ export const SideBar = ({ props, project }: Props) => {
         </>
     );
 };
+
+export default SideBar;

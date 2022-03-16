@@ -1,9 +1,9 @@
 import React from 'react';
 
 import Header from '../../components/Header';
-import { Map } from '../../components/Map';
+import Map from '../../components/Map';
 import PlaceModal from '../../components/Modal/Place';
-import { SideBar } from '../../components/SideBar';
+import SideBar from '../../components/SideBar';
 import useModal from '../../hooks/useModal';
 import { Container, Wrapper, AddPlace, Place, PlaceList, PlaceContainer } from './style';
 

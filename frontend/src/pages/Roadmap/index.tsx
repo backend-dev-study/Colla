@@ -5,7 +5,7 @@ import { getProjectStories } from '../../apis/story';
 import Header from '../../components/Header';
 import { IssueList } from '../../components/List/IssueList';
 import RoadmapStory from '../../components/RoadmapStory';
-import { SideBar } from '../../components/SideBar';
+import SideBar from '../../components/SideBar';
 import { StateType } from '../../types/project';
 import { StoryType } from '../../types/roadmap';
 import { Container, Wrapper, RoadmapArea } from './style';

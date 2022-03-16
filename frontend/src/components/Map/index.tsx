@@ -31,7 +31,7 @@ const dummy: Array<MeetingPlaceType> = [
     },
 ];
 
-export const Map = () => {
+const Map = () => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];
 
@@ -91,3 +91,5 @@ export const Map = () => {
         </MapContainer>
     );
 };
+
+export default Map;
