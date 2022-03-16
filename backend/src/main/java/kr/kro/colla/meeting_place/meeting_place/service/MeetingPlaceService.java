@@ -42,9 +42,8 @@ public class MeetingPlaceService {
     public List<MeetingPlaceResponse> getMeetingPlaces(Long projectId) {
         Project project = projectService.findProjectById(projectId);
 
-        List<MeetingPlaceResponse> meetingPlaces =  project.getMeetingPlaces().stream()
+       return project.getMeetingPlaces().stream()
                 .map(MeetingPlaceResponse::new)
                 .collect(Collectors.toList());
-        return meetingPlaces;
     }
 }

@@ -1,11 +1,13 @@
 package kr.kro.colla.meeting_place.meeting_place;
 
 import io.restassured.RestAssured;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
+import kr.kro.colla.meeting_place.meeting_place.presentation.dto.MeetingPlaceResponse;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -36,6 +42,9 @@ public class AcceptanceTest {
 
     @Autowired
     private ProjectProvider project;
+
+    @Autowired
+    private MeetingPlaceProvider meetingPlace;
 
     @Autowired
     private DatabaseCleaner databaseCleaner;
@@ -104,4 +113,39 @@ public class AcceptanceTest {
                 .body("message", containsString("널이어서는 안됩니다"));
     }
 
+    @Test
+    void 사용자는_프로젝트의_모임_장소들을_조회한다() {
+        // given
+        User loginUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        List<MeetingPlaceResponse> placeList = List.of(
+                meetingPlace.를_생성한다(accessToken, createdProject.getId(), 123.523, 156.1),
+                meetingPlace.를_생성한다(accessToken, createdProject.getId(), 34.53, 1.45),
+                meetingPlace.를_생성한다(accessToken, createdProject.getId(), 23.51, 5.51)
+        );
+
+        List<MeetingPlaceResponse> responses = given()
+                .contentType(ContentType.JSON)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/meeting-places")
+
+        // then
+        .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<MeetingPlaceResponse>>() {});
+        IntStream.range(0, responses.size())
+                .forEach(i -> {
+                    assertThat(responses.get(i).getId()).isEqualTo(placeList.get(i).getId());
+                    assertThat(responses.get(i).getName()).isEqualTo(placeList.get(i).getName());
+                    assertThat(responses.get(i).getLongitude()).isEqualTo(placeList.get(i).getLongitude());
+                    assertThat(responses.get(i).getLatitude()).isEqualTo(placeList.get(i).getLatitude());
+                });
+    }
 }
