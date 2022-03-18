@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { createMeetingPlace } from '../../apis/meeting-place';
 import { SearchPlaceType } from '../../types/meeting-place';
 import { StateType } from '../../types/project';
-import { Wrapper } from './style';
+import { Wrapper, PlaceInfo, PlaceThumbnail, PlaceText, PlaceName, PlaceAddress } from './style';
 
 interface PropType {
     info: SearchPlaceType;
@@ -27,9 +27,13 @@ const Place: FC<PropType> = ({ info, meetingPlace, updatePlaces }) => {
 
     return (
         <Wrapper onClick={handleClick} meetingPlace={meetingPlace}>
-            {info.image ? <img src={info.image} /> : null}
-            <div>{info.name}</div>
-            <div>{info.address}</div>
+            <PlaceInfo>
+                <PlaceThumbnail>{info.image ? <img src={info.image} /> : null}</PlaceThumbnail>
+                <PlaceText>
+                    <PlaceName>{info.name}</PlaceName>
+                    <PlaceAddress>{info.address}</PlaceAddress>
+                </PlaceText>
+            </PlaceInfo>
         </Wrapper>
     );
 };
