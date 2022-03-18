@@ -2,6 +2,7 @@ package kr.kro.colla.meeting_place.meeting_place.service;
 
 import kr.kro.colla.common.fixture.MeetingPlaceProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.exception.exception.meeting_place.MeetingPlaceNotFoundException;
 import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.domain.repository.MeetingPlaceRepository;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
@@ -17,14 +18,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MeetingPlaceServiceTest {
@@ -116,4 +118,41 @@ class MeetingPlaceServiceTest {
         IntStream.range(0, response.size())
                 .forEach(i -> assertThat(response.get(i).getName()).isEqualTo(meetingPlaces.get(i).getName()));
     }
+
+    @Test
+    void 선택한_모임_장소를_삭제한다() {
+        // given
+        Long meetingPlaceId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace(project);
+
+        given(meetingPlaceRepository.findById(eq(meetingPlaceId)))
+                .willReturn(Optional.of(meetingPlace));
+        willDoNothing()
+                .given(meetingPlaceRepository)
+                .delete(any(MeetingPlace.class));
+
+        // when
+        meetingPlaceService.deleteMeetingPlace(meetingPlaceId);
+
+        // then
+        verify(meetingPlaceRepository, times(1)).findById(anyLong());
+        verify(meetingPlaceRepository, times(1)).delete(any(MeetingPlace.class));
+    }
+
+    @Test
+    void 삭제하려는_모임_장소가_없을_경우_예외가_발생한다() {
+        // given
+        Long wrongId = 5L;
+
+        given(meetingPlaceRepository.findById(eq(wrongId)))
+                .willReturn(Optional.empty());
+
+        // when, then
+        assertThatThrownBy(() -> meetingPlaceService.deleteMeetingPlace(wrongId))
+                .isInstanceOf(MeetingPlaceNotFoundException.class);
+        verify(meetingPlaceRepository, times(1)).findById(anyLong());
+        verify(meetingPlaceRepository, never()).delete(any(MeetingPlace.class));
+    }
+
 }
