@@ -41,4 +41,12 @@ public class MeetingPlaceController {
 
         return ResponseEntity.ok(meetingPlaceList);
     }
+
+    @DeleteMapping("/meeting-places/{meetingPlaceId}")
+    public ResponseEntity<Void> deleteMeetingPlace(@PathVariable Long meetingPlaceId) {
+        meetingPlaceService.deleteMeetingPlace(meetingPlaceId);
+
+        return ResponseEntity.ok()
+                .build();
+    }
 }

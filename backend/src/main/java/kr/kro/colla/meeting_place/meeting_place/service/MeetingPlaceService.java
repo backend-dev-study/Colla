@@ -1,5 +1,6 @@
 package kr.kro.colla.meeting_place.meeting_place.service;
 
+import kr.kro.colla.exception.exception.meeting_place.MeetingPlaceNotFoundException;
 import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.domain.repository.MeetingPlaceRepository;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
@@ -54,4 +55,15 @@ public class MeetingPlaceService {
                 .map(MeetingPlaceResponse::new)
                 .collect(Collectors.toList());
     }
+
+    public void deleteMeetingPlace(Long meetingPlaceId) {
+        MeetingPlace meetingPlace = findMeetingPlaceById(meetingPlaceId);
+        meetingPlaceRepository.delete(meetingPlace);
+    }
+
+    public MeetingPlace findMeetingPlaceById(Long id) {
+        return meetingPlaceRepository.findById(id)
+                .orElseThrow(MeetingPlaceNotFoundException::new);
+    }
+
 }
