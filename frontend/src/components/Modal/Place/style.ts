@@ -12,6 +12,10 @@ export const Wrapper = styled.div`
 
     overflow-y: scroll;
 
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
     ${Modal}
 `;
 

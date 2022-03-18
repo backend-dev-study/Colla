@@ -1,6 +1,7 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
-import { SearchPlaceType } from '../../../types/meeting-place';
+import useGPSLocation from '../../../hooks/useGPSLocation';
+import { LatLngType, SearchPlaceType } from '../../../types/meeting-place';
 import Place from '../../Place';
 import { Wrapper, SearchInput, SearchList } from './style';
 
@@ -17,9 +18,17 @@ interface PropType {
     updatePlaces: Function;
 }
 
+const LOADING = '위치 정보를 받아오고 있습니다..';
+
 const PlaceModal: FC<PropType> = ({ updatePlaces }) => {
     const [keyword, setKeyword] = useState('');
     const [places, setPlaces] = useState<SearchPlaceType[]>([]);
+    const [location, setLocation] = useState<LatLngType | undefined>(undefined);
+
+    const getLocation = async () => {
+        const gps: any = await useGPSLocation();
+        setLocation(gps);
+    };
 
     const handleInput = (e: any) => setKeyword(e.target.value);
 
@@ -30,10 +39,11 @@ const PlaceModal: FC<PropType> = ({ updatePlaces }) => {
 
     const ps = new kakao.maps.services.Places();
 
-    const searchKeyword = () => {
+    const searchKeyword = async () => {
         if (keyword === '') return;
 
-        ps.keywordSearch(keyword, handleSearchResult);
+        const options = location?.lng ? { location: new kakao.maps.LatLng(location.lat, location.lng) } : {};
+        ps.keywordSearch(keyword, handleSearchResult, options);
     };
 
     const handleSearchResult = (result: KakaoPlaceType[], status: any) => {
@@ -52,13 +62,17 @@ const PlaceModal: FC<PropType> = ({ updatePlaces }) => {
         );
     };
 
+    useEffect(() => {
+        getLocation();
+    }, []);
+
     return (
         <Wrapper>
-            <SearchInput value={keyword} onChange={handleInput} onKeyPress={handleKeyPress} />
+            <SearchInput value={keyword} onChange={handleInput} onKeyPress={handleKeyPress} disabled={!location} />
             <SearchList>
-                {places.map((place, idx) => (
-                    <Place key={idx} info={place} updatePlaces={updatePlaces} />
-                ))}
+                {!location
+                    ? LOADING
+                    : places.map((place, idx) => <Place key={idx} info={place} updatePlaces={updatePlaces} />)}
             </SearchList>
         </Wrapper>
     );
