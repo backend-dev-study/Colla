@@ -33,3 +33,12 @@ export const SearchList = styled.div`
 
     ${Column}
 `;
+
+export const Loading = styled.div`
+    margin-top: 20px;
+    margin-bottom: 30px;
+`;
+
+export const NoPlace = styled.div`
+    margin-top: 30px;
+`;
