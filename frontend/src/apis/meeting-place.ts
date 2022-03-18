@@ -26,3 +26,9 @@ export const getMeetingPlaces = async (projectId: number) => {
 
     return response;
 };
+
+export const deleteMeetingPlace = async (meetingPlaceId: number) => {
+    const response = await client.delete(`/projects/meeting-places/${meetingPlaceId}`);
+
+    return response;
+};
