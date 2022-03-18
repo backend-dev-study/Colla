@@ -3,6 +3,7 @@ package kr.kro.colla.meeting_place.meeting_place.presentation;
 import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.MeetingPlaceProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.exception.exception.meeting_place.MeetingPlaceNotFoundException;
 import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.CreateMeetingPlaceRequest;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.MeetingPlaceResponse;
@@ -27,10 +28,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -154,6 +153,47 @@ class MeetingPlaceControllerTest extends ControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message", containsString("must not be null")));
+    }
+
+    @Test
+    void 선택한_모임_장소를_삭제한다() throws Exception {
+        // given
+        Long meetingPlaceId = 3L;
+
+        willDoNothing()
+                .given(meetingPlaceService)
+                .deleteMeetingPlace(eq(meetingPlaceId));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/projects/meeting-places/" + meetingPlaceId)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform
+                .andExpect(status().isOk());
+        verify(meetingPlaceService, times(1)).deleteMeetingPlace(anyLong());
+    }
+
+    @Test
+    void 삭제하려는_모임_장소가_없을_경우_예외가_발생한다() throws Exception {
+        // given
+        Long meetingPlaceId = 2L;
+
+        willThrow(new MeetingPlaceNotFoundException())
+                .given(meetingPlaceService)
+                .deleteMeetingPlace(eq(meetingPlaceId));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/projects/meeting-places/" + meetingPlaceId)
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+                .andExpect(jsonPath("$.message").value("해당하는 모임 장소를 찾을 수 없습니다."));
     }
 
 }
