@@ -11,7 +11,7 @@ const dummy: Array<MeetingPlaceType> = [
     {
         id: 1,
         name: '컴포즈커피',
-        image: null,
+        image: undefined,
         longitude: 127.03187208216006,
         latitude: 37.4918120829107,
         address: '서울특별시 강남구 역삼동 강남대로66길 14',
@@ -19,7 +19,7 @@ const dummy: Array<MeetingPlaceType> = [
     {
         id: 2,
         name: '달커피',
-        image: null,
+        image: undefined,
         longitude: 127.03173245188478,
         latitude: 37.49074981117741,
         address: '서울특별시 강남구 역삼동 강남대로 308 1층',
@@ -27,7 +27,7 @@ const dummy: Array<MeetingPlaceType> = [
     {
         id: 3,
         name: '커피빈',
-        image: null,
+        image: undefined,
         longitude: 127.03229097297763,
         latitude: 37.48765414782675,
         address: '서울특별시 서초구 서초동 1361-9',

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-import { GRAY, LIGHT_GRAY, WHITE } from '../../styles/color';
+import { GRAY, LIGHT_GRAY } from '../../styles/color';
 import { Column } from '../../styles/common';
 
 interface PropType {
@@ -22,19 +22,18 @@ export const Wrapper = styled.button<PropType>`
 
 export const PlaceInfo = styled.div`
     display: flex;
-    justify-content: space-around;
 `;
 
-export const PlaceThumbnail = styled.div`
-    width: 140px;
-    height: 80px;
-    border-radius: 10px;
-    background: ${WHITE};
+export const PlaceThumbnail = styled.img`
+    width: 50px;
+    height: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
 `;
 
 export const PlaceText = styled.div`
-    width: 220px;
-    align-items: center;
+    width: 300px;
+    align-items: flex-start;
 
     ${Column}
 `;
