@@ -7,11 +7,6 @@ import { StateType } from '../../types/project';
 import { InfoWindow } from './InfoWindow';
 import { MapContainer } from './style';
 
-interface PropType {
-    meetingPlaces: Array<MeetingPlaceType>;
-    setSpecificMeetingPlaces: Function;
-}
-
 const Map: FC<PropType> = ({ meetingPlaces, setSpecificMeetingPlaces }) => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];

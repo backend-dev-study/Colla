@@ -9,3 +9,8 @@ export interface SearchPlaceType {
 export interface MeetingPlaceType extends SearchPlaceType {
     id: number;
 }
+
+export interface LatLngType {
+    lng: number | undefined;
+    lat: number | undefined;
+}
