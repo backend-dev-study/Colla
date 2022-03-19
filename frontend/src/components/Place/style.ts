@@ -26,7 +26,7 @@ export const DeleteButton = styled.img`
     position: absolute;
     width: 15px;
     height: 15px;
-    margin: -20px 0 0 165px;
+    margin-left: 165px;
 
     &:hover {
         border-bottom: 2px solid ${BLACK};
