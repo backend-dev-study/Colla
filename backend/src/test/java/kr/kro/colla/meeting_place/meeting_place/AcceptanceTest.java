@@ -179,4 +179,46 @@ public class AcceptanceTest {
                 });
     }
 
+    @Test
+    void 사용자가_특정_모임_장소를_목록에서_삭제한다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        모임_장소를_생성한다(accessToken, createdProject.getId(), 127.318, 37.769);
+
+        given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .delete("api/projects/meeting-places/" + 1L)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    void 사용자는_존재하지_않은_모임_장소를_삭제할_수_없다() {
+        // given
+        User member = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(member.getId());
+
+        given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .delete("/api/projects/meeting-places/" + 1L)
+
+        // then
+        .then()
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("status", equalTo(HttpStatus.NOT_FOUND.value()))
+                .body("message", equalTo("해당하는 모임 장소를 찾을 수 없습니다."));
+    }
+
 }

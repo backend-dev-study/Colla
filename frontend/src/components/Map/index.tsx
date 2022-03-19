@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import { getSpecificAreaMeetingPlace } from '../../apis/meeting-place';
@@ -7,34 +7,12 @@ import { StateType } from '../../types/project';
 import { InfoWindow } from './InfoWindow';
 import { MapContainer } from './style';
 
-const dummy: Array<MeetingPlaceType> = [
-    {
-        id: 1,
-        name: '컴포즈커피',
-        image: null,
-        longitude: 127.03187208216006,
-        latitude: 37.4918120829107,
-        address: '서울특별시 강남구 역삼동 강남대로66길 14',
-    },
-    {
-        id: 2,
-        name: '달커피',
-        image: null,
-        longitude: 127.03173245188478,
-        latitude: 37.49074981117741,
-        address: '서울특별시 강남구 역삼동 강남대로 308 1층',
-    },
-    {
-        id: 3,
-        name: '커피빈',
-        image: null,
-        longitude: 127.03229097297763,
-        latitude: 37.48765414782675,
-        address: '서울특별시 서초구 서초동 1361-9',
-    },
-];
+interface PropType {
+    meetingPlaces: Array<MeetingPlaceType>;
+    setSpecificMeetingPlaces: Function;
+}
 
-const Map = () => {
+const Map: FC<PropType> = ({ meetingPlaces, setSpecificMeetingPlaces }) => {
     let markers: Array<any> = [];
     let infoWindows: Array<any> = [];
     let timer: NodeJS.Timeout;
@@ -51,7 +29,7 @@ const Map = () => {
     };
 
     const markMeetingPlace = (map: any) => {
-        markers = dummy.map(({ latitude, longitude }) => {
+        markers = meetingPlaces.map(({ latitude, longitude }) => {
             const marker = new naver.maps.Marker({
                 position: new naver.maps.LatLng(latitude, longitude),
                 map,
@@ -63,7 +41,7 @@ const Map = () => {
     };
 
     const createInfoWindows = () => {
-        infoWindows = dummy.map(
+        infoWindows = meetingPlaces.map(
             (meetingPlace, idx) =>
                 new naver.maps.InfoWindow({
                     position: markers[idx],
@@ -81,8 +59,8 @@ const Map = () => {
         timer = setTimeout(async () => {
             const { _max, _min } = map.getBounds();
             const res = await getSpecificAreaMeetingPlace(state.projectId, _min._lng, _max._lng, _min._lat, _max._lat);
-            console.log(res.data); // TODO: 좌측 리스트와 연동
-        }, 1000);
+            setSpecificMeetingPlaces(res.data);
+        }, 500);
     };
 
     useEffect(() => {
@@ -101,7 +79,7 @@ const Map = () => {
         createInfoWindows();
         naver.maps.Event.addListener(map, 'click', () => handleClickOtherArea());
         naver.maps.Event.addListener(map, 'drag', () => searchSpecificAreaMeetingPlace(map));
-    }, []);
+    }, [meetingPlaces]);
 
     return (
         <MapContainer>
