@@ -2,6 +2,7 @@ package kr.kro.colla.meeting_place.meeting_place.domain.repository;
 
 import kr.kro.colla.common.fixture.MeetingPlaceProvider;
 import kr.kro.colla.common.fixture.ProjectProvider;
+import kr.kro.colla.exception.exception.meeting_place.MeetingPlaceNotFoundException;
 import kr.kro.colla.meeting_place.meeting_place.domain.MeetingPlace;
 import kr.kro.colla.meeting_place.meeting_place.presentation.dto.SearchByMapBoundaryRequest;
 import kr.kro.colla.project.project.domain.Project;
@@ -9,6 +10,7 @@ import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolationException;
@@ -80,4 +82,27 @@ class MeetingPlaceRepositoryTest {
                 .isGreaterThanOrEqualTo(request.getMinLat())
                 .isLessThanOrEqualTo(request.getMaxLat());
     }
+
+    @Test
+    void 선택한_모임_장소를_삭제한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(1L));
+        meetingPlaceRepository.save(MeetingPlaceProvider.createMeetingPlace(project));
+
+        // when
+        meetingPlaceRepository.deleteById(1L);
+
+        // then
+        assertThatThrownBy(() -> meetingPlaceRepository.findById(1L)
+                .orElseThrow(MeetingPlaceNotFoundException::new)
+        ).isInstanceOf(MeetingPlaceNotFoundException.class);
+    }
+
+    @Test
+    void 삭제하려는_모임_장소가_없을_경우_예외가_발생한다() {
+        // when, then
+        assertThatThrownBy(() -> meetingPlaceRepository.deleteById(1L))
+                .isInstanceOf(EmptyResultDataAccessException.class);
+    }
+
 }
