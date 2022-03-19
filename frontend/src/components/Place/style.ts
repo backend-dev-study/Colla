@@ -1,13 +1,14 @@
 import styled from '@emotion/styled';
 
-import { GRAY, LIGHT_GRAY } from '../../styles/color';
-import { Column } from '../../styles/common';
+import { BLACK, GRAY, LIGHT_GRAY } from '../../styles/color';
+import { Column, LiftUp } from '../../styles/common';
 
 interface PropType {
     meetingPlace?: boolean;
 }
 
 export const Wrapper = styled.button<PropType>`
+    position: relative;
     width: 400px;
     height: 120px;
     border-radius: 20px;
@@ -16,7 +17,19 @@ export const Wrapper = styled.button<PropType>`
     background: ${({ meetingPlace }) => (meetingPlace === true ? GRAY : LIGHT_GRAY)};
 
     &:hover {
-        opacity: 0.3;
+        opacity: 1;
+        ${LiftUp}
+    }
+`;
+
+export const DeleteButton = styled.img`
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    margin: -20px 0 0 165px;
+
+    &:hover {
+        border-bottom: 2px solid ${BLACK};
     }
 `;
 

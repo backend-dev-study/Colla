@@ -16,15 +16,18 @@ const MeetingPlace = () => {
     const { state } = useLocation<StateType>();
     const { Modal, setModal } = useModal();
     const [meetingPlaces, setMeetingPlaces] = useState<Array<MeetingPlaceType>>([]);
+    const [specificMeetingPlaces, setSpecificMeetingPlaces] = useState<Array<MeetingPlaceType>>([]);
 
     const updateMeetingPlaces = async (projectId: number) => {
         const response = await getMeetingPlaces(projectId);
         setMeetingPlaces(response.data);
+        setSpecificMeetingPlaces(response.data);
     };
 
     useEffect(() => {
         updateMeetingPlaces(state.projectId);
     }, []);
+
     return (
         <>
             <Header />
@@ -34,7 +37,7 @@ const MeetingPlace = () => {
                     <PlaceContainer>
                         <AddPlace onClick={setModal}>모임 장소 추가</AddPlace>
                         <PlaceList>
-                            {meetingPlaces.map((place: MeetingPlaceType, idx: number) => (
+                            {specificMeetingPlaces.map((place: MeetingPlaceType, idx: number) => (
                                 <Place meetingPlace key={idx} info={place} />
                             ))}
                         </PlaceList>
@@ -42,7 +45,7 @@ const MeetingPlace = () => {
                     <Modal>
                         <PlaceModal updatePlaces={updateMeetingPlaces} />
                     </Modal>
-                    <Map />
+                    <Map meetingPlaces={meetingPlaces} setSpecificMeetingPlaces={setSpecificMeetingPlaces} />
                 </Wrapper>
             </Container>
         </>
