@@ -24,6 +24,14 @@ const dummyTaskProgresses = [
     },
 ];
 
+const dummyTotalTaskStatuses = [
+    { statusName: 'to do', statusCounts: 63, total: 194 },
+    { statusName: 'progress', statusCounts: 30, total: 194 },
+    { statusName: 'done', statusCounts: 57, total: 194 },
+    { statusName: 'unknown', statusCounts: 27, total: 194 },
+    { statusName: 'new', statusCounts: 17, total: 194 },
+];
+
 const Dashboard = () => (
     <Template>
         <Wrapper>
@@ -37,7 +45,7 @@ const Dashboard = () => (
             <RightSide>
                 <LineChartContainer />
                 <PieChartContainer>
-                    <PieChart />
+                    <PieChart statuses={dummyTotalTaskStatuses} />
                 </PieChartContainer>
             </RightSide>
         </Wrapper>

@@ -1,13 +1,8 @@
 import React, { FC } from 'react';
 
+import { TaskProgressType } from '../../../types/dashboard';
 import { getRandomColor } from '../../../utils/common';
 import { Bar, Manager, PartialHover, PartialBar, Wrapper } from './style';
-
-interface TaskProgressType {
-    statusName: string;
-    statusCounts: number;
-    total: number;
-}
 
 interface PropType {
     managerName: string;

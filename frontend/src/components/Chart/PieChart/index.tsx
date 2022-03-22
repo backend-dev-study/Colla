@@ -1,21 +1,41 @@
-import React from 'react';
+import React, { FC } from 'react';
 
+import { TaskProgressType } from '../../../types/dashboard';
+import { getRandomColor } from '../../../utils/common';
 import Circle from './Circle';
 import { SVG } from './style';
 
 const RADIUS = 70;
 const STROKE_WIDTH = 30;
 
-const PieChart = () => (
+interface PropType {
+    statuses: Array<TaskProgressType>;
+}
+
+const sumProgress = (prevProgress: number, counts: number, total: number, arr: Array<number>) => {
+    arr.push(prevProgress + (counts / total) * 100);
+    return prevProgress + (counts / total) * 100;
+};
+
+const calcProgress = (statuses: Array<TaskProgressType>) => {
+    const arr: Array<number> = [];
+    statuses.reduce((prev: number, { statusCounts, total }) => sumProgress(prev, statusCounts, total, arr), 0);
+    return arr
+        .reverse()
+        .map((progress) => (
+            <Circle
+                key={progress}
+                progress={progress}
+                radius={RADIUS}
+                strokeColor={getRandomColor()}
+                strokeWidth={STROKE_WIDTH}
+            />
+        ));
+};
+
+const PieChart: FC<PropType> = ({ statuses }) => (
     <>
-        <SVG viewBox="0 0 200 200">
-            <Circle progress={100} radius={RADIUS} strokeColor={'#ffffff'} strokeWidth={STROKE_WIDTH} />
-            <Circle progress={100} radius={RADIUS} strokeColor={'#6f31fe'} strokeWidth={STROKE_WIDTH} />
-            <Circle progress={70} radius={RADIUS} strokeColor={'#1131fe'} strokeWidth={STROKE_WIDTH} />
-            <Circle progress={50} radius={RADIUS} strokeColor={'#6ef145'} strokeWidth={STROKE_WIDTH} />
-            <Circle progress={40} radius={RADIUS} strokeColor={'#bd35fe'} strokeWidth={STROKE_WIDTH} />
-            <Circle progress={10} radius={RADIUS} strokeColor={'#fe31fe'} strokeWidth={STROKE_WIDTH} />
-        </SVG>
+        <SVG viewBox="0 0 200 200">{calcProgress(statuses)}</SVG>
     </>
 );
 
