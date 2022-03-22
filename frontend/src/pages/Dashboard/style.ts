@@ -23,21 +23,21 @@ export const RightSide = styled.div`
     ${Column}
 `;
 
-export const ProgressBar = styled.div`
+export const ProgressBarContainer = styled.div`
     width: 35vw;
     height: 70vh;
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
 
-export const PieChart = styled.div`
+export const PieChartContainer = styled.div`
     width: 30vw;
     height: 33vh;
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
 
-export const LineChart = styled.div`
+export const LineChartContainer = styled.div`
     width: 30vw;
     height: 33vh;
     border-radius: 20px;
