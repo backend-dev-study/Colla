@@ -36,6 +36,18 @@ export const PartialBar = styled.div<PropType>`
     &:hover ${PartialHover} {
         visibility: visible;
     }
+    :hover {
+        animation: scale-up 0.3s forwards;
+    }
+
+    @keyframes scale-up {
+        0% {
+            transform: scaleY(100%);
+        }
+        100% {
+            transform: scaleY(120%);
+        }
+    }
 `;
 
 export const Bar = styled.div`
