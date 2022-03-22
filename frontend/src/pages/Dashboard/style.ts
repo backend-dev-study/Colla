@@ -26,6 +26,7 @@ export const RightSide = styled.div`
 export const ProgressBarContainer = styled.div`
     width: 35vw;
     height: 70vh;
+    padding: 15px;
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
