@@ -36,9 +36,11 @@ public class MeetingPlace {
     @Column
     private Double latitude;
 
-    @NotNull
     @Column
     private String address;
+
+    @Column
+    private String category;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
@@ -49,12 +51,13 @@ public class MeetingPlace {
     private List<MentionedPost> mentionedPosts = new ArrayList<>();
 
     @Builder
-    public MeetingPlace(String name, String image, Double longitude, Double latitude, String address, Project project) {
+    public MeetingPlace(String name, String image, Double longitude, Double latitude, String address, String category, Project project) {
         this.name = name;
         this.image = image;
         this.longitude = longitude;
         this.latitude = latitude;
         this.address = address;
+        this.category = category;
         this.project = project;
     }
 }

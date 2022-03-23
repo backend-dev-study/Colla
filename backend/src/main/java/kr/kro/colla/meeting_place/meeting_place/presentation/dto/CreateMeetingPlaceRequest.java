@@ -21,6 +21,7 @@ public class CreateMeetingPlaceRequest {
     @NotNull
     private Double latitude;
 
-    @NotNull
     private String address;
+
+    private String category;
 }

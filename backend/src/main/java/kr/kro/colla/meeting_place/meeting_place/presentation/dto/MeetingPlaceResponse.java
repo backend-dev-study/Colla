@@ -19,6 +19,8 @@ public class MeetingPlaceResponse {
 
     private String address;
 
+    private String category;
+
     public MeetingPlaceResponse(MeetingPlace place) {
         this.id = place.getId();
         this.name = place.getName();
@@ -26,5 +28,6 @@ public class MeetingPlaceResponse {
         this.longitude = place.getLongitude();
         this.latitude = place.getLatitude();
         this.address = place.getAddress();
+        this.category = place.getCategory();
     }
 }
