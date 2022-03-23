@@ -309,7 +309,7 @@ public class AcceptanceTest {
                 .body(request)
         // when
         .when()
-                .patch("/api/projects/tasks/" + 1L)
+                .patch("/api/projects/"+ createdProject.getId() +"/tasks/" + 1L)
         // then
         .then()
                 .statusCode(HttpStatus.OK.value());
@@ -332,7 +332,7 @@ public class AcceptanceTest {
                 .body(request)
         // when
         .when()
-                .patch("/api/projects/tasks/" + 1L)
+                .patch("/api/projects/" + createdProject.getId() + "/tasks/" + 1L)
         // then
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
