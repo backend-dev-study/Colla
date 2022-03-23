@@ -35,16 +35,16 @@ public class TaskController {
     }
 
     @PutMapping("/tasks/{taskId}")
-    public ResponseEntity<Void> updateTask(@PathVariable Long taskId, @Valid UpdateTaskRequest updateTaskRequest) {
+    public ResponseEntity<Void> updateTask(@PathVariable(name = "taskId") Long taskId, @Valid UpdateTaskRequest updateTaskRequest) {
         taskService.updateTask(taskId, updateTaskRequest);
 
         return ResponseEntity.ok()
                 .build();
     }
 
-    @PatchMapping("/tasks/{taskId}")
-    public ResponseEntity<Void> updateTaskStatus(@PathVariable Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
-        taskService.updateTaskStatus(taskId, request.getStatusName());
+    @PatchMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<Void> updateTaskStatus(@PathVariable(name = "projectId") Long projectId, @PathVariable(name = "taskId") Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
+        taskService.updateTaskStatus(projectId, taskId, request.getStatusName());
 
         return ResponseEntity.ok()
                 .build();

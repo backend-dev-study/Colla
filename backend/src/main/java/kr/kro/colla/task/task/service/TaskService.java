@@ -11,6 +11,7 @@ import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
+import kr.kro.colla.task.task_status_log.service.TaskStatusLogService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -33,6 +34,7 @@ public class TaskService {
     private final ProjectService projectService;
     private final TaskTagService taskTagService;
     private final TaskStatusService taskStatusService;
+    private final TaskStatusLogService taskStatusLogService;
     private final TaskRepository taskRepository;
 
     public Long createTask(CreateTaskRequest createTaskRequest) {
@@ -56,8 +58,10 @@ public class TaskService {
         List<TaskTag> tags = taskTagService.translateTaskTags(task, createTaskRequest.getTags());
         task.addTags(tags);
 
-        return taskRepository.save(task)
-                .getId();
+        task = taskRepository.save(task);
+        taskStatusLogService.writeTaskStatusLog(project, task, null, taskStatus);
+
+        return task.getId();
     }
 
     public ProjectTaskResponse getTask(Long taskId) {
@@ -93,10 +97,14 @@ public class TaskService {
         project.removeStatus(fromTaskStatus);
     }
 
-    public void updateTaskStatus(Long taskId, String statusName) {
+    public void updateTaskStatus(Long projectId, Long taskId, String statusName) {
+        Project project = projectService.findProjectById(projectId);
         Task task = findTaskById(taskId);
-        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
-        task.updateTaskStatus(taskStatus);
+        TaskStatus prevStatus = task.getTaskStatus();
+        TaskStatus newTaskStatus = taskStatusService.findTaskStatusByName(statusName);
+
+        task.updateTaskStatus(newTaskStatus);
+        taskStatusLogService.writeTaskStatusLog(project, task, prevStatus, newTaskStatus);
     }
 
     public List<RoadmapTaskResponse> getStoryTasks(Long projectId, Long storyId) {
