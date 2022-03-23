@@ -33,6 +33,7 @@ public class MeetingPlaceService {
                 .longitude(request.getLongitude())
                 .latitude(request.getLatitude())
                 .address(request.getAddress())
+                .category(request.getCategory())
                 .project(project)
                 .build();
 
