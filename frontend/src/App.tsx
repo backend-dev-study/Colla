@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import ValidationRoute from './components/ValidationRoute';
 import Backlog from './pages/Backlog';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import Kanban from './pages/Kanban';
 import Login from './pages/Login';
@@ -31,6 +32,7 @@ const App = () => (
                     <ValidationRoute exact path="/backlog" component={Backlog} />
                     <ValidationRoute exact path="/roadmap" component={Roadmap} />
                     <ValidationRoute exact path="/meeting-place" component={MeetingPlace} />
+                    <ValidationRoute exact path="/dashboard" component={Dashboard} />
                     <Route component={NotFound} />
                 </Switch>
             </Router>

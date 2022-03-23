@@ -1,8 +1,8 @@
 export interface SearchPlaceType {
     name: string;
-    image?: string;
     latitude: number;
     longitude: number;
+    category: string;
     address: string;
 }
 

@@ -11,6 +11,7 @@ interface KakaoPlaceType {
     place_url: string;
     address_name: string;
     road_address_name: string;
+    category_group_name: string;
     x: number;
     y: number;
 }
@@ -57,12 +58,19 @@ const PlaceModal: FC<PropType> = ({ updatePlaces }) => {
 
         setPlaces(
             result.map(
-                ({ place_name: name, road_address_name: address, x: longitude, y: latitude }) =>
+                ({
+                    place_name: name,
+                    road_address_name: address,
+                    x: longitude,
+                    y: latitude,
+                    category_group_name: category,
+                }) =>
                     ({
                         name,
                         address,
                         longitude,
                         latitude,
+                        category,
                     } as SearchPlaceType),
             ),
         );

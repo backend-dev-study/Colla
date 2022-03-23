@@ -18,3 +18,8 @@ export const YYYYMMDDToDate = (str: string) => {
     );
     return date;
 };
+
+export const getRandomColor = () => {
+    const letters = '0123456789abcdef';
+    return Array.from({ length: 6 }, (v, i) => i).reduce((prev) => prev + letters[Math.floor(Math.random() * 16)], '#');
+};
