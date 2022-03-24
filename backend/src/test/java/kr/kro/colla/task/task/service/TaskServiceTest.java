@@ -9,6 +9,7 @@ import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
@@ -780,4 +781,95 @@ class TaskServiceTest {
         verify(taskRepository, times(1)).findTasksSearchByKeyword(any(Project.class), anyString());
     }
 
+    @Test
+    void 상태값_별_테스크_개수를_조회한다() {
+        // given
+        Long projectId = 95230L;
+        Project project = ProjectProvider.createProject(21923L);
+        List<TaskCntByStatus> taskCntList = List.of(
+                new TaskCntByStatus("요거트", 234L),
+                new TaskCntByStatus("스무디", 51L),
+                new TaskCntByStatus("맛있다", 461L)
+        );
+
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(taskRepository.groupByTaskStatus(any(Project.class)))
+                .willReturn(taskCntList);
+
+        // when
+        List<TaskCntResponse> responses = taskService.getTaskCntsByStatus(projectId);
+
+        // then
+        assertThat(responses.size()).isEqualTo(taskCntList.size());
+        IntStream.range(0, responses.size())
+                .forEach(i -> {
+                            assertThat(responses.get(i).getTaskStatusName()).isEqualTo(taskCntList.get(i).getTaskStatusName());
+                            assertThat(responses.get(i).getTaskCnt()).isEqualTo(taskCntList.get(i).getTaskCnt());
+                });
+        verify(taskRepository, times(1)).groupByTaskStatus(any(Project.class));
+    }
+
+    @Test
+    void 담당자마다의_상태값_별_테스크_개수를_조회한다() {
+        // given
+        Long projectId = 95230L;
+        String manager1 = "수빈", manager2 = "영기";
+        Project project = ProjectProvider.createProject(21923L);
+        List<TaskCntByStatus> taskCntList = List.of(
+                new TaskCntByStatus("역시", 234L, manager1),
+                new TaskCntByStatus("코딩은", 51L, manager1),
+                new TaskCntByStatus("새벽이지", 461L, manager2)
+        );
+
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(taskRepository.groupByTaskStatusAndManager(any(Project.class)))
+                .willReturn(taskCntList);
+
+        // when
+        List<ManagerTaskCntResponse> responses = taskService.getTaskCntsByManagerAndStatus(projectId);
+
+        // then
+        assertThat(responses.size()).isEqualTo(2);
+        responses.forEach(managerTaskCnt -> {
+            assertThat(List.of(manager1, manager2)).contains(managerTaskCnt.getManagerName());
+            if (managerTaskCnt.getManagerName().equals(manager1)) {
+                assertThat(managerTaskCnt.getTaskCnts().size()).isEqualTo(2);
+            }
+            else if (managerTaskCnt.getManagerName().equals(manager2)) {
+                assertThat(managerTaskCnt.getTaskCnts().size()).isEqualTo(1);
+            }
+        });
+        verify(taskRepository, times(1)).groupByTaskStatusAndManager(any(Project.class));
+    }
+
+    @Test
+    void 담당자가_없는_테스크_개수도_상태값_별_조회된다() {
+        // given
+        Long projectId = 95230L, taskCnt = 5000L;
+        String taskStatusName = "확인해볼 값";
+        Project project = ProjectProvider.createProject(21923L);
+        List<TaskCntByStatus> taskCntList = List.of(
+                new TaskCntByStatus(taskStatusName, taskCnt, null),
+                new TaskCntByStatus("테스트는", 51L, null),
+                new TaskCntByStatus("어디까지 길어질까..", 461L, null)
+        );
+
+        given(projectService.findProjectById(projectId))
+                .willReturn(project);
+        given(taskRepository.groupByTaskStatusAndManager(any(Project.class)))
+                .willReturn(taskCntList);
+
+        // when
+        List<ManagerTaskCntResponse> responses = taskService.getTaskCntsByManagerAndStatus(projectId);
+
+        // then
+        assertThat(responses.size()).isEqualTo(1);
+        assertThat(responses.get(0).getManagerName()).isEqualTo("담당자 없음");
+        assertThat(responses.get(0).getTaskCnts().size()).isEqualTo(3);
+        assertThat(responses.get(0).getTaskCnts().get(0).getTaskStatusName()).isEqualTo(taskStatusName);
+        assertThat(responses.get(0).getTaskCnts().get(0).getTaskCnt()).isEqualTo(taskCnt);
+        verify(taskRepository, times(1)).groupByTaskStatusAndManager(any(Project.class));
+    }
 }
