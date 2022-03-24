@@ -17,7 +17,7 @@ import static io.restassured.RestAssured.given;
 public class MeetingPlaceProvider {
 
     public static MeetingPlaceResponse 모임_장소를_생성한다(String accessToken, Long projectId, Double longitude, Double latitude) {
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("name", "image", longitude, latitude, "address");
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("name", "image", longitude, latitude, "address", "category");
 
         return given()
                 .contentType(ContentType.JSON)

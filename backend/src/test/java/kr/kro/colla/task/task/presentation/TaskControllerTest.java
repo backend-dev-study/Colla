@@ -101,12 +101,12 @@ class TaskControllerTest extends ControllerTest {
     @Test
     void 프로젝트에_속한_테스크의_상태값을_수정한다() throws Exception {
         // given
-        Long taskId = 13494L;
+        Long projectId = 1L, taskId = 13494L;
         String statusNameToUpdate = "새로운~상태~값~입니다~";
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest(statusNameToUpdate);
 
         // when
-        ResultActions perform = mockMvc.perform(patch("/projects/tasks/" + taskId)
+        ResultActions perform = mockMvc.perform(patch("/projects/" + projectId + "/tasks/" + taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -114,17 +114,17 @@ class TaskControllerTest extends ControllerTest {
         // then
         perform
                 .andExpect(status().isOk());
-        verify(taskService, times(1)).updateTaskStatus(taskId, statusNameToUpdate);
+        verify(taskService, times(1)).updateTaskStatus(projectId, taskId, statusNameToUpdate);
     }
 
     @Test
     void 상태값_이름이_부족하면_테스크_상태를_수정할_수_없다() throws Exception {
         // given
-        Long taskId = 13494L;
+        Long projectId = 1L, taskId = 13494L;
         UpdateTaskStatusRequest request = new UpdateTaskStatusRequest();
 
         // when
-        ResultActions perform = mockMvc.perform(patch("/projects/tasks/" + taskId)
+        ResultActions perform = mockMvc.perform(patch("/projects/" + projectId + "/tasks/" + taskId)
                 .cookie(new Cookie("accessToken", accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -134,7 +134,7 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
                     .andExpect(jsonPath("$.message").value("statusName : must not be null"));
-        verify(taskService, times(0)).updateTaskStatus(eq(taskId), anyString());
+        verify(taskService, times(0)).updateTaskStatus(eq(projectId), eq(taskId), anyString());
     }
 
     @Test
