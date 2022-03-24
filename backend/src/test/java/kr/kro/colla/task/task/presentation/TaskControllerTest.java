@@ -4,6 +4,7 @@ import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
+import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
@@ -478,5 +479,59 @@ class TaskControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.length()").value(taskList.size()))
                 .andExpect(jsonPath("$[0].title", containsString(keyword)))
                 .andExpect(jsonPath("$[1].title", containsString(keyword)));
+    }
+
+    @Test
+    void 상태값_별로_테스크_개수를_조회한다() throws Exception {
+        // given
+        Long projectId = 56234L;
+        List<TaskCntResponse> taskCntList = List.of(
+                new TaskCntResponse("To Do", 924L),
+                new TaskCntResponse("Done", 329L)
+        );
+
+        given(taskService.getTaskCntsByStatus(projectId))
+                .willReturn(taskCntList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/count")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].taskStatusName").value(taskCntList.get(0).getTaskStatusName()))
+                .andExpect(jsonPath("$[0].taskCnt").value(taskCntList.get(0).getTaskCnt()));
+    }
+
+    @Test
+    void 담당자마다_상태값_별로_테스크_개수를_조회한다() throws Exception {
+        // given
+        Long projectId = 56234L;
+        List<ManagerTaskCntResponse> managerTaskCntList = List.of(
+                new ManagerTaskCntResponse("Subin Min", List.of(
+                        new TaskCntResponse("To Do", 234L),
+                        new TaskCntResponse("Done", 144L)
+                )),
+                new ManagerTaskCntResponse("YeongKee Kweon", List.of(
+                        new TaskCntResponse("Done", 1294L)
+                ))
+        );
+
+        given(taskService.getTaskCntsByManagerAndStatus(projectId))
+                .willReturn(managerTaskCntList);
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/projects/" + projectId + "/tasks/count/manager")
+                .cookie(new Cookie("accessToken", accessToken))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].managerName").value(managerTaskCntList.get(0).getManagerName()))
+                .andExpect(jsonPath("$[0].taskCnts.length()").value(managerTaskCntList.get(0).getTaskCnts().size()))
+                .andExpect(jsonPath("$[1].taskCnts[0].taskCnt").value(1294));
     }
 }

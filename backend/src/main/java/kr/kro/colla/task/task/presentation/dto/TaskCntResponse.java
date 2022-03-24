@@ -1,9 +1,11 @@
 package kr.kro.colla.task.task.presentation.dto;
 
 import kr.kro.colla.task.task.domain.TaskCntByStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class TaskCntResponse {
