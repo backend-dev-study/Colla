@@ -15,7 +15,7 @@ public class TaskCntByStatus {
     @NotNull
     private Long taskCnt;
 
-    private Long manager;
+    private String manager;
 
     public TaskCntByStatus(String taskStatusName, Long taskCnt) {
         this.taskStatusName = taskStatusName;

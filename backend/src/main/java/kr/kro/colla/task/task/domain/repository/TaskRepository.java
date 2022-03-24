@@ -45,6 +45,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("select new kr.kro.colla.task.task.domain.TaskCntByStatus(t.taskStatus.name, count(t)) from Task t where t.project = :project group by t.taskStatus")
     List<TaskCntByStatus> groupByTaskStatus(@Param("project") Project project);
 
-    @Query("select new kr.kro.colla.task.task.domain.TaskCntByStatus(t.taskStatus.name, count(t), t.managerId) from Task t where t.project = :project group by t.taskStatus, t.managerId")
+    @Query("select new kr.kro.colla.task.task.domain.TaskCntByStatus(t.taskStatus.name, count(t), u.name) from Task t left join fetch User u on u.id = t.managerId where t.project = :project group by t.taskStatus, t.managerId")
     List<TaskCntByStatus> groupByTaskStatusAndManager(@Param("project") Project project);
 }
