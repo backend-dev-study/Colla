@@ -265,4 +265,25 @@ public class TaskService {
                 .map(TaskCntResponse::new)
                 .collect(Collectors.toList());
     }
+
+    public List<ManagerTaskCntResponse> getTaskCntsByManagerAndStatus(Long projectId) {
+        Project project = projectService.findProjectById(projectId);
+        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+
+        Map<Long, List<TaskCntResponse>> byManager = new HashMap<>();
+        taskCntList.forEach(taskCnt -> {
+                    byManager.putIfAbsent(taskCnt.getManager(), new ArrayList<>());
+                    byManager.get(taskCnt.getManager()).add(new TaskCntResponse(taskCnt));
+                });
+
+        return byManager.entrySet().stream()
+                .map(e -> {
+                    String userName = "담당자 없음";
+                    if (e.getKey()!=null) {
+                        userName = userService.findUserById(e.getKey()).getName();
+                    }
+                    return new ManagerTaskCntResponse(userName, e.getValue());
+                })
+                .collect(Collectors.toList());
+    }
 }
