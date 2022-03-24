@@ -8,6 +8,7 @@ import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
@@ -254,5 +255,14 @@ public class TaskService {
     public Task findTaskById(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(TaskNotFoundException::new);
+    }
+
+    public List<TaskCntResponse> getTaskCntsByStatus(Long projectId) {
+        Project project = projectService.findProjectById(projectId);
+        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
+
+        return taskCntList.stream()
+                .map(TaskCntResponse::new)
+                .collect(Collectors.toList());
     }
 }

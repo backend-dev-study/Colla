@@ -106,4 +106,10 @@ public class TaskController {
         return ResponseEntity.ok(taskList);
     }
 
+    @GetMapping("{projectId}/tasks/count")
+    public ResponseEntity<List<TaskCntResponse>> getTaskCntSByStatus(@PathVariable Long projectId) {
+        List<TaskCntResponse> taskCntList = taskService.getTaskCntsByStatus(projectId);
+
+        return ResponseEntity.ok(taskCntList);
+    }
 }
