@@ -19,7 +19,7 @@ public class TaskStatusLogService {
     private final TaskStatusLogRepository taskStatusLogRepository;
 
     public void writeTaskStatusLog(Project project, TaskStatus taskStatus) {
-        taskStatusLogRepository.findTaskStatusLogByStatusAndCreatedAt(taskStatus.getName(), LocalDate.now())
+        taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(project, taskStatus.getName(), LocalDate.now())
                 .ifPresentOrElse(
                         TaskStatusLog::increaseCount,
                         () -> taskStatusLogRepository.save(
@@ -32,8 +32,8 @@ public class TaskStatusLogService {
     }
 
     public void updateTaskStatusLog(Project project, Task task, TaskStatus prevStatus, TaskStatus newStatus) {
-        if (task.getCreatedAt().toLocalDate().isEqual(LocalDate.now())) {
-            taskStatusLogRepository.findTaskStatusLogByStatusAndCreatedAt(prevStatus.getName(), LocalDate.now())
+        if (task.getUpdatedAt().toLocalDate().isEqual(LocalDate.now())) {
+            taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(project, prevStatus.getName(), LocalDate.now())
                     .ifPresent(TaskStatusLog::decreaseCount);
         }
         writeTaskStatusLog(project, newStatus);
