@@ -89,6 +89,7 @@ class TaskStatusLogRepositoryTest {
         // when
         Optional<TaskStatusLog> taskStatusLog = taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(secondProject, taskStatus1.getName(), LocalDate.now());
 
+        // then
         assertThat(taskStatusLog).isEmpty();
     }
 
