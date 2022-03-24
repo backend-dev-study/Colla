@@ -13,6 +13,7 @@ import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.task.task.domain.Task;
+import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -350,6 +351,76 @@ class TaskRepositoryTest {
 
         // then
         assertThat(taskList.size()).isZero();
+    }
+
+    @Test
+    void 테스크_개수를_상태값_별_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(234L));
+        TaskStatus taskStatus0 = taskStatusRepository.save(new TaskStatus("그룹 바이는"));
+        TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("또 기본 지원에"));
+        TaskStatus taskStatus2 = taskStatusRepository.save(new TaskStatus("없는 알 수 없는 JPA 세계"));
+        taskRepository.save(TaskProvider.createTaskForRepository(6243L, project, null, taskStatus0));
+        taskRepository.save(TaskProvider.createTaskForRepository(6243L, project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(6243L, project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(6243L, project, null, taskStatus2));
+
+        // when
+        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
+
+        // then
+        assertThat(taskCntList.size()).isEqualTo(3);
+        assertThat(taskCntList.get(0).getTaskStatusName()).isEqualTo(taskStatus0.getName());
+        assertThat(taskCntList.get(0).getTaskCnt()).isEqualTo(1);
+        assertThat(taskCntList.get(0).getManager()).isNull();
+        assertThat(taskCntList.get(1).getTaskStatusName()).isEqualTo(taskStatus1.getName());
+        assertThat(taskCntList.get(1).getTaskCnt()).isEqualTo(2);
+    }
+
+    @Test
+    void 테스크_개수를_상태값과_담당자_별_조회한다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(234L));
+        TaskStatus taskStatus0 = taskStatusRepository.save(new TaskStatus("담당자, 상태별 조회시에는"));
+        TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("존재하는 담당자/상태 조합만큼 개수!"));
+        User user0 = userRepository.save(UserProvider.createUser());
+        User user1 = userRepository.save(UserProvider.createUser2());
+        taskRepository.save(TaskProvider.createTaskForRepository(user0.getId(), project, null, taskStatus0));
+        taskRepository.save(TaskProvider.createTaskForRepository(user0.getId(), project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(user0.getId(), project, null, taskStatus1));
+        taskRepository.save(TaskProvider.createTaskForRepository(user1.getId(), project, null, taskStatus1));
+
+        // when
+        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+
+        // then
+        assertThat(taskCntList.size()).isEqualTo(3);
+        taskCntList.forEach(taskCnt -> {
+            assertThat(List.of(user0.getName(), user1.getName())).contains(taskCnt.getManager());
+            if (taskCnt.getManager().equals(user1.getName())) {
+                assertThat(taskCnt.getTaskCnt()).isEqualTo(1);
+                assertThat(taskCnt.getTaskStatusName()).isEqualTo(taskStatus1.getName());
+            }
+        });
+    }
+
+    @Test
+    void 테스크_개수_조회시_담당자가_없으면_담당자_이름이_널_값이다() {
+        // given
+        Project project = projectRepository.save(ProjectProvider.createProject(234L));
+        TaskStatus taskStatus0 = taskStatusRepository.save(new TaskStatus("담당자, 상태별 조회시에는"));
+        TaskStatus taskStatus1 = taskStatusRepository.save(new TaskStatus("담당자 없는 테스크 있을 수 있음 주의!"));
+        taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus0));
+        taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus1));
+
+        // when
+        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+
+        // then
+        assertThat(taskCntList.size()).isEqualTo(2);
+        assertThat(taskCntList.get(0).getManager()).isNull();
+        assertThat(taskCntList.get(0).getTaskCnt()).isEqualTo(1);
+        assertThat(taskCntList.get(0).getTaskStatusName()).isEqualTo(taskStatus0.getName());
     }
 
 }
