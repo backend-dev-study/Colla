@@ -91,5 +91,41 @@ class TaskStatusLogServiceTest {
         verify(newTaskStatusLog, times(1)).increaseCount();
     }
 
+    @Test
+    void 태스크_상태값을_삭제할_경우_변경된_상태값의_로그_카운트가_올라간다() {
+        // given
+        int count = 8;
+        Project project = ProjectProvider.createProject(5L);
+        TaskStatus taskStatus = TaskStatusProvider.createTaskStatus("In Progress");
+        TaskStatusLog taskStatusLog = mock(TaskStatusLog.class);
+
+        given(taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(any(Project.class), anyString(), eq(LocalDate.now())))
+                .willReturn(Optional.of(taskStatusLog));
+
+        // when
+        taskStatusLogService.updateTaskStatusLogForTaskStatusDeletion(project, taskStatus, count);
+
+        // then
+        verify(taskStatusLogRepository, times(1)).findTaskStatusLogByProjectAndStatusAndCreatedAt(any(Project.class), anyString(), eq(LocalDate.now()));
+        verify(taskStatusLog, times(count)).increaseCount();
+    }
+
+    @Test
+    void 태스크_상태값을_삭제했을_때_변경된_상태값의_로그가_없다면_새로_기록한다() {
+        // given
+        int count = 10;
+        Project project = ProjectProvider.createProject(5L);
+        TaskStatus taskStatus = TaskStatusProvider.createTaskStatus("To Do");
+
+        given(taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(any(Project.class), anyString(), eq(LocalDate.now())))
+                .willReturn(Optional.empty());
+
+        // when
+        taskStatusLogService.updateTaskStatusLogForTaskStatusDeletion(project, taskStatus, count);
+
+        // then
+        verify(taskStatusLogRepository, times(1)).findTaskStatusLogByProjectAndStatusAndCreatedAt(any(Project.class), anyString(), eq(LocalDate.now()));
+        verify(taskStatusLogRepository, times(1)).save(any(TaskStatusLog.class));
+    }
 
 }
