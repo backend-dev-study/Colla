@@ -91,10 +91,11 @@ public class TaskService {
     public void deleteTaskStatus(Long projectId, String from, String to) {
         TaskStatus fromTaskStatus = taskStatusService.findTaskStatusByName(from);
         TaskStatus toTaskStatus = taskStatusService.findTaskStatusByName(to);
-        taskRepository.bulkUpdateTaskStatusToAnother(fromTaskStatus, toTaskStatus);
+        int count = taskRepository.bulkUpdateTaskStatusToAnother(fromTaskStatus, toTaskStatus);
 
         Project project = projectService.findProjectById(projectId);
         project.removeStatus(fromTaskStatus);
+        taskStatusLogService.updateTaskStatusLogForTaskStatusDeletion(project, toTaskStatus, count);
     }
 
     public void updateTaskStatus(Long projectId, Long taskId, String statusName) {

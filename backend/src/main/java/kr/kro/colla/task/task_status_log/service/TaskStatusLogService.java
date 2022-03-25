@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 @Transactional
@@ -37,6 +38,23 @@ public class TaskStatusLogService {
                     .ifPresent(TaskStatusLog::decreaseCount);
         }
         writeTaskStatusLog(project, newStatus);
+    }
+
+    public void updateTaskStatusLogForTaskStatusDeletion(Project project, TaskStatus taskStatus, int count) {
+        taskStatusLogRepository.findTaskStatusLogByProjectAndStatusAndCreatedAt(project, taskStatus.getName(), LocalDate.now())
+                .ifPresentOrElse(
+                        taskStatusLog -> IntStream.range(0, count)
+                                .forEach(i -> taskStatusLog.increaseCount()),
+                        () -> {
+                            TaskStatusLog taskStatusLog = TaskStatusLog.builder()
+                                    .project(project)
+                                    .status(taskStatus.getName())
+                                    .build();
+                            IntStream.range(0, count - 1)
+                                    .forEach(i -> taskStatusLog.increaseCount());
+                            taskStatusLogRepository.save(taskStatusLog);
+                        }
+                );
     }
 
 }
