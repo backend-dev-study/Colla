@@ -1,12 +1,14 @@
 import React, { FC, useState } from 'react';
 import { useDrop } from 'react-dnd';
 
+import { useLocation } from 'react-router-dom';
 import deleteIconImg from '../../../public/assets/images/close-circle.svg';
 import plusIconImg from '../../../public/assets/images/plus-circle.svg';
 import { updateTaskStatus } from '../../apis/task';
 import useInputTask from '../../hooks/useInputTask';
 import useModal from '../../hooks/useModal';
 import { ItemType, TaskType } from '../../types/kanban';
+import { StateType } from '../../types/project';
 import { TaskModal } from '../Modal/Task';
 import DeleteTaskStatusModal from '../Modal/TaskStatus/Delete';
 import Task from '../Task';
@@ -22,13 +24,14 @@ interface PropType {
 }
 
 const KanbanCol: FC<PropType> = ({ statuses, status, taskList, tasks, changeColumn, moveTaskHandler }) => {
+    const { state } = useLocation<StateType>();
     const { clearInputTask } = useInputTask();
     const [taskId, setTaskId] = useState<number | null>(null);
     const { Modal, setModal } = useModal();
     const { Modal: StatusModal, setModal: setStatusModal } = useModal();
 
     const handleUpdateTask = async (taskId: number, statusName: string) => {
-        await updateTaskStatus(taskId, statusName);
+        await updateTaskStatus(state.projectId, taskId, statusName);
     };
     const [, drop] = useDrop({
         accept: 'task_type',

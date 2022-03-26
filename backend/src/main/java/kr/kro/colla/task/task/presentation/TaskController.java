@@ -42,9 +42,9 @@ public class TaskController {
                 .build();
     }
 
-    @PatchMapping("/tasks/{taskId}")
-    public ResponseEntity<Void> updateTaskStatus(@PathVariable Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
-        taskService.updateTaskStatus(taskId, request.getStatusName());
+    @PatchMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<Void> updateTaskStatus(@PathVariable Long projectId, @PathVariable Long taskId, @Valid @RequestBody UpdateTaskStatusRequest request) {
+        taskService.updateTaskStatus(projectId, taskId, request.getStatusName());
 
         return ResponseEntity.ok()
                 .build();
