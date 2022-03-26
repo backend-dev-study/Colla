@@ -40,7 +40,7 @@ class MeetingPlaceControllerTest extends ControllerTest {
     void 프로젝트의_모임_장소를_추가한다() throws Exception {
         // given
         Long projectId = 82425L, meetingPlaceId = 234241L;
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("meeting place name", "preview image", 23.23, 3.5, "address to go!");
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("meeting place name", "preview image", 23.23, 3.5, "address to go!", "category");
         MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace(ProjectProvider.createProject(1L));
         ReflectionTestUtils.setField(meetingPlace, "id", meetingPlaceId);
 

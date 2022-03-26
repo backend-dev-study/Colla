@@ -64,7 +64,7 @@ public class AcceptanceTest {
         User loginUser = user.가_로그인을_한다2();
         String accessToken = auth.토큰을_발급한다(loginUser.getId());
         UserProjectResponse createdProject = project.를_생성한다(accessToken);
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest(placeName, placeImage, placeLng, placeLat, placeAddress);
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest(placeName, placeImage, placeLng, placeLat, placeAddress, "cafe");
 
         given()
                 .contentType(ContentType.JSON)
