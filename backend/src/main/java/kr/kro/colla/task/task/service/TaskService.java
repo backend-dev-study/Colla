@@ -12,6 +12,7 @@ import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
+import kr.kro.colla.task.task_status_log.service.TaskStatusLogService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -34,6 +35,7 @@ public class TaskService {
     private final ProjectService projectService;
     private final TaskTagService taskTagService;
     private final TaskStatusService taskStatusService;
+    private final TaskStatusLogService taskStatusLogService;
     private final TaskRepository taskRepository;
 
     public Long createTask(CreateTaskRequest createTaskRequest) {
@@ -57,8 +59,10 @@ public class TaskService {
         List<TaskTag> tags = taskTagService.translateTaskTags(task, createTaskRequest.getTags());
         task.addTags(tags);
 
-        return taskRepository.save(task)
-                .getId();
+        task = taskRepository.save(task);
+        taskStatusLogService.writeTaskStatusLog(project, taskStatus);
+
+        return task.getId();
     }
 
     public ProjectTaskResponse getTask(Long taskId) {
@@ -88,16 +92,21 @@ public class TaskService {
     public void deleteTaskStatus(Long projectId, String from, String to) {
         TaskStatus fromTaskStatus = taskStatusService.findTaskStatusByName(from);
         TaskStatus toTaskStatus = taskStatusService.findTaskStatusByName(to);
-        taskRepository.bulkUpdateTaskStatusToAnother(fromTaskStatus, toTaskStatus);
+        int count = taskRepository.bulkUpdateTaskStatusToAnother(fromTaskStatus, toTaskStatus);
 
         Project project = projectService.findProjectById(projectId);
         project.removeStatus(fromTaskStatus);
+        taskStatusLogService.updateTaskStatusLogForTaskStatusDeletion(project, toTaskStatus, count);
     }
 
-    public void updateTaskStatus(Long taskId, String statusName) {
+    public void updateTaskStatus(Long projectId, Long taskId, String statusName) {
+        Project project = projectService.findProjectById(projectId);
         Task task = findTaskById(taskId);
-        TaskStatus taskStatus = taskStatusService.findTaskStatusByName(statusName);
-        task.updateTaskStatus(taskStatus);
+        TaskStatus prevStatus = task.getTaskStatus();
+        TaskStatus newTaskStatus = taskStatusService.findTaskStatusByName(statusName);
+
+        task.updateTaskStatus(newTaskStatus);
+        taskStatusLogService.updateTaskStatusLog(project, task, prevStatus, newTaskStatus);
     }
 
     public List<RoadmapTaskResponse> getStoryTasks(Long projectId, Long storyId) {

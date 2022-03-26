@@ -16,7 +16,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Modifying(clearAutomatically = true)
     @Query("update Task t set t.taskStatus = :to where t.taskStatus = :from")
-    void bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
+    int bulkUpdateTaskStatusToAnother(@Param("from") TaskStatus from, @Param("to")TaskStatus to);
 
     @Query("select distinct t from Task t left join fetch t.taskTags tt left join fetch tt.tag where t.story = :story")
     List<Task> findStoryTasks(@Param("story") Story story);

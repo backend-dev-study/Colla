@@ -12,6 +12,8 @@ import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
+import kr.kro.colla.task.task_status_log.domain.repository.TaskStatusLogRepository;
+import kr.kro.colla.task.task_status_log.service.TaskStatusLogService;
 import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
@@ -32,6 +34,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +54,9 @@ class TaskServiceTest {
 
     @Mock
     private TaskStatusService taskStatusService;
+
+    @Mock
+    private TaskStatusLogService taskStatusLogService;
 
     @Mock
     private TaskRepository taskRepository;
@@ -89,6 +95,9 @@ class TaskServiceTest {
                 .willReturn(List.of(new TaskTag(task, new Tag("backend"))));
         given(taskRepository.save(any(Task.class)))
                 .willReturn(task);
+        willDoNothing()
+                .given(taskStatusLogService)
+                .writeTaskStatusLog(any(Project.class), any(TaskStatus.class));
 
         // when
         Long taskId = taskService.createTask(createTaskRequest);
@@ -99,6 +108,7 @@ class TaskServiceTest {
         verify(storyService, times(1)).findStoryByTitle(storyTitle);
         verify(taskStatusService, times(1)).findTaskStatusByName(taskStatusName);
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskStatusLogService, times(1)).writeTaskStatusLog(any(Project.class), any(TaskStatus.class));
     }
 
     @Test
@@ -362,21 +372,28 @@ class TaskServiceTest {
     @Test
     void 테스크의_상태값을_수정한다() {
         // given
-        Long taskId = 482593L;
+        Long projectId = 1L, taskId = 482593L;
+        Project project = ProjectProvider.createProject(projectId);
         TaskStatus before = new TaskStatus("기존_상태값");
         TaskStatus after = new TaskStatus("변경_후_새로운_상태값");
         Task task = TaskProvider.createTaskForRepository(2345L, null, null, before);
 
+        given(projectService.findProjectById(eq(projectId)))
+                .willReturn(project);
         given(taskRepository.findById(taskId))
                 .willReturn(Optional.of(task));
         given(taskStatusService.findTaskStatusByName(after.getName()))
                 .willReturn(after);
+        willDoNothing()
+                .given(taskStatusLogService)
+                .updateTaskStatusLog(any(Project.class), any(Task.class), any(TaskStatus.class), any(TaskStatus.class));
 
         // when
-        taskService.updateTaskStatus(taskId, after.getName());
+        taskService.updateTaskStatus(projectId, taskId, after.getName());
 
         // then
         assertThat(task.getTaskStatus().getName()).isEqualTo(after.getName());
+        verify(taskStatusLogService, times(1)).updateTaskStatusLog(any(Project.class), any(Task.class), any(TaskStatus.class), any(TaskStatus.class));
     }
 
     @Test
