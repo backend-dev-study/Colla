@@ -46,7 +46,7 @@ class MeetingPlaceServiceTest {
         Long projectId = 32492L;
         Project project = ProjectProvider.createProject(234912L);
         MeetingPlace meetingPlace = MeetingPlaceProvider.createMeetingPlace(project);
-        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("이번 회의 장소", null, 132.234, 23.234, "서울특별시 강남구 ~~로 ~~번길", "카페");
+        CreateMeetingPlaceRequest request = new CreateMeetingPlaceRequest("이번 회의 장소", null, 132.234, 23.234, "서울특별시 강남구 ~~로 ~~번길", "category");
 
         given(projectService.findProjectById(projectId))
                 .willReturn(project);
