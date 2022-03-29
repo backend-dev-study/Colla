@@ -13,7 +13,7 @@ import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.domain.TaskCntByStatus;
+import kr.kro.colla.task.task.domain.dto.TaskCountByStatus;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -366,15 +366,15 @@ class TaskRepositoryTest {
         taskRepository.save(TaskProvider.createTaskForRepository(6243L, project, null, taskStatus2));
 
         // when
-        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
+        List<TaskCountByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
 
         // then
         assertThat(taskCntList.size()).isEqualTo(3);
         assertThat(taskCntList.get(0).getTaskStatusName()).isEqualTo(taskStatus0.getName());
-        assertThat(taskCntList.get(0).getTaskCnt()).isEqualTo(1);
+        assertThat(taskCntList.get(0).getTaskCount()).isEqualTo(1);
         assertThat(taskCntList.get(0).getManager()).isNull();
         assertThat(taskCntList.get(1).getTaskStatusName()).isEqualTo(taskStatus1.getName());
-        assertThat(taskCntList.get(1).getTaskCnt()).isEqualTo(2);
+        assertThat(taskCntList.get(1).getTaskCount()).isEqualTo(2);
     }
 
     @Test
@@ -391,14 +391,14 @@ class TaskRepositoryTest {
         taskRepository.save(TaskProvider.createTaskForRepository(user1.getId(), project, null, taskStatus1));
 
         // when
-        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+        List<TaskCountByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
 
         // then
         assertThat(taskCntList.size()).isEqualTo(3);
         taskCntList.forEach(taskCnt -> {
             assertThat(List.of(user0.getName(), user1.getName())).contains(taskCnt.getManager());
             if (taskCnt.getManager().equals(user1.getName())) {
-                assertThat(taskCnt.getTaskCnt()).isEqualTo(1);
+                assertThat(taskCnt.getTaskCount()).isEqualTo(1);
                 assertThat(taskCnt.getTaskStatusName()).isEqualTo(taskStatus1.getName());
             }
         });
@@ -414,12 +414,12 @@ class TaskRepositoryTest {
         taskRepository.save(TaskProvider.createTaskForRepository(null, project, null, taskStatus1));
 
         // when
-        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+        List<TaskCountByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
 
         // then
         assertThat(taskCntList.size()).isEqualTo(2);
         assertThat(taskCntList.get(0).getManager()).isNull();
-        assertThat(taskCntList.get(0).getTaskCnt()).isEqualTo(1);
+        assertThat(taskCntList.get(0).getTaskCount()).isEqualTo(1);
         assertThat(taskCntList.get(0).getTaskStatusName()).isEqualTo(taskStatus0.getName());
     }
 

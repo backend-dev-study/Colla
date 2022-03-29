@@ -8,7 +8,7 @@ import kr.kro.colla.project.task_status.service.TaskStatusService;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.domain.TaskCntByStatus;
+import kr.kro.colla.task.task.domain.dto.TaskCountByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task.service.converter.TaskResponseConverter;
@@ -266,28 +266,28 @@ public class TaskService {
                 .orElseThrow(TaskNotFoundException::new);
     }
 
-    public List<TaskCntResponse> getTaskCntsByStatus(Long projectId) {
+    public List<TaskCountResponse> getTaskCountsByStatus(Long projectId) {
         Project project = projectService.findProjectById(projectId);
-        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
+        List<TaskCountByStatus> taskCntList = taskRepository.groupByTaskStatus(project);
 
         return taskCntList.stream()
-                .map(TaskCntResponse::new)
+                .map(TaskCountResponse::new)
                 .collect(Collectors.toList());
     }
 
-    public List<ManagerTaskCntResponse> getTaskCntsByManagerAndStatus(Long projectId) {
+    public List<ManagerTaskCountResponse> getTaskCountsByManagerAndStatus(Long projectId) {
         Project project = projectService.findProjectById(projectId);
-        List<TaskCntByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
+        List<TaskCountByStatus> taskCntList = taskRepository.groupByTaskStatusAndManager(project);
 
-        Map<String, List<TaskCntResponse>> byManager = new HashMap<>();
+        Map<String, List<TaskCountResponse>> byManager = new HashMap<>();
         taskCntList.forEach(taskCnt -> {
                     String managerName = taskCnt.getManager()!=null ? taskCnt.getManager() : "담당자 없음";
                     byManager.putIfAbsent(managerName, new ArrayList<>());
-                    byManager.get(managerName).add(new TaskCntResponse(taskCnt));
+                    byManager.get(managerName).add(new TaskCountResponse(taskCnt));
                 });
 
         return byManager.entrySet().stream()
-                .map(e -> new ManagerTaskCntResponse(e.getKey(), e.getValue()))
+                .map(e -> new ManagerTaskCountResponse(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }
 }

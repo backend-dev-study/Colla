@@ -784,7 +784,7 @@ public class AcceptanceTest {
             task.를_특정_상태로_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, name);
         });
 
-        List<TaskCntResponse> result = given()
+        List<TaskCountResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
 
@@ -797,11 +797,11 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(new TypeRef<List<TaskCntResponse>>() {});
+                .as(new TypeRef<List<TaskCountResponse>>() {});
 
         assertThat(result.size()).isEqualTo(statusNames.size());
         result.forEach((response)->{
-            assertThat(response.getTaskCnt()).isEqualTo(1);
+            assertThat(response.getTaskCount()).isEqualTo(1);
             assertThat(statusNames).contains(response.getTaskStatusName());
         });
     }
@@ -820,7 +820,7 @@ public class AcceptanceTest {
             task.를_특정_상태로_생성한다(accessToken, managerUser.getId(), createdProject.getId(), null, name);
         });
 
-        List<ManagerTaskCntResponse> result = given()
+        List<ManagerTaskCountResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
 
@@ -833,12 +833,12 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(new TypeRef<List<ManagerTaskCntResponse>>() {});
+                .as(new TypeRef<List<ManagerTaskCountResponse>>() {});
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getManagerName()).isEqualTo(managerUser.getName());
-        assertThat(result.get(0).getTaskCnts().size()).isEqualTo(statusNames.size());
-        assertThat(result.get(0).getTaskCnts().get(0).getTaskCnt()).isEqualTo(2);
+        assertThat(result.get(0).getTaskCounts().size()).isEqualTo(statusNames.size());
+        assertThat(result.get(0).getTaskCounts().get(0).getTaskCount()).isEqualTo(2);
     }
 
     @Test
@@ -854,7 +854,7 @@ public class AcceptanceTest {
             task.를_특정_상태로_생성한다(accessToken, null, createdProject.getId(), null, name);
         });
 
-        List<ManagerTaskCntResponse> result = given()
+        List<ManagerTaskCountResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .cookie("accessToken", accessToken)
 
@@ -867,11 +867,11 @@ public class AcceptanceTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .body()
-                .as(new TypeRef<List<ManagerTaskCntResponse>>() {});
+                .as(new TypeRef<List<ManagerTaskCountResponse>>() {});
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getManagerName()).isEqualTo("담당자 없음");
-        assertThat(result.get(0).getTaskCnts().size()).isEqualTo(statusNames.size());
-        assertThat(result.get(0).getTaskCnts().get(0).getTaskCnt()).isEqualTo(1);
+        assertThat(result.get(0).getTaskCounts().size()).isEqualTo(statusNames.size());
+        assertThat(result.get(0).getTaskCounts().get(0).getTaskCount()).isEqualTo(1);
     }
 }
