@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { TaskCountType } from '../../../types/dashboard';
 import { getColorFromColorMap } from '../../../utils/common';
 import Circle from './Circle';
-import { SVG } from './style';
+import { Svg, Colors, StatusName, Color } from './style';
 
 const RADIUS = 70;
 const STROKE_WIDTH = 30;
@@ -55,7 +55,15 @@ const calcProgress = (statuses: Array<TaskCountType>, colors: Map<string, string
 
 const PieChart: FC<PropType> = ({ statuses, colors }) => (
     <>
-        <SVG viewBox="0 0 200 200">{calcProgress(statuses, colors)}</SVG>
+        <Svg viewBox="0 0 200 200">{calcProgress(statuses, colors)}</Svg>
+        <Colors>
+            {Array.from(colors).map(([key, value]) => (
+                <>
+                    <StatusName>{key}</StatusName>
+                    <Color color={value} />
+                </>
+            ))}
+        </Colors>
     </>
 );
 
