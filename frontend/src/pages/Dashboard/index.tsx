@@ -9,6 +9,7 @@ import { ManagerTaskCountType, TaskCountType } from '../../types/dashboard';
 import { StateType } from '../../types/project';
 import { Wrapper, LeftSide, RightSide, ProgressBarContainer, LineChartContainer, PieChartContainer } from './style';
 
+const colorMap = new Map<string, string>();
 const Dashboard = () => {
     const { state } = useLocation<StateType>();
     const [taskCountsByManager, setTaskCountsByManager] = useState<Array<ManagerTaskCountType>>([]);
@@ -35,6 +36,7 @@ const Dashboard = () => {
                                 key={progress.managerName}
                                 managerName={progress.managerName}
                                 statuses={progress.taskCounts}
+                                colors={colorMap}
                             />
                         ))}
                     </ProgressBarContainer>
@@ -42,7 +44,7 @@ const Dashboard = () => {
                 <RightSide>
                     <LineChartContainer />
                     <PieChartContainer>
-                        <PieChart statuses={taskCountByStatus} />
+                        <PieChart statuses={taskCountByStatus} colors={colorMap} />
                     </PieChartContainer>
                 </RightSide>
             </Wrapper>
