@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { TaskProgressType } from '../../../types/dashboard';
+import { TaskCountType } from '../../../types/dashboard';
 import { getRandomColor } from '../../../utils/common';
 import Circle from './Circle';
 import { SVG } from './style';
@@ -9,17 +9,19 @@ const RADIUS = 70;
 const STROKE_WIDTH = 30;
 
 interface PropType {
-    statuses: Array<TaskProgressType>;
+    statuses: Array<TaskCountType>;
 }
 
-const sumProgress = (prevProgress: number, counts: number, total: number, arr: Array<number>) => {
-    arr.push(prevProgress + (counts / total) * 100);
-    return prevProgress + (counts / total) * 100;
+const sumProgress = (prevProgress: number, count: number, total: number, arr: Array<number>) => {
+    arr.push(prevProgress + (count / total) * 100);
+    return prevProgress + (count / total) * 100;
 };
 
-const calcProgress = (statuses: Array<TaskProgressType>) => {
+const calcProgress = (statuses: Array<TaskCountType>) => {
     const arr: Array<number> = [];
-    statuses.reduce((prev: number, { statusCounts, total }) => sumProgress(prev, statusCounts, total, arr), 0);
+    const total = statuses.reduce((prev: number, { taskCount }) => prev + taskCount, 0);
+    statuses.reduce((prev: number, { taskCount }) => sumProgress(prev, taskCount, total, arr), 0);
+
     return arr
         .reverse()
         .map((progress) => (

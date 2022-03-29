@@ -1,55 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { useLocation } from 'react-router-dom';
+import { getTaskCountByManagerAndStatus, getTaskCountByStatus } from '../../apis/task';
 import PieChart from '../../components/Chart/PieChart';
 import ProgressBar from '../../components/Chart/ProgressBar';
 import Template from '../../components/Template';
+import { ManagerTaskCountType, TaskCountType } from '../../types/dashboard';
+import { StateType } from '../../types/project';
 import { Wrapper, LeftSide, RightSide, ProgressBarContainer, LineChartContainer, PieChartContainer } from './style';
 
-const dummyTaskProgresses = [
-    {
-        manager: 'SB',
-        tasks: [
-            { statusName: 'to do', statusCounts: 63, total: 100 },
-            { statusName: 'progress', statusCounts: 30, total: 100 },
-            { statusName: 'done', statusCounts: 7, total: 100 },
-        ],
-    },
-    {
-        manager: 'YG',
-        tasks: [
-            { statusName: 'to do', statusCounts: 43, total: 100 },
-            { statusName: 'progress', statusCounts: 43, total: 100 },
-            { statusName: 'done', statusCounts: 121, total: 207 },
-        ],
-    },
-];
+const Dashboard = () => {
+    const { state } = useLocation<StateType>();
+    const [taskCountsByManager, setTaskCountsByManager] = useState<Array<ManagerTaskCountType>>([]);
+    const [taskCountByStatus, setTaskCountByStatus] = useState<Array<TaskCountType>>([]);
 
-const dummyTotalTaskStatuses = [
-    { statusName: 'to do', statusCounts: 63, total: 194 },
-    { statusName: 'progress', statusCounts: 30, total: 194 },
-    { statusName: 'done', statusCounts: 57, total: 194 },
-    { statusName: 'unknown', statusCounts: 27, total: 194 },
-    { statusName: 'new', statusCounts: 17, total: 194 },
-];
+    const handleUpdate = async () => {
+        const managerResult = await getTaskCountByManagerAndStatus(state.projectId);
+        setTaskCountsByManager(managerResult.data);
+        const statusResult = await getTaskCountByStatus(state.projectId);
+        setTaskCountByStatus(statusResult.data);
+    };
 
-const Dashboard = () => (
-    <Template>
-        <Wrapper>
-            <LeftSide>
-                <ProgressBarContainer>
-                    {dummyTaskProgresses.map((progress) => (
-                        <ProgressBar key={progress.manager} managerName={progress.manager} statuses={progress.tasks} />
-                    ))}
-                </ProgressBarContainer>
-            </LeftSide>
-            <RightSide>
-                <LineChartContainer />
-                <PieChartContainer>
-                    <PieChart statuses={dummyTotalTaskStatuses} />
-                </PieChartContainer>
-            </RightSide>
-        </Wrapper>
-    </Template>
-);
+    useEffect(() => {
+        handleUpdate();
+    }, []);
+
+    return (
+        <Template>
+            <Wrapper>
+                <LeftSide>
+                    <ProgressBarContainer>
+                        {taskCountsByManager.map((progress) => (
+                            <ProgressBar
+                                key={progress.managerName}
+                                managerName={progress.managerName}
+                                statuses={progress.taskCounts}
+                            />
+                        ))}
+                    </ProgressBarContainer>
+                </LeftSide>
+                <RightSide>
+                    <LineChartContainer />
+                    <PieChartContainer>
+                        <PieChart statuses={taskCountByStatus} />
+                    </PieChartContainer>
+                </RightSide>
+            </Wrapper>
+        </Template>
+    );
+};
 
 export default Dashboard;
