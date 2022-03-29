@@ -10,10 +10,12 @@ export const Container = styled.div`
 
 export const Graph = styled.svg`
     width: 31vw;
-    height: 32vh;
+    height: 34vh;
 `;
 
 export const GraphLine = styled.line`
     stroke-width: 1;
     stroke: #000;
 `;
+
+export const RowText = styled.text``;
