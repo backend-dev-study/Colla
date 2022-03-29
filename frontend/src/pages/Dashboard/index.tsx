@@ -1,5 +1,6 @@
 import React from 'react';
 
+import LineChart from '../../components/Chart/LineChart';
 import PieChart from '../../components/Chart/PieChart';
 import ProgressBar from '../../components/Chart/ProgressBar';
 import Template from '../../components/Template';
@@ -43,7 +44,9 @@ const Dashboard = () => (
                 </ProgressBarContainer>
             </LeftSide>
             <RightSide>
-                <LineChartContainer />
+                <LineChartContainer>
+                    <LineChart />
+                </LineChartContainer>
                 <PieChartContainer>
                     <PieChart statuses={dummyTotalTaskStatuses} />
                 </PieChartContainer>
