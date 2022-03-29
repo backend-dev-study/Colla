@@ -1,3 +1,4 @@
+import { ManagerTaskCountType, TaskCountType } from '../types/dashboard';
 import { TaskType } from '../types/roadmap';
 import { SimpleTaskType, StoryTaskType, TaskResponseType } from '../types/task';
 import { client } from './common';
@@ -38,6 +39,18 @@ export const getStoryTasks = async (projectId: number, storyId: number) => {
 
 export const getTasksGroupByStory = async (projectId: number) => {
     const response = await client.get<Array<StoryTaskType>>(`/projects/${projectId}/tasks/story`);
+
+    return response;
+};
+
+export const getTaskCountByStatus = async (projectId: number) => {
+    const response = await client.get<Array<TaskCountType>>(`/projects/${projectId}/tasks/count`);
+
+    return response;
+};
+
+export const getTaskCountByManagerAndStatus = async (projectId: number) => {
+    const response = await client.get<Array<ManagerTaskCountType>>(`/projects/${projectId}/tasks/count/manager`);
 
     return response;
 };
