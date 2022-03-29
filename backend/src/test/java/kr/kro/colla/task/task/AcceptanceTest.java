@@ -483,12 +483,12 @@ public class AcceptanceTest {
         taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToFilter2);
         taskStatus.를_생성한다(accessToken, createdProject.getId(), nameToIgnore);
 
-        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToIgnore);
+        task.를_특정_상태로_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToIgnore);
         List<Map<String, String>> filteredTasks = List.of(
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter1),
-                task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter2)
+                task.를_특정_상태로_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter1),
+                task.를_특정_상태로_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, nameToFilter2)
         );
-        task.를_생성한다(accessToken, null, createdProject.getId(), null, nameToIgnore);
+        task.를_특정_상태로_생성한다(accessToken, null, createdProject.getId(), null, nameToIgnore);
 
         List<ProjectTaskSimpleResponse> result = given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -772,4 +772,106 @@ public class AcceptanceTest {
         assertThat(response.size()).isZero();
     }
 
+    @Test
+    void 사용자는_상태값_별로_테스크_개수를_조회할_수_있다() {
+        // given
+        List<String> statusNames = List.of("Before Start", "Progress", "After Done");
+        User loginUser = user.가_로그인을_한다2();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        statusNames.forEach((name)-> {
+            taskStatus.를_생성한다(accessToken, createdProject.getId(), name);
+            task.를_특정_상태로_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null, name);
+        });
+
+        List<TaskCntResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/count")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<TaskCntResponse>>() {});
+
+        assertThat(result.size()).isEqualTo(statusNames.size());
+        result.forEach((response)->{
+            assertThat(response.getTaskCnt()).isEqualTo(1);
+            assertThat(statusNames).contains(response.getTaskStatusName());
+        });
+    }
+
+    @Test
+    void 사용자는_담당자에_따라_상태값_별로_테스크_개수를_조회할_수_있다() {
+        // given
+        List<String> statusNames = List.of("Before Start", "Progress");
+        User loginUser = user.가_로그인을_한다2();
+        User managerUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        statusNames.forEach((name)-> {
+            taskStatus.를_생성한다(accessToken, createdProject.getId(), name);
+            task.를_특정_상태로_생성한다(accessToken, managerUser.getId(), createdProject.getId(), null, name);
+            task.를_특정_상태로_생성한다(accessToken, managerUser.getId(), createdProject.getId(), null, name);
+        });
+
+        List<ManagerTaskCntResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/count/manager")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ManagerTaskCntResponse>>() {});
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getManagerName()).isEqualTo(managerUser.getName());
+        assertThat(result.get(0).getTaskCnts().size()).isEqualTo(statusNames.size());
+        assertThat(result.get(0).getTaskCnts().get(0).getTaskCnt()).isEqualTo(2);
+    }
+
+    @Test
+    void 사용자는_담당자가_없는_테스크들도_상태값_별로_개수를_조회할_수_있다() {
+        // given
+        List<String> statusNames = List.of("Before Start", "Progress");
+        User loginUser = user.가_로그인을_한다2();
+        User managerUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        statusNames.forEach((name)-> {
+            taskStatus.를_생성한다(accessToken, createdProject.getId(), name);
+            task.를_특정_상태로_생성한다(accessToken, null, createdProject.getId(), null, name);
+        });
+
+        List<ManagerTaskCntResponse> result = given()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookie("accessToken", accessToken)
+
+        // when
+        .when()
+                .get("/api/projects/" + createdProject.getId() + "/tasks/count/manager")
+
+        // then
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .as(new TypeRef<List<ManagerTaskCntResponse>>() {});
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getManagerName()).isEqualTo("담당자 없음");
+        assertThat(result.get(0).getTaskCnts().size()).isEqualTo(statusNames.size());
+        assertThat(result.get(0).getTaskCnts().get(0).getTaskCnt()).isEqualTo(1);
+    }
 }
