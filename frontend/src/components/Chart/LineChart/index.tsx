@@ -22,6 +22,7 @@ const LineChart = () => {
         height = screen.height * 0.33;
     const rowCnt = 8,
         columnCnt = 15;
+    const offset = 10;
 
     const calcDate = (i: number) => {
         const today = new Date();
@@ -56,17 +57,23 @@ const LineChart = () => {
             .map((el, i) => i)
             .filter((i) => i % 2 === 0)
             .map((i, idx) => {
-                const x = (width / (columnCnt - 1)) * i + 10;
-                const y = height + 10;
-                const max = height - 10;
+                const x = (width / (columnCnt - 1)) * (idx < 7 ? i : i - 2) + offset;
+                const y = height + offset;
+                const max = height - offset;
+                const h = (max * dummy[status][idx < 7 ? idx : idx - 1].count) / maxCount;
 
-                if (idx === 7) return null;
+                if (idx === 7) {
+                    return (
+                        <text dominantBaseline="baseline" x={x + offset} y={y - h + 5} fill={color}>
+                            {status}
+                        </text>
+                    );
+                }
 
-                const h = (max * dummy[status][idx].count) / maxCount;
                 const graph =
                     prevX && prevY ? (
                         <>
-                            <circle key={`circle ${i}`} cx={x} cy={y - h} r={5} fill={color} />
+                            <circle cx={x} cy={y - h} r={5} fill={color} />
                             <GraphLine
                                 x1={prevX}
                                 y1={prevY}
@@ -75,14 +82,14 @@ const LineChart = () => {
                                 stroke={color}
                                 style={{ '--idx': idx } as React.CSSProperties}
                             />
-                            <text dominantBaseline="baseline" x={x - 6} y={y - h - 10} fill={color}>
+                            <text dominantBaseline="baseline" x={x - 6} y={y - h - offset} fill={color}>
                                 {dummy[status][idx].count}
                             </text>
                         </>
                     ) : (
                         <>
-                            <circle key={`circle ${i}`} cx={x} cy={y - h} r={5} fill={color} />
-                            <text dominantBaseline="baseline" x={x - 6} y={y - h - 10} fill={color}>
+                            <circle cx={x} cy={y - h} r={5} fill={color} />
+                            <text dominantBaseline="baseline" x={x - 6} y={y - h - offset} fill={color}>
                                 {dummy[status][idx].count}
                             </text>
                         </>
@@ -106,8 +113,8 @@ const LineChart = () => {
     return (
         <Container>
             <Graph>
-                <GraphBorderLine x1={10} y1={height + 10} x2={width + 10} y2={height + 10} />
-                <GraphBorderLine x1={10} y1={10} x2={10} y2={height + 10} />
+                <GraphBorderLine x1={offset} y1={height + offset} x2={width + offset} y2={height + offset} />
+                <GraphBorderLine x1={offset} y1={offset} x2={offset} y2={height + offset} />
                 {drawWeekDate()}
                 {drawStatusGraph()}
             </Graph>

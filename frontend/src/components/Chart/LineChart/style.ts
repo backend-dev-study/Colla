@@ -23,8 +23,8 @@ export const GraphLineStyle = css`
     stroke-width: 2;
     stroke-dasharray: 400;
     stroke-dashoffset: 400;
-    animation: draw 0.5s linear forwards;
-    animation-delay: calc(0.3s * var(--idx));
+    animation: draw 0.3s linear forwards;
+    animation-delay: calc(0.4s * var(--idx));
 
     @keyframes draw {
         0% {
