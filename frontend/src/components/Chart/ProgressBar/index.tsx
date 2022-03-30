@@ -1,24 +1,33 @@
 import React, { FC } from 'react';
 
-import { TaskProgressType } from '../../../types/dashboard';
-import { getRandomColor } from '../../../utils/common';
+import { TaskCountType } from '../../../types/dashboard';
+import { getColorFromColorMap } from '../../../utils/common';
 import { Bar, Manager, PartialHover, PartialBar, Wrapper } from './style';
 
 interface PropType {
     managerName: string;
-    statuses: Array<TaskProgressType>;
+    statuses: Array<TaskCountType>;
+    colors: Map<string, string>;
 }
 
-const ProgressBar: FC<PropType> = ({ managerName, statuses }) => (
+const calcProgress = (statuses: Array<TaskCountType>, colors: Map<string, string>) => {
+    const total = statuses.reduce((prev, { taskCount }) => prev + taskCount, 0);
+
+    return statuses.map(({ taskStatusName, taskCount }) => (
+        <PartialBar
+            key={taskStatusName}
+            percent={(taskCount / total) * 100}
+            color={getColorFromColorMap(taskStatusName, colors)}
+        >
+            <PartialHover>{taskStatusName}</PartialHover>
+        </PartialBar>
+    ));
+};
+
+const ProgressBar: FC<PropType> = ({ managerName, statuses, colors }) => (
     <Wrapper>
         <Manager>{managerName}</Manager>
-        <Bar>
-            {statuses.map(({ statusName, statusCounts, total }) => (
-                <PartialBar key={statusName} percent={(statusCounts / total) * 100} color={getRandomColor()}>
-                    <PartialHover>{statusName}</PartialHover>
-                </PartialBar>
-            ))}
-        </Bar>
+        <Bar>{calcProgress(statuses, colors)}</Bar>
     </Wrapper>
 );
 

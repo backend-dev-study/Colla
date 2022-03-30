@@ -9,9 +9,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ManagerTaskCntResponse {
+public class ManagerTaskCountResponse {
 
     private String managerName;
 
-    private List<TaskCntResponse> taskCnts;
+    private List<TaskCountResponse> taskCounts;
 }
