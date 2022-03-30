@@ -88,7 +88,7 @@ public class TaskProvider {
         return formData;
     }
 
-    public Map<String, String> 를_생성한다(String accessToken, Long managerId, Long projectId, String story, String statusName) {
+    public Map<String, String> 를_특정_상태로_생성한다(String accessToken, Long managerId, Long projectId, String story, String statusName) {
         Map<String, String> formData = new HashMap<>();
         formData.put("title", "task title");
         formData.put("description", "task description");

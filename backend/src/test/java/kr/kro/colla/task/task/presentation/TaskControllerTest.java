@@ -4,7 +4,6 @@ import kr.kro.colla.common.ControllerTest;
 import kr.kro.colla.common.fixture.*;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
-import kr.kro.colla.task.task.domain.TaskCntByStatus;
 import kr.kro.colla.task.task.presentation.dto.CreateTaskRequest;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskResponse;
 import kr.kro.colla.task.task.presentation.dto.ProjectTaskSimpleResponse;
@@ -485,12 +484,12 @@ class TaskControllerTest extends ControllerTest {
     void 상태값_별로_테스크_개수를_조회한다() throws Exception {
         // given
         Long projectId = 56234L;
-        List<TaskCntResponse> taskCntList = List.of(
-                new TaskCntResponse("To Do", 924L),
-                new TaskCntResponse("Done", 329L)
+        List<TaskCountResponse> taskCntList = List.of(
+                new TaskCountResponse("To Do", 924L),
+                new TaskCountResponse("Done", 329L)
         );
 
-        given(taskService.getTaskCntsByStatus(projectId))
+        given(taskService.getTaskCountsByStatus(projectId))
                 .willReturn(taskCntList);
 
         // when
@@ -502,24 +501,24 @@ class TaskControllerTest extends ControllerTest {
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].taskStatusName").value(taskCntList.get(0).getTaskStatusName()))
-                .andExpect(jsonPath("$[0].taskCnt").value(taskCntList.get(0).getTaskCnt()));
+                .andExpect(jsonPath("$[0].taskCnt").value(taskCntList.get(0).getTaskCount()));
     }
 
     @Test
     void 담당자마다_상태값_별로_테스크_개수를_조회한다() throws Exception {
         // given
         Long projectId = 56234L;
-        List<ManagerTaskCntResponse> managerTaskCntList = List.of(
-                new ManagerTaskCntResponse("Subin Min", List.of(
-                        new TaskCntResponse("To Do", 234L),
-                        new TaskCntResponse("Done", 144L)
+        List<ManagerTaskCountResponse> managerTaskCntList = List.of(
+                new ManagerTaskCountResponse("Subin Min", List.of(
+                        new TaskCountResponse("To Do", 234L),
+                        new TaskCountResponse("Done", 144L)
                 )),
-                new ManagerTaskCntResponse("YeongKee Kweon", List.of(
-                        new TaskCntResponse("Done", 1294L)
+                new ManagerTaskCountResponse("YeongKee Kweon", List.of(
+                        new TaskCountResponse("Done", 1294L)
                 ))
         );
 
-        given(taskService.getTaskCntsByManagerAndStatus(projectId))
+        given(taskService.getTaskCountsByManagerAndStatus(projectId))
                 .willReturn(managerTaskCntList);
 
         // when
@@ -531,7 +530,7 @@ class TaskControllerTest extends ControllerTest {
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].managerName").value(managerTaskCntList.get(0).getManagerName()))
-                .andExpect(jsonPath("$[0].taskCnts.length()").value(managerTaskCntList.get(0).getTaskCnts().size()))
+                .andExpect(jsonPath("$[0].taskCnts.length()").value(managerTaskCntList.get(0).getTaskCounts().size()))
                 .andExpect(jsonPath("$[1].taskCnts[0].taskCnt").value(1294));
     }
 }

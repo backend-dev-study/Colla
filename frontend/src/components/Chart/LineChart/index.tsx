@@ -1,5 +1,6 @@
-import React from 'react';
-import { getRandomColor } from '../../../utils/common';
+import React, { FC } from 'react';
+
+import { getColorFromColorMap } from '../../../utils/common';
 import { Container, Graph, GraphBorderLine, GraphLine } from './style';
 
 interface CountType {
@@ -11,15 +12,19 @@ interface DummyType {
 }
 
 const dummy: DummyType = {
-    ToDo: [{ count: 5 }, { count: 2 }, { count: 8 }, { count: 12 }, { count: 1 }, { count: 3 }, { count: 3 }],
-    InProgress: [{ count: 10 }, { count: 4 }, { count: 0 }, { count: 0 }, { count: 11 }, { count: 8 }, { count: 7 }],
+    'To Do': [{ count: 5 }, { count: 2 }, { count: 8 }, { count: 12 }, { count: 1 }, { count: 3 }, { count: 3 }],
+    'In Progress': [{ count: 10 }, { count: 4 }, { count: 0 }, { count: 0 }, { count: 11 }, { count: 8 }, { count: 7 }],
     Done: [{ count: 0 }, { count: 1 }, { count: 5 }, { count: 3 }, { count: 2 }, { count: 7 }, { count: 10 }],
 };
 
-const LineChart = () => {
+interface PropType {
+    colors: Map<string, string>;
+}
+
+const LineChart: FC<PropType> = ({ colors }) => {
     let maxCount = 0;
-    const width = screen.width * 0.375,
-        height = screen.height * 0.33;
+    const width = window.innerWidth * 0.3,
+        height = window.innerHeight * 0.3;
     const rowCnt = 8,
         columnCnt = 15;
     const offset = 12;
@@ -48,7 +53,7 @@ const LineChart = () => {
     };
 
     const drawGraph = (status: string) => {
-        const color = getRandomColor();
+        const color = getColorFromColorMap(status, colors);
         let prevX = 0,
             prevY = 0;
 

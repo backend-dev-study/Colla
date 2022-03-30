@@ -14,6 +14,7 @@ export const Wrapper = styled.div`
 `;
 
 export const Manager = styled.div`
+    width: 100px;
     margin-left: 5px;
     margin-right: 5px;
 `;
