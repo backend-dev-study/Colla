@@ -15,10 +15,8 @@ export const LeftSide = styled.div`
 `;
 
 export const RightSide = styled.div`
-    height: 70vh;
+    height: 73vh;
     justify-content: space-between;
-    margin-left: 30px;
-    margin-right: 30px;
 
     ${Column}
 `;
@@ -32,15 +30,15 @@ export const ProgressBarContainer = styled.div`
 `;
 
 export const PieChartContainer = styled.div`
-    width: 30vw;
-    height: 33vh;
+    width: 33vw;
+    height: 36vh;
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
 
 export const LineChartContainer = styled.div`
-    width: 30vw;
-    height: 33vh;
+    width: 33vw;
+    height: 36vh;
     border-radius: 20px;
     background: ${LIGHT_GRAY};
 `;
