@@ -1,6 +1,6 @@
 import React from 'react';
 import { getRandomColor } from '../../../utils/common';
-import { Container, Graph, GraphLine, RowText } from './style';
+import { Container, Graph, GraphBorderLine, GraphLine } from './style';
 
 interface CountType {
     count: number;
@@ -28,44 +28,22 @@ const LineChart = () => {
         return new Date(today.setDate(today.getDate() - i)).getDate();
     };
 
-    const drawSkeletonGraph = () => {
-        const rows = Array(rowCnt)
+    const drawWeekDate = () => {
+        const weekDate = Array(rowCnt)
             .fill(0)
             .map((el, i) => i)
             .map((i) => (
-                <>
-                    <GraphLine
-                        key={`row${i}`}
-                        x1={10}
-                        y1={(height / (rowCnt - 1)) * i + 10}
-                        x2={width + 10}
-                        y2={(height / (rowCnt - 1)) * i + 10}
-                    />
-                    <RowText
-                        key={`text${i}`}
-                        dominantBaseline="baseline"
-                        x={(width / (columnCnt - 1)) * i * 2}
-                        y={height + 30}
-                    >
-                        {calcDate(rowCnt - i - 2)}
-                    </RowText>
-                </>
+                <text
+                    key={`text${i}`}
+                    dominantBaseline="baseline"
+                    x={(width / (columnCnt - 1)) * i * 2}
+                    y={height + 30}
+                >
+                    {calcDate(rowCnt - i - 2)}
+                </text>
             ));
 
-        const columns = Array(columnCnt)
-            .fill(0)
-            .map((el, i) => i)
-            .map((i) => (
-                <GraphLine
-                    key={`col${i}`}
-                    x1={(width / (columnCnt - 1)) * i + 10}
-                    y1={10}
-                    x2={(width / (columnCnt - 1)) * i + 10}
-                    y2={height + 10}
-                />
-            ));
-
-        return [...rows, ...columns];
+        return weekDate;
     };
 
     const drawGraph = (status: string) => {
@@ -79,7 +57,7 @@ const LineChart = () => {
             .filter((i) => i % 2 === 0)
             .map((i, idx) => {
                 const x = (width / (columnCnt - 1)) * i + 10;
-                const y = height;
+                const y = height + 10;
                 const max = height - 10;
 
                 if (idx === 7) return null;
@@ -89,10 +67,25 @@ const LineChart = () => {
                     prevX && prevY ? (
                         <>
                             <circle key={`circle ${i}`} cx={x} cy={y - h} r={5} fill={color} />
-                            <line x1={prevX} y1={prevY} x2={x} y2={y - h} strokeWidth={2} stroke={color} />
+                            <GraphLine
+                                x1={prevX}
+                                y1={prevY}
+                                x2={x}
+                                y2={y - h}
+                                stroke={color}
+                                style={{ '--idx': idx } as React.CSSProperties}
+                            />
+                            <text dominantBaseline="baseline" x={x - 6} y={y - h - 10} fill={color}>
+                                {dummy[status][idx].count}
+                            </text>
                         </>
                     ) : (
-                        <circle key={`circle ${i}`} cx={x} cy={y - h} r={5} fill={color} />
+                        <>
+                            <circle key={`circle ${i}`} cx={x} cy={y - h} r={5} fill={color} />
+                            <text dominantBaseline="baseline" x={x - 6} y={y - h - 10} fill={color}>
+                                {dummy[status][idx].count}
+                            </text>
+                        </>
                     );
 
                 prevX = x;
@@ -113,7 +106,9 @@ const LineChart = () => {
     return (
         <Container>
             <Graph>
-                {drawSkeletonGraph()}
+                <GraphBorderLine x1={10} y1={height + 10} x2={width + 10} y2={height + 10} />
+                <GraphBorderLine x1={10} y1={10} x2={10} y2={height + 10} />
+                {drawWeekDate()}
                 {drawStatusGraph()}
             </Graph>
         </Container>
