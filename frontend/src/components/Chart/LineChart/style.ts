@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Graph = styled.svg`
-    width: 31vw;
+    width: 32vw;
     height: 34vh;
 `;
 

@@ -22,7 +22,7 @@ const LineChart = () => {
         height = screen.height * 0.33;
     const rowCnt = 8,
         columnCnt = 15;
-    const offset = 10;
+    const offset = 12;
 
     const calcDate = (i: number) => {
         const today = new Date();
