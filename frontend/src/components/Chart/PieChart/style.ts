@@ -15,7 +15,6 @@ export const Colors = styled.div`
 `;
 
 export const StatusName = styled.div`
-    width: 100px;
     text-align: center;
 `;
 
@@ -23,5 +22,5 @@ export const Color = styled.div<PropType>`
     width: 50px;
     height: 30px;
     background: ${({ color }) => color};
-    margin: 0 10px 0 10px;
+    margin: 0 20px 0 10px;
 `;

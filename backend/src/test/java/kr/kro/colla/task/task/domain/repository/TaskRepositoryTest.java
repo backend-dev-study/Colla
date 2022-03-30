@@ -13,7 +13,7 @@ import kr.kro.colla.project.task_status.domain.repository.TaskStatusRepository;
 import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.domain.repository.StoryRepository;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.domain.dto.TaskCountByStatus;
+import kr.kro.colla.task.task.domain.repository.dto.TaskCountByStatus;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;

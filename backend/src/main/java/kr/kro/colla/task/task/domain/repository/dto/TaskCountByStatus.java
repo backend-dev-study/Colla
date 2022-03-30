@@ -1,4 +1,4 @@
-package kr.kro.colla.task.task.domain.dto;
+package kr.kro.colla.task.task.domain.repository.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

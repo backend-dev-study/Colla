@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import { getTaskCountByManagerAndStatus, getTaskCountByStatus } from '../../apis/task';
+import LineChart from '../../components/Chart/LineChart';
 import PieChart from '../../components/Chart/PieChart';
 import ProgressBar from '../../components/Chart/ProgressBar';
 import Template from '../../components/Template';
@@ -10,6 +11,7 @@ import { StateType } from '../../types/project';
 import { Wrapper, LeftSide, RightSide, ProgressBarContainer, LineChartContainer, PieChartContainer } from './style';
 
 const colorMap = new Map<string, string>();
+
 const Dashboard = () => {
     const { state } = useLocation<StateType>();
     const [taskCountsByManager, setTaskCountsByManager] = useState<Array<ManagerTaskCountType>>([]);
@@ -42,7 +44,9 @@ const Dashboard = () => {
                     </ProgressBarContainer>
                 </LeftSide>
                 <RightSide>
-                    <LineChartContainer />
+                    <LineChartContainer>
+                        <LineChart colors={colorMap} />
+                    </LineChartContainer>
                     <PieChartContainer>
                         <PieChart statuses={taskCountByStatus} colors={colorMap} />
                     </PieChartContainer>

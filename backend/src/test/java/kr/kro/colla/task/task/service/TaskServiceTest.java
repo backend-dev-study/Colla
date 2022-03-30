@@ -9,7 +9,7 @@ import kr.kro.colla.story.domain.Story;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.tag.domain.Tag;
 import kr.kro.colla.task.task.domain.Task;
-import kr.kro.colla.task.task.domain.dto.TaskCountByStatus;
+import kr.kro.colla.task.task.domain.repository.dto.TaskCountByStatus;
 import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task.presentation.dto.*;
 import kr.kro.colla.task.task_status_log.service.TaskStatusLogService;

@@ -1,6 +1,6 @@
 package kr.kro.colla.task.task.presentation.dto;
 
-import kr.kro.colla.task.task.domain.dto.TaskCountByStatus;
+import kr.kro.colla.task.task.domain.repository.dto.TaskCountByStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
