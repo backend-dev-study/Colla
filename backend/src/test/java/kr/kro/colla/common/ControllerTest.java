@@ -8,6 +8,7 @@ import kr.kro.colla.meeting_place.meeting_place.service.MeetingPlaceService;
 import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.story.service.StoryService;
 import kr.kro.colla.task.task.service.TaskService;
+import kr.kro.colla.task.task_status_log.service.TaskStatusLogService;
 import kr.kro.colla.user.notice.service.NoticeService;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.user_project.service.UserProjectService;
@@ -60,6 +61,9 @@ public abstract class ControllerTest {
 
     @MockBean
     protected MeetingPlaceService meetingPlaceService;
+
+    @MockBean
+    protected TaskStatusLogService taskStatusLogService;
 
     protected String accessToken = "token";
     protected LoginUser loginUser;
