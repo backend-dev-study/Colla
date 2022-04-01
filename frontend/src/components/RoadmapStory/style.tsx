@@ -30,6 +30,7 @@ export const Story = styled.div<PropType>`
     border-radius: 10px;
     margin: 8px 0px 8px ${({ left }) => `${left * PER_DAY}%`};
     background: ${GREEN};
+    cursor: pointer;
 
     ${HeightCenter}
 `;

@@ -42,12 +42,12 @@ const RoadmapStory: FC<PropType> = ({ storyInfo: { id, startAt, endAt, title }, 
     };
 
     return (
-        <Wrapper onClick={showStoryTasks}>
+        <Wrapper>
             <StoryTitle>
                 <TextWithHover text={title} hover={title} />
             </StoryTitle>
             {story!.width ? (
-                <Story width={story!.width} left={story!.beforeStart}>
+                <Story width={story!.width} left={story!.beforeStart} onClick={showStoryTasks}>
                     <TextWithHover text={title} hover={title} />
                 </Story>
             ) : null}
