@@ -12,7 +12,7 @@ interface PropType {
     story: number;
 }
 
-export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
+const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
     const { state } = useLocation<StateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
 
@@ -42,3 +42,5 @@ export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
         </>
     );
 };
+
+export default TaskList;
