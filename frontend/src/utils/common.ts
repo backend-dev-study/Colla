@@ -16,6 +16,7 @@ export const getRandomColor = () => {
 };
 
 export const getColorFromColorMap = (key: string, colors: Map<string, string>) => {
+    if (!key) return;
     if (colors.has(key)) {
         return colors.get(key)!;
     }
