@@ -24,6 +24,12 @@ export const RoadmapArea = styled.div`
     width: 65%;
 `;
 
+export const Grid = styled.div`
+    display: grid;
+    grid-template-columns: 70px repeat(${ROADMAP_DATES_LIMIT}, 1fr);
+    grid-template-rows: 50px;
+`;
+
 export const ListArea = styled.div`
     width: 300px;
     height: 590px;
@@ -42,19 +48,14 @@ export const ListArea = styled.div`
     }
 `;
 
-export const RoadmapDates = styled.div`
-    display: flex;
-    width: 100%;
-    text-align: center;
-`;
-
 export const RoadmapDate = styled.div`
-    border: solid 1px ${GRAY};
-    border-top-style: none;
-    border-bottom-style: none;
-    width: ${90 / ROADMAP_DATES_LIMIT}%;
-`;
+    display: flex;
+    min-width: 50px;
+    border-right: solid 1px ${GRAY};
+    align-items: center;
 
-export const Space = styled.div`
-    width: 10%;
+    &:first-of-type {
+        grid-column-start: 2;
+        border-left: solid 1px ${GRAY};
+    }
 `;

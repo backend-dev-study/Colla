@@ -4,12 +4,13 @@ import { ROADMAP_DATES_LIMIT } from '../../constants';
 import { StoryType } from '../../types/roadmap';
 import { YYYYMMDDToDate } from '../../utils/common';
 import TextWithHover from '../TextWithHover';
-import { Story, StoryTitle, Wrapper } from './style';
+import { Story, StoryTitle } from './style';
 
 interface PropType {
     storyInfo: StoryType;
     setStory: Function;
     handleStoryVisible: Function;
+    startRow: number;
 }
 
 const MS_DAY = 1000 * 60 * 60 * 24;
@@ -28,13 +29,19 @@ const datesToWidth = (start: string, end: string) => {
     if (endDate.getTime() > limitDate.getTime()) endDate = limitDate;
     const daysToStart = Math.round((startDate.getTime() - currentDate.getTime()) / MS_DAY);
     const daysBetween = Math.round((endDate.getTime() - startDate.getTime()) / MS_DAY) + 1;
+
     return {
         width: daysBetween >= 0 ? daysBetween : undefined,
         beforeStart: daysToStart,
     };
 };
 
-const RoadmapStory: FC<PropType> = ({ storyInfo: { id, startAt, endAt, title }, setStory, handleStoryVisible }) => {
+const RoadmapStory: FC<PropType> = ({
+    storyInfo: { id, startAt, endAt, title },
+    setStory,
+    handleStoryVisible,
+    startRow,
+}) => {
     const story = datesToWidth(startAt!, endAt!);
 
     const showStoryTasks = () => {
@@ -43,16 +50,16 @@ const RoadmapStory: FC<PropType> = ({ storyInfo: { id, startAt, endAt, title }, 
     };
 
     return (
-        <Wrapper>
-            <StoryTitle>
+        <>
+            <StoryTitle row={startRow}>
                 <TextWithHover text={title} hover={title} />
             </StoryTitle>
             {story!.width ? (
-                <Story width={story!.width} left={story!.beforeStart} onClick={showStoryTasks}>
+                <Story row={startRow} width={story!.width} left={story!.beforeStart} onClick={showStoryTasks}>
                     <TextWithHover text={title} hover={title} />
                 </Story>
             ) : null}
-        </Wrapper>
+        </>
     );
 };
 

@@ -10,7 +10,7 @@ import SideBar from '../../components/SideBar';
 import { ROADMAP_DATES_LIMIT } from '../../constants';
 import { StateType } from '../../types/project';
 import { StoryType } from '../../types/roadmap';
-import { Container, Wrapper, RoadmapArea, ListArea, RoadmapDates, RoadmapDate, Space } from './style';
+import { Container, Wrapper, Grid, RoadmapArea, ListArea, RoadmapDate } from './style';
 
 const Roadmap = () => {
     const { state } = useLocation<StateType>();
@@ -40,24 +40,24 @@ const Roadmap = () => {
             <Container>
                 <Wrapper>
                     <RoadmapArea>
-                        <RoadmapDates>
-                            <Space />
+                        <Grid>
                             {[...Array(ROADMAP_DATES_LIMIT).keys()].map((i) => (
                                 <RoadmapDate key={i}>
                                     <div>{getDate(i)}</div>
                                 </RoadmapDate>
                             ))}
-                        </RoadmapDates>
-                        {storyList.map((storyInfo, index) =>
-                            storyInfo.startAt && storyInfo.endAt ? (
-                                <RoadmapStory
-                                    key={index}
-                                    storyInfo={storyInfo}
-                                    handleStoryVisible={handleStoryVisible}
-                                    setStory={setStory}
-                                />
-                            ) : null,
-                        )}
+                            {storyList.map((storyInfo, index) =>
+                                storyInfo.startAt && storyInfo.endAt ? (
+                                    <RoadmapStory
+                                        startRow={index + 2}
+                                        key={index}
+                                        storyInfo={storyInfo}
+                                        handleStoryVisible={handleStoryVisible}
+                                        setStory={setStory}
+                                    />
+                                ) : null,
+                            )}
+                        </Grid>
                     </RoadmapArea>
                     <ListArea>
                         {showStory ? (
