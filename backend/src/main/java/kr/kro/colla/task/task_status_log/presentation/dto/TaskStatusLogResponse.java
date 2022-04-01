@@ -2,9 +2,11 @@ package kr.kro.colla.task.task_status_log.presentation.dto;
 
 import kr.kro.colla.task.task_status_log.domain.TaskStatusLog;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@NoArgsConstructor
 @Getter
 public class TaskStatusLogResponse {
 
