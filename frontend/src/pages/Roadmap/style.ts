@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 import { ROADMAP_DATES_LIMIT } from '../../constants';
-import { GREEN, LIGHT_GRAY } from '../../styles/color';
+import { GRAY, GREEN, LIGHT_GRAY } from '../../styles/color';
 import { Column } from '../../styles/common';
 
 export const Container = styled.div`
@@ -45,9 +45,13 @@ export const ListArea = styled.div`
 export const RoadmapDates = styled.div`
     display: flex;
     width: 100%;
+    text-align: center;
 `;
 
 export const RoadmapDate = styled.div`
+    border: solid 1px ${GRAY};
+    border-top-style: none;
+    border-bottom-style: none;
     width: ${90 / ROADMAP_DATES_LIMIT}%;
 `;
 

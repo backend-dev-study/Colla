@@ -23,7 +23,7 @@ const Roadmap = () => {
     const getDate = (i: number) => {
         const wanted = new Date();
         wanted.setDate(wanted.getDate() + i);
-        return wanted.toISOString().substring(0, 10);
+        return wanted.toISOString().substring(5, 10);
     };
 
     useEffect(() => {
