@@ -7,9 +7,10 @@ import StoryList from '../../components/List/Story';
 import TaskList from '../../components/List/Task';
 import RoadmapStory from '../../components/RoadmapStory';
 import SideBar from '../../components/SideBar';
+import { ROADMAP_DATES_LIMIT } from '../../constants';
 import { StateType } from '../../types/project';
 import { StoryType } from '../../types/roadmap';
-import { Container, Wrapper, RoadmapArea, ListArea } from './style';
+import { Container, Wrapper, RoadmapArea, ListArea, RoadmapDates, RoadmapDate, Space } from './style';
 
 const Roadmap = () => {
     const { state } = useLocation<StateType>();
@@ -18,6 +19,12 @@ const Roadmap = () => {
     const [showStory, setShowStory] = useState<boolean>(true);
 
     const handleStoryVisible = () => setShowStory((prev) => !prev);
+
+    const getDate = (i: number) => {
+        const wanted = new Date();
+        wanted.setDate(wanted.getDate() + i);
+        return wanted.toISOString().substring(0, 10);
+    };
 
     useEffect(() => {
         (async () => {
@@ -33,6 +40,14 @@ const Roadmap = () => {
             <Container>
                 <Wrapper>
                     <RoadmapArea>
+                        <RoadmapDates>
+                            <Space />
+                            {[...Array(ROADMAP_DATES_LIMIT).keys()].map((i) => (
+                                <RoadmapDate key={i}>
+                                    <div>{getDate(i)}</div>
+                                </RoadmapDate>
+                            ))}
+                        </RoadmapDates>
                         {storyList.map((storyInfo, index) =>
                             storyInfo.startAt && storyInfo.endAt ? (
                                 <RoadmapStory

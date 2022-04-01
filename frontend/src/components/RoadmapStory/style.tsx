@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 
+import { ROADMAP_DATES_LIMIT } from '../../constants';
 import { GREEN } from '../../styles/color';
 import { HeightCenter } from '../../styles/common';
 
@@ -8,8 +9,7 @@ interface PropType {
     left: number;
 }
 
-const WEEK = 14;
-const PER_DAY = 90 / (WEEK + 1);
+const PER_DAY = 90 / ROADMAP_DATES_LIMIT;
 
 export const Wrapper = styled.div`
     margin-left: 5px;
