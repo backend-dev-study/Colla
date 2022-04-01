@@ -1,13 +1,14 @@
 import React, { FC } from 'react';
 
+import { StoryType } from '../../types/roadmap';
 import { YYYYMMDDToDate } from '../../utils/common';
 import TextWithHover from '../TextWithHover';
 import { Story, StoryTitle, Wrapper } from './style';
 
 interface PropType {
-    title: string;
-    start: string;
-    end: string;
+    storyInfo: StoryType;
+    setStory: Function;
+    handleStoryVisible: Function;
 }
 
 const LIMIT = 14;
@@ -32,10 +33,16 @@ const datesToWidth = (start: string, end: string) => {
     };
 };
 
-const RoadmapStory: FC<PropType> = ({ title, start, end }) => {
-    const story = datesToWidth(start, end);
+const RoadmapStory: FC<PropType> = ({ storyInfo: { id, startAt, endAt, title }, setStory, handleStoryVisible }) => {
+    const story = datesToWidth(startAt!, endAt!);
+
+    const showStoryTasks = () => {
+        setStory(id);
+        handleStoryVisible();
+    };
+
     return (
-        <Wrapper>
+        <Wrapper onClick={showStoryTasks}>
             <StoryTitle>
                 <TextWithHover text={title} hover={title} />
             </StoryTitle>
