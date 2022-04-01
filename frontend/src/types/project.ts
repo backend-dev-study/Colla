@@ -29,3 +29,12 @@ export interface ProjectMemberType {
 export interface StateType {
     projectId: number;
 }
+
+export interface TaskStatusLogType {
+    count: number;
+    createdAt: string;
+}
+
+export interface WeeklyTaskStatusLogType {
+    [key: string]: Array<TaskStatusLogType>;
+}
