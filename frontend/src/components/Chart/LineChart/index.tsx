@@ -69,7 +69,7 @@ const LineChart: FC<PropType> = ({ colors }) => {
                 const x = (width / (columnCnt - 1)) * (idx < 7 ? i : i - 2) + offset;
                 const y = height + offset;
                 const max = height - offset;
-                const h = (max * count) / maxCount;
+                const h = maxCount > 0 ? (max * count) / maxCount : 0;
 
                 if (idx === 7) {
                     return (
