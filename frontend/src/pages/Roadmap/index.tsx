@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 
 import { getProjectStories } from '../../apis/story';
 import Header from '../../components/Header';
-import StoryList from '../../components/List/StoryList';
-import TaskList from '../../components/List/TaskList';
+import StoryList from '../../components/List/Story';
+import TaskList from '../../components/List/Task';
 import RoadmapStory from '../../components/RoadmapStory';
 import SideBar from '../../components/SideBar';
 import { StateType } from '../../types/project';

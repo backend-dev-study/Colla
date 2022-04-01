@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { getStoryTasks } from '../../../apis/task';
 import { StateType } from '../../../types/project';
 import { TaskType } from '../../../types/roadmap';
-import { Issue, IssueContents, List } from '../StoryList/style';
+import { Issue, IssueContents, List } from '../Story/style';
 import { Tag, Title } from './style';
 
 interface PropType {

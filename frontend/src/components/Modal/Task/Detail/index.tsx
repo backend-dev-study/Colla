@@ -4,7 +4,7 @@ import DownIconSrc from '../../../../../public/assets/images/down.png';
 import { DetailInputType } from '../../../../types/task';
 import { MemberDropDown } from '../../../DropDown/Member';
 import { Priority } from '../../../List/Priority';
-import { TagList } from '../../../List/TagList';
+import { TagList } from '../../../List/Tag';
 import { DownIcon } from '../style';
 import { DetailComponent, DetailContainer, MemberList, Status } from './style';
 

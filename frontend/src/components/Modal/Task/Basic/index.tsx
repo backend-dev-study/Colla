@@ -5,7 +5,7 @@ import { TaskType } from '../../../../types/kanban';
 import { BasicInputType, SimpleTaskType } from '../../../../types/task';
 import { PreTaskDropDown } from '../../../DropDown/PreTask';
 import { StoryDropDown } from '../../../DropDown/Story';
-import { PreTaskList } from '../../../List/PreTaskList';
+import { PreTaskList } from '../../../List/PreTask';
 import { StoryModal } from '../../Story';
 import { DownIcon } from '../style';
 import { AddButton, DescriptionArea, DropDown, TaskComponent, TaskContainer, Title, TitleInput } from './style';
