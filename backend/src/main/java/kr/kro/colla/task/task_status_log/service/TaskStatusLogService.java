@@ -1,15 +1,18 @@
 package kr.kro.colla.task.task_status_log.service;
 
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_status_log.domain.TaskStatusLog;
 import kr.kro.colla.task.task_status_log.domain.repository.TaskStatusLogRepository;
+import kr.kro.colla.task.task_status_log.presentation.dto.TaskStatusLogResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ import java.util.stream.IntStream;
 @Service
 public class TaskStatusLogService {
 
+    private final ProjectService projectService;
     private final TaskStatusLogRepository taskStatusLogRepository;
 
     public void writeTaskStatusLog(Project project, TaskStatus taskStatus) {
@@ -55,6 +59,22 @@ public class TaskStatusLogService {
                             taskStatusLogRepository.save(taskStatusLog);
                         }
                 );
+    }
+
+    public Map<String, List<TaskStatusLogResponse>> getWeeklyTaskStatusLog(Long projectId) {
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(6);
+        Project project = projectService.findProjectById(projectId);
+        Map<String, List<TaskStatusLogResponse>> map = new HashMap<>();
+
+        for (TaskStatus taskStatus : project.getTaskStatuses()) {
+            map.put(taskStatus.getName(), new ArrayList<>());
+        }
+
+        taskStatusLogRepository.findTaskStatusLogsByProjectAndCreatedAtBetween(project, start, end)
+                .forEach(taskStatusLog -> map.get(taskStatusLog.getStatus()).add(new TaskStatusLogResponse(taskStatusLog)));
+
+        return map;
     }
 
 }
