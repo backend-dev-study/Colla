@@ -3,10 +3,12 @@ import React, { FC } from 'react';
 import { TaskCountType } from '../../../types/dashboard';
 import { getColorFromColorMap } from '../../../utils/common';
 import Circle from './Circle';
-import { Svg, Colors, StatusName, Color } from './style';
+import { Svg, Colors, StatusName, Color, AbsoluteCircle, AnimatedSvg, Wrapper } from './style';
 
 const RADIUS = 70;
 const STROKE_WIDTH = 30;
+let lastProgress: number = 100,
+    lastStatusName: string;
 
 interface PropType {
     statuses: Array<TaskCountType>;
@@ -25,10 +27,15 @@ const sumProgress = (
     total: number,
     arr: Array<ProgressType>,
 ) => {
+    const curProgress = prevProgress + (count / total) * 100;
     arr.push({
         taskStatusName: statusName,
-        progress: prevProgress + (count / total) * 100,
+        progress: curProgress,
     });
+    if (lastProgress > curProgress) {
+        lastProgress = curProgress;
+        lastStatusName = statusName;
+    }
     return prevProgress + (count / total) * 100;
 };
 
@@ -40,22 +47,39 @@ const calcProgress = (statuses: Array<TaskCountType>, colors: Map<string, string
         0,
     );
 
-    return arr
-        .reverse()
-        .map(({ taskStatusName, progress }) => (
-            <Circle
-                key={progress}
-                progress={progress}
-                radius={RADIUS}
-                strokeColor={getColorFromColorMap(taskStatusName, colors)}
-                strokeWidth={STROKE_WIDTH}
-            />
-        ));
+    return (
+        <>
+            {' '}
+            <AnimatedSvg viewBox="0 0 200 200">
+                <AbsoluteCircle
+                    radius={RADIUS}
+                    strokeColor={getColorFromColorMap(lastStatusName, colors)!}
+                    strokeWidth={STROKE_WIDTH}
+                    progress={lastProgress}
+                />
+            </AnimatedSvg>
+            <Svg viewBox="0 0 200 200">
+                {[
+                    ...arr
+                        .reverse()
+                        .map(({ taskStatusName, progress }) => (
+                            <Circle
+                                key={progress}
+                                progress={progress}
+                                radius={RADIUS}
+                                strokeColor={getColorFromColorMap(taskStatusName, colors)!}
+                                strokeWidth={STROKE_WIDTH}
+                            />
+                        )),
+                ]}
+            </Svg>
+        </>
+    );
 };
 
 const PieChart: FC<PropType> = ({ statuses, colors }) => (
-    <>
-        <Svg viewBox="0 0 200 200">{calcProgress(statuses, colors)}</Svg>
+    <Wrapper>
+        {calcProgress(statuses, colors)}
         <Colors>
             {Array.from(colors).map(([key, value]) => (
                 <>
@@ -64,7 +88,7 @@ const PieChart: FC<PropType> = ({ statuses, colors }) => (
                 </>
             ))}
         </Colors>
-    </>
+    </Wrapper>
 );
 
 export default PieChart;
