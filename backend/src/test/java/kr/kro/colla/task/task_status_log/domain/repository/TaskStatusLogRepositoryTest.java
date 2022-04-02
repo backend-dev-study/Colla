@@ -4,13 +4,14 @@ import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.domain.repository.ProjectRepository;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
-import kr.kro.colla.task.task.domain.repository.TaskRepository;
 import kr.kro.colla.task.task_status_log.domain.TaskStatusLog;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,13 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TaskStatusLogRepositoryTest {
 
     @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
     private TaskStatusLogRepository taskStatusLogRepository;
+
+    @Autowired
+    private TestEntityManager testEntityManager;
 
     @Test
     void 태스크_상태_로그를_생성한다() {
@@ -93,5 +94,35 @@ class TaskStatusLogRepositoryTest {
         assertThat(taskStatusLog).isEmpty();
     }
 
-}
+    @Test
+    void 일주일_단위의_상태_로그를_조회한다() {
+        // given
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(6);
+        Project project = projectRepository.save(ProjectProvider.createProject(1L));
+        TaskStatus taskStatus = project.getTaskStatuses().get(0);
 
+        List<TaskStatusLog> taskStatusLogs = taskStatusLogRepository.saveAll(List.of(
+                태스크_상태_로그_생성(project, taskStatus),
+                태스크_상태_로그_생성(project, taskStatus),
+                태스크_상태_로그_생성(project, taskStatus)
+        ));
+        ReflectionTestUtils.setField(taskStatusLogs.get(0), "createdAt", LocalDate.now().minusDays(5));
+        ReflectionTestUtils.setField(taskStatusLogs.get(1), "createdAt", LocalDate.now().minusDays(7));
+
+        flushAndClear();
+
+        // when
+        List<TaskStatusLog> result = taskStatusLogRepository.findTaskStatusLogsByProjectAndCreatedAtBetween(project, start, end);
+
+        // then
+        assertThat(result).hasSize(2);
+        result.forEach(taskStatusLog -> assertThat(taskStatusLog.getCreatedAt()).isAfterOrEqualTo(start).isBeforeOrEqualTo(end));
+    }
+
+    private void flushAndClear() {
+        testEntityManager.flush();
+        testEntityManager.clear();
+    }
+
+}

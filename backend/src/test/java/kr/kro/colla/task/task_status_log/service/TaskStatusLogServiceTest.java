@@ -4,10 +4,12 @@ import kr.kro.colla.common.fixture.ProjectProvider;
 import kr.kro.colla.common.fixture.TaskProvider;
 import kr.kro.colla.common.fixture.TaskStatusProvider;
 import kr.kro.colla.project.project.domain.Project;
+import kr.kro.colla.project.project.service.ProjectService;
 import kr.kro.colla.project.task_status.domain.TaskStatus;
 import kr.kro.colla.task.task.domain.Task;
 import kr.kro.colla.task.task_status_log.domain.TaskStatusLog;
 import kr.kro.colla.task.task_status_log.domain.repository.TaskStatusLogRepository;
+import kr.kro.colla.task.task_status_log.presentation.dto.TaskStatusLogResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,14 +19,21 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static kr.kro.colla.common.fixture.TaskStatusLogProvider.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskStatusLogServiceTest {
+
+    @Mock
+    private ProjectService projectService;
 
     @Mock
     private TaskStatusLogRepository taskStatusLogRepository;
@@ -126,6 +135,40 @@ class TaskStatusLogServiceTest {
         // then
         verify(taskStatusLogRepository, times(1)).findTaskStatusLogByProjectAndStatusAndCreatedAt(any(Project.class), anyString(), eq(LocalDate.now()));
         verify(taskStatusLogRepository, times(1)).save(any(TaskStatusLog.class));
+    }
+
+    @Test
+    void 일주일_단위의_상태_로그를_조회한다() {
+        // given
+        Long projectId = 1L;
+        Project project = ProjectProvider.createProject(5L);
+        List<TaskStatus> taskStatusList = List.of(
+                TaskStatusProvider.createTaskStatus("To Do"),
+                TaskStatusProvider.createTaskStatus("In Progress"),
+                TaskStatusProvider.createTaskStatus("Done")
+        );
+        ReflectionTestUtils.setField(project, "taskStatuses", taskStatusList);
+
+        List<TaskStatusLog> taskStatusLogs = List.of(
+                태스크_상태_로그_생성(project, taskStatusList.get(0)),
+                태스크_상태_로그_생성(project, taskStatusList.get(2)),
+                태스크_상태_로그_생성(project, taskStatusList.get(2))
+        );
+
+        given(projectService.findProjectById(eq(projectId)))
+                .willReturn(project);
+        given(taskStatusLogRepository.findTaskStatusLogsByProjectAndCreatedAtBetween(any(Project.class), any(LocalDate.class), any(LocalDate.class)))
+                .willReturn(taskStatusLogs);
+
+        // when
+        Map<String, List<TaskStatusLogResponse>> weeklyTaskStatusLog = taskStatusLogService.getWeeklyTaskStatusLog(projectId);
+
+        // then
+        assertThat(weeklyTaskStatusLog).hasSize(3);
+        assertThat(weeklyTaskStatusLog.get(taskStatusList.get(0).getName())).hasSize(1);
+        assertThat(weeklyTaskStatusLog.get(taskStatusList.get(1).getName())).hasSize(0);
+        assertThat(weeklyTaskStatusLog.get(taskStatusList.get(2).getName())).hasSize(2);
+        verify(taskStatusLogRepository, times(1)).findTaskStatusLogsByProjectAndCreatedAtBetween(any(Project.class), any(LocalDate.class), any(LocalDate.class));
     }
 
 }
