@@ -10,7 +10,7 @@ interface PropType {
     storyList: Array<StoryType>;
 }
 
-export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory, storyList }) => {
+const StoryList: FC<PropType> = ({ handleStoryVisible, setStory, storyList }) => {
     const [selectedStory, setSelectedStory] = useState<StoryType | null>(null);
     const [storyPeriod, setStoryPeriod] = useState<boolean>(false);
 
@@ -47,3 +47,5 @@ export const StoryList: FC<PropType> = ({ handleStoryVisible, setStory, storyLis
         </>
     );
 };
+
+export default StoryList;

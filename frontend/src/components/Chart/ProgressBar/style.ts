@@ -1,3 +1,4 @@
+import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 
 interface PropType {
@@ -51,6 +52,15 @@ export const PartialBar = styled.div<PropType>`
     }
 `;
 
+const draw = keyframes`
+  from {
+    transform: scaleX(0);
+  }
+  to  {
+    transform: scaleX(1);
+  }
+`;
+
 export const Bar = styled.div`
     display: flex;
     width: 100%;
@@ -60,4 +70,5 @@ export const Bar = styled.div`
     ${PartialBar}:last-child {
         border-radius: 0 10px 10px 0;
     }
+    animation: ${draw} 2s ease-in-out forwards;
 `;

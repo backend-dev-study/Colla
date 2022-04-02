@@ -2,7 +2,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react';
 
 import { getAllComments, saveComment } from '../../../../apis/comment';
 import { CommentType } from '../../../../types/comment';
-import { CommentList } from '../../../List/CommentList';
+import { CommentList } from '../../../List/Comment';
 import { Comment, CommentInput, Container, SaveButton, Title } from './style';
 
 interface PropType {

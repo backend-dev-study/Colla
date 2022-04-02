@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { getStoryTasks } from '../../../apis/task';
 import { StateType } from '../../../types/project';
 import { TaskType } from '../../../types/roadmap';
-import { Issue, IssueContents, List } from '../StoryList/style';
+import { Issue, IssueContents, List } from '../Story/style';
 import { Tag, Title } from './style';
 
 interface PropType {
@@ -12,7 +12,7 @@ interface PropType {
     story: number;
 }
 
-export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
+const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
     const { state } = useLocation<StateType>();
     const [taskList, setTaskList] = useState<Array<TaskType>>([]);
 
@@ -42,3 +42,5 @@ export const TaskList: FC<PropType> = ({ handleStoryVisible, story }) => {
         </>
     );
 };
+
+export default TaskList;

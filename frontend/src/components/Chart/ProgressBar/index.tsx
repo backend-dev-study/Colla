@@ -17,7 +17,7 @@ const calcProgress = (statuses: Array<TaskCountType>, colors: Map<string, string
         <PartialBar
             key={taskStatusName}
             percent={(taskCount / total) * 100}
-            color={getColorFromColorMap(taskStatusName, colors)}
+            color={getColorFromColorMap(taskStatusName, colors)!}
         >
             <PartialHover>{taskStatusName}</PartialHover>
         </PartialBar>

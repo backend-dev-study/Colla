@@ -501,7 +501,7 @@ class TaskControllerTest extends ControllerTest {
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].taskStatusName").value(taskCntList.get(0).getTaskStatusName()))
-                .andExpect(jsonPath("$[0].taskCnt").value(taskCntList.get(0).getTaskCount()));
+                .andExpect(jsonPath("$[0].taskCount").value(taskCntList.get(0).getTaskCount()));
     }
 
     @Test
@@ -530,7 +530,7 @@ class TaskControllerTest extends ControllerTest {
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].managerName").value(managerTaskCntList.get(0).getManagerName()))
-                .andExpect(jsonPath("$[0].taskCnts.length()").value(managerTaskCntList.get(0).getTaskCounts().size()))
-                .andExpect(jsonPath("$[1].taskCnts[0].taskCnt").value(1294));
+                .andExpect(jsonPath("$[0].taskCounts.length()").value(managerTaskCntList.get(0).getTaskCounts().size()))
+                .andExpect(jsonPath("$[1].taskCounts[0].taskCount").value(1294));
     }
 }
