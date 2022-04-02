@@ -1,4 +1,4 @@
-import { ProjectTagType, ProjectAllType } from '../types/project';
+import { ProjectTagType, ProjectAllType, WeeklyTaskStatusLogType } from '../types/project';
 import { client } from './common';
 
 export const getProject = async (projectId: number) => {
@@ -63,6 +63,12 @@ export const deleteTaskStatus = async (projectId: number, from: string, to: stri
 
 export const getProjectStatus = async (projectId: number) => {
     const response = await client.get(`/projects/${projectId}/statuses`);
+
+    return response;
+};
+
+export const getWeeklyTaskStatusLog = async (projectId: number) => {
+    const response = await client.get<WeeklyTaskStatusLogType>(`/projects/${projectId}/task-status-log`);
 
     return response;
 };
