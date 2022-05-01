@@ -1,4 +1,4 @@
-package kr.kro.colla.config;
+package kr.kro.colla.config.redis;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
