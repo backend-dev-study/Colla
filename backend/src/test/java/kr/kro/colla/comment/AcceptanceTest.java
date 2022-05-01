@@ -11,6 +11,8 @@ import kr.kro.colla.comment.presentation.dto.TaskCommentResponse;
 import kr.kro.colla.comment.presentation.dto.UpdateCommentRequest;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
+import kr.kro.colla.config.query_counter.QueryCountConfig;
+import kr.kro.colla.config.query_counter.Counter;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.presentation.dto.UserProjectResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -27,6 +30,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.*;
 
+@Import(QueryCountConfig.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
@@ -57,6 +61,9 @@ public class AcceptanceTest {
 
     private Auth auth;
 
+    @Autowired
+    private Counter counter;
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
@@ -73,6 +80,8 @@ public class AcceptanceTest {
         task.를_생성한다(accessToken, registeredUser.getId(), createdProject.getId(), null);
 
         CreateCommentRequest createCommentRequest = new CreateCommentRequest(null, "comment contents");
+
+        counter.startQueryCount();
 
         given()
                 .contentType(ContentType.JSON)
@@ -91,6 +100,8 @@ public class AcceptanceTest {
                 .body("writer.avatar", equalTo(registeredUser.getAvatar()))
                 .body("superCommentId", nullValue())
                 .body("contents", equalTo(createCommentRequest.getContents()));
+
+        counter.printQueryCount();
     }
 
     @Test
@@ -181,6 +192,8 @@ public class AcceptanceTest {
 
         UpdateCommentRequest updateCommentRequest = new UpdateCommentRequest("new contents");
 
+        counter.startQueryCount();
+
         given()
                 .contentType(ContentType.JSON)
                 .cookie("accessToken", accessToken)
@@ -194,6 +207,8 @@ public class AcceptanceTest {
         .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("contents", equalTo(updateCommentRequest.getContents()));
+
+        counter.printQueryCount();
     }
 
     @Test
