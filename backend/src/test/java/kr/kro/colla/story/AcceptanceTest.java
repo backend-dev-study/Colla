@@ -150,6 +150,7 @@ public class AcceptanceTest {
 
         given()
                 .contentType(ContentType.URLENC)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
 
         // when
