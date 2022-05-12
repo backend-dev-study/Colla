@@ -138,6 +138,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", memberToken)
                 .body(projectMemberRequest)
         // when
@@ -162,6 +163,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(projectMemberRequest)
         // when
@@ -359,6 +361,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(createTagRequest)
 
@@ -436,6 +439,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(request)
         // when
@@ -512,6 +516,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(request)
         // when

@@ -224,6 +224,7 @@ public class AcceptanceTest {
 
         given()
                 .contentType(ContentType.JSON)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(updateCommentRequest)
 

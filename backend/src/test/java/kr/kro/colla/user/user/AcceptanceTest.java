@@ -131,6 +131,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.MULTIPART)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .multiPart(new MultiPartSpecBuilder(thumbnail.getBytes())
                         .controlName("thumbnail")
