@@ -113,6 +113,7 @@ public class AcceptanceTest {
 
         given()
                 .contentType(ContentType.URLENC)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .formParams(formData)
 
@@ -328,6 +329,7 @@ public class AcceptanceTest {
         given()
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(ContentType.JSON)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(request)
         // when

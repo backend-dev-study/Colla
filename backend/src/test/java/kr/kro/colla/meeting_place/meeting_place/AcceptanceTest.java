@@ -97,6 +97,7 @@ public class AcceptanceTest {
         given()
                 .contentType(ContentType.JSON)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header("Accept-Language", "ko")
                 .cookie("accessToken", accessToken)
                 .body(request)
 
