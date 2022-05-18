@@ -5,9 +5,11 @@ import kr.kro.colla.user.user.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @NoArgsConstructor
 @Getter
-public class ProjectTaskResponse {
+public class ProjectTaskResponse implements Serializable {
 
     private Long id;
 
