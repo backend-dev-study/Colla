@@ -4,7 +4,6 @@ import kr.kro.colla.project.project.service.dto.ProjectTaskResponse;
 import kr.kro.colla.user.user.presentation.dto.UserProfileResponse;
 import lombok.*;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ProjectResponse implements Serializable {
+public class ProjectResponse {
 
     private Long id;
 
