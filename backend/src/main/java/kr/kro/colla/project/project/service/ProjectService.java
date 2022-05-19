@@ -62,8 +62,8 @@ public class ProjectService {
     }
 
     @Cacheable(
-            key = "#projectId",
             value = "Project",
+            key = "#projectId",
             condition = "#projectId != null",
             unless = "#result == null"
     )
