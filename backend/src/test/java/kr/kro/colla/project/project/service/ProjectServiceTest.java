@@ -140,7 +140,7 @@ class ProjectServiceTest {
                 .willReturn(Optional.of(project));
 
         // when
-        ProjectResponse result = projectService.getProject(id);
+        ProjectResponse result = projectService.getProjectWithTasks(id);
 
         // then
         assertThat(result.getName()).isEqualTo(project.getName());

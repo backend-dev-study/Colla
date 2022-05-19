@@ -61,7 +61,7 @@ class ProjectControllerTest extends ControllerTest {
                 .tasks(tasks)
                 .build();
 
-        given(projectService.getProject(eq(projectId)))
+        given(projectService.getProjectWithTasks(eq(projectId)))
                 .willReturn(projectResponse);
 
         // when
