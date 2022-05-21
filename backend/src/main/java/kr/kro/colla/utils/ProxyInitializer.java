@@ -14,15 +14,13 @@ import org.springframework.stereotype.Component;
 public class ProxyInitializer {
     private final ProjectService projectService;
 
-    @Around("@annotation(proxyInitialized) && args(id,..)")
-    public Object initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInitialized, Long id) throws Throwable {
+    @Before("@annotation(proxyInitialized) && args(id,..)")
+    public void initializeProxy(ProxyInitialized proxyInitialized, Long id) throws Throwable {
         String target = proxyInitialized.target();
 
         if (target.contains("Project")) {
             initializeProjectProxy(id, target);
         }
-        Object object = pjp.proceed();
-        return object;
     }
 
     public void initializeProjectProxy(Long id, String type) {
