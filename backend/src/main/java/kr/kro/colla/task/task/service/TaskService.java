@@ -19,7 +19,6 @@ import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.utils.ProxyInitialized;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -125,7 +124,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> getTasksOrderByCreatedDate(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
 
@@ -143,7 +142,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> getTasksOrderByPriority(Long projectId, Boolean ascending) {
         Project project = projectService.findProjectById(projectId);
 
@@ -161,7 +160,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> getTasksFilterByTags(Long projectId, List<String> tags) {
         Project project = projectService.findProjectById(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
@@ -184,7 +183,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> getTasksFilterByStatus(Long projectId, List<String> statuses) {
         Project project = projectService.findProjectById(projectId);
 
@@ -200,7 +199,7 @@ public class TaskService {
                 }).collect(Collectors.toList());
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> getTasksFilterByManager(Long projectId, List<Long> managers, Boolean notSelected) {
         Project project = projectService.findProjectById(projectId);
 
@@ -220,7 +219,6 @@ public class TaskService {
     public List<ProjectStoryTaskResponse> getTasksGroupByStory(Long projectId) {
         Project project = projectService.findProjectById(projectId);
         List<Task> taskList = taskRepository.findAllOrderByCreatedAtDesc(project);
-        Hibernate.initialize(project.getStories());
 
         List<ProjectStoryTaskResponse> projectStoryTaskResponseList = new ArrayList<>();
         Map<String, List<ProjectTaskSimpleResponse>> taskMap = new HashMap<>();
@@ -253,7 +251,7 @@ public class TaskService {
         return projectStoryTaskResponseList;
     }
 
-    @ProxyInitialized(target = "ProjectInfo")
+    @ProxyInitialized(target = "ProjectMemberAndTaskStatus")
     public List<ProjectTaskSimpleResponse> searchTasksByKeyword(Long projectId, String keyword) {
         Project project = projectService.findProjectById(projectId);
         List<Task> taskList = taskRepository.findTasksSearchByKeyword(project, keyword);

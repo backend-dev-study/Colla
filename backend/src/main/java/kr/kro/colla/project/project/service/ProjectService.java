@@ -179,12 +179,4 @@ public class ProjectService {
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    public Project initializeProjectInfo(Long projectId) {
-        Project project = findProjectById(projectId);
-        Hibernate.initialize(project.getMembers());
-        Hibernate.initialize(project.getTaskStatuses());
-
-        return project;
-    }
-
 }

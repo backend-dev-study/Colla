@@ -30,6 +30,8 @@ public class ProxyInitializer {
 
         switch (type) {
             case "ProjectInfo":
+                Hibernate.initialize(project.getStories());
+            case "ProjectMemberAndTaskStatus":
                 Hibernate.initialize(project.getTaskStatuses());
             case "ProjectMember":
                 Hibernate.initialize(project.getMembers());
