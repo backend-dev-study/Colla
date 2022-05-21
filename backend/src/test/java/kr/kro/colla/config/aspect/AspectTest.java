@@ -36,16 +36,11 @@ public class AspectTest {
 class AspectTarget {
 
     @ProxyInitialized(target = "Test")
-    public void correctMethod(Long id, String other) {
-
-    }
+    public void correctMethod(Long id, String other) {}
 
     @ProxyInitialized(target = "Test")
-    public void parameterWrongMethod(String other) {
+    public void parameterWrongMethod(String other) {}
 
-    }
+    public void annotationWrongMethod(Long id) {}
 
-    public void annotationWrongMethod(Long id) {
-
-    }
 }

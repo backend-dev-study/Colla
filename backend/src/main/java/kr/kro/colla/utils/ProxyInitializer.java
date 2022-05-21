@@ -15,13 +15,15 @@ public class ProxyInitializer {
     private final ProjectService projectService;
 
     @Around("@annotation(proxyInitialized) && args(id,..)")
-    public void initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInitialized, Long id) throws Throwable {
+    public Object initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInitialized, Long id) throws Throwable {
         String target = proxyInitialized.target();
 
+        System.out.println("id is "+id+" target is "+target);
         if (target.contains("Project")) {
             initializeProjectProxy(id, target);
         }
-        pjp.proceed();
+        Object object = pjp.proceed();
+        return object;
     }
 
     public void initializeProjectProxy(Long id, String type) {
