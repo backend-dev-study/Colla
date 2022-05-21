@@ -3,7 +3,6 @@ package kr.kro.colla.utils;
 import kr.kro.colla.project.project.domain.Project;
 import kr.kro.colla.project.project.service.ProjectService;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.hibernate.Hibernate;
@@ -15,11 +14,26 @@ import org.springframework.stereotype.Component;
 public class ProxyInitializer {
     private final ProjectService projectService;
 
-    @Around(value = "@annotation(proxyInfo)")
-    public void initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInfo) throws Throwable {
-        String methodName = pjp.getSignature().getName();
-        System.out.println("method name : "+methodName);
-        System.out.println("proxy name : " +proxyInfo.proxyTarget());
+    @Around("@annotation(proxyInitialized) && args(id,..)")
+    public void initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInitialized, Long id) throws Throwable {
+        String target = proxyInitialized.target();
+
+        if (target.contains("Project")) {
+            initializeProjectProxy(id, target);
+        }
         pjp.proceed();
+    }
+
+    public void initializeProjectProxy(Long id, String type) {
+        Project project = projectService.findProjectById(id);
+
+        switch (type) {
+            case "ProjectInfo":
+                Hibernate.initialize(project.getTaskStatuses());
+            case "ProjectMember":
+                Hibernate.initialize(project.getMembers());
+            default:
+                break;
+        }
     }
 }
