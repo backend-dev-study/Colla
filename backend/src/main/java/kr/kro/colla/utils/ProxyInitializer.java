@@ -18,7 +18,6 @@ public class ProxyInitializer {
     public Object initializeProxy(ProceedingJoinPoint pjp, ProxyInitialized proxyInitialized, Long id) throws Throwable {
         String target = proxyInitialized.target();
 
-        System.out.println("id is "+id+" target is "+target);
         if (target.contains("Project")) {
             initializeProjectProxy(id, target);
         }
