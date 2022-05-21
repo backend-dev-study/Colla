@@ -17,6 +17,7 @@ import kr.kro.colla.task.task_tag.domain.TaskTag;
 import kr.kro.colla.task.task_tag.service.TaskTagService;
 import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
+import kr.kro.colla.utils.ProxyInitialized;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,11 @@ public class TaskService {
     private final TaskStatusService taskStatusService;
     private final TaskStatusLogService taskStatusLogService;
     private final TaskRepository taskRepository;
+
+    @ProxyInitialized(proxyTarget = "proxyTargetName")
+    public void testProxy() {
+        System.out.println("testProxy() run");
+    }
 
     public Long createTask(CreateTaskRequest createTaskRequest) {
         Project project = projectService.findProjectById(createTaskRequest.getProjectId());
