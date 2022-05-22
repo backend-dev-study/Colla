@@ -45,6 +45,16 @@ public class ProjectProvider {
         }
     }
 
+    public void 를_조회한다(String accessToken, Long projectId) {
+        given()
+                .contentType(ContentType.JSON)
+                .cookie("accessToken", accessToken)
+        .when()
+                .get("/api/projects/" + projectId)
+        .then()
+                .statusCode(HttpStatus.OK.value());
+    }
+
     public static Project createProject(Long managerId) {
         return Project.builder()
                 .managerId(managerId)

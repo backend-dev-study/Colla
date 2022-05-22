@@ -6,6 +6,8 @@ import io.restassured.http.ContentType;
 import kr.kro.colla.auth.service.JwtProvider;
 import kr.kro.colla.common.database.DatabaseCleaner;
 import kr.kro.colla.common.fixture.*;
+import kr.kro.colla.config.query_counter.Counter;
+import kr.kro.colla.config.query_counter.QueryCountConfig;
 import kr.kro.colla.exception.exception.project.task_status.TaskStatusAlreadyExistException;
 import kr.kro.colla.exception.exception.user.UserNotManagerException;
 import kr.kro.colla.project.project.presentation.dto.*;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +30,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 
+@Import(QueryCountConfig.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
@@ -44,6 +48,9 @@ public class AcceptanceTest {
     private ProjectProvider project;
 
     @Autowired
+    private TaskProvider task;
+
+    @Autowired
     private StoryProvider story;
 
     @Autowired
@@ -57,6 +64,9 @@ public class AcceptanceTest {
 
     @Autowired
     private DatabaseCleaner databaseCleaner;
+
+    @Autowired
+    private Counter counter;
 
     private Auth auth;
 
@@ -555,4 +565,49 @@ public class AcceptanceTest {
         response.forEach(s -> assertThat(s.getId()).isNotNull());
         response.forEach(s -> assertThat(List.of("To Do","In Progress", "Done").contains(s.getName())));
     }
+
+    @Test
+    void 프로젝트_조회_시_해당_데이터가_캐싱된다() {
+        // given
+        User loginUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
+
+        counter.startQueryCount();
+
+        // 캐싱
+        project.를_조회한다(accessToken, createdProject.getId());
+
+        // when
+        project.를_조회한다(accessToken, createdProject.getId());
+
+        // then
+        assertThat(counter.getQueryCount()).isEqualTo(6);
+        counter.printQueryCount();
+    }
+
+    @Test
+    void 테스크_생성_시_캐싱되어_있던_데이터가_삭제되고_새로_캐싱된다() {
+        // given
+        User loginUser = user.가_로그인을_한다1();
+        String accessToken = auth.토큰을_발급한다(loginUser.getId());
+        UserProjectResponse createdProject = project.를_생성한다(accessToken);
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
+
+        // 캐싱
+        project.를_조회한다(accessToken, createdProject.getId());
+
+
+        // when
+        task.를_생성한다(accessToken, loginUser.getId(), createdProject.getId(), null);
+
+        counter.startQueryCount();
+        project.를_조회한다(accessToken, createdProject.getId());
+
+        // then
+        assertThat(counter.getQueryCount()).isEqualTo(6);
+        counter.printQueryCount();
+    }
+
 }
