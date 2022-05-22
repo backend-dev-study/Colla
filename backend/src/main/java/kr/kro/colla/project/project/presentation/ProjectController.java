@@ -27,7 +27,7 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponse> getProject(@PathVariable Long projectId) {
-        ProjectResponse projectResponse = projectService.getProject(projectId);
+        ProjectResponse projectResponse = projectService.getProjectWithTasks(projectId);
 
         return ResponseEntity.ok(projectResponse);
     }
