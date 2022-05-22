@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class ProjectResponse {

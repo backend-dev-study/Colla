@@ -22,6 +22,7 @@ import kr.kro.colla.user_project.domain.UserProject;
 import kr.kro.colla.user_project.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -60,7 +61,13 @@ public class ProjectService {
         return createdProject;
     }
 
-    public ProjectResponse getProject(Long projectId) {
+    @Cacheable(
+            value = "Project",
+            key = "#projectId",
+            condition = "#projectId != null",
+            unless = "#result == null"
+    )
+    public ProjectResponse getProjectWithTasks(Long projectId) {
         Project project = findProjectById(projectId);
         Map<Long, User> members = new HashMap<>();
         Map<String, List<ProjectTaskResponse>> tasks = new HashMap<>();
@@ -71,7 +78,6 @@ public class ProjectService {
                 .forEach(user -> members.put(user.getId(), user));
 
         project.getTaskStatuses()
-                .stream()
                 .forEach(taskStatus -> {
                     List<ProjectTaskResponse> taskList = taskStatus.getTasks()
                             .stream()

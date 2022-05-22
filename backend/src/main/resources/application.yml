@@ -4,7 +4,7 @@ spring:
       - secret
   jpa:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
       naming:

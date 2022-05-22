@@ -19,6 +19,7 @@ import kr.kro.colla.user.user.domain.User;
 import kr.kro.colla.user.user.service.UserService;
 import kr.kro.colla.utils.ProxyInitialized;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,6 +39,7 @@ public class TaskService {
     private final TaskStatusLogService taskStatusLogService;
     private final TaskRepository taskRepository;
 
+    @CacheEvict(value = "Project", key = "#createTaskRequest.projectId")
     public Long createTask(CreateTaskRequest createTaskRequest) {
         Project project = projectService.findProjectById(createTaskRequest.getProjectId());
         Story story = !createTaskRequest.getStory().isBlank()
